@@ -21,3 +21,5 @@ $ git clone https://github.com/biqute/QTLab2324.git
     ├── TWPAandQubit       # Parametric amplifier characterization   
     ├── LICENSE            # License file
     └── README.md          # README file
+
+## Contributors
