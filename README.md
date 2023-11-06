@@ -30,7 +30,6 @@ Alberto	Costanzo	    [a.costanzo1975@campus.unimib.it](mailto:a.costanzo1975@cam
 Edoardo	Torregiani	    [e.torreggiani@campus.unimib.it](mailto:e.torreggiani@campus.unimib.it)  
 Riccardo	Maifredi	[r.maifredi@campus.unimib.it](mailto:r.maifredi@campus.unimib.it
 
-|   |   |
-|---|---|
-|__Bold Key__| Value1 |
-| Normal Key | Value2 |
+|-------------|--------|
+|**Name:**    |John Doe|
+|**Position:**|CEO     |
