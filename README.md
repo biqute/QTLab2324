@@ -33,8 +33,8 @@ Riccardo	Maifredi	[r.maifredi@campus.unimib.it](mailto:r.maifredi@campus.unimib.
 
 <table>
   <tr>
-    <td>Key 1</td>
-    <td>Value 1</td>
+    <td>Davide	Santi</td>
+    <td>[d.santi2@campus.unimib.it](mailto:d.santi2@campus.unimib.it)</td>
   </tr>
   <tr>
     <td>Key 2</td>
