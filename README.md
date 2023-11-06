@@ -28,9 +28,21 @@ Davide	Santi	        [d.santi2@campus.unimib.it](mailto:d.santi2@campus.unimib.i
 Federico Finardi	    [f.finardi1@campus.unimib.it](mailto:f.finardi1@campus.unimib.it)  
 Alberto	Costanzo	    [a.costanzo1975@campus.unimib.it](mailto:a.costanzo1975@campus.unimib.it)  
 Edoardo	Torregiani	    [e.torreggiani@campus.unimib.it](mailto:e.torreggiani@campus.unimib.it)  
-Riccardo	Maifredi	[r.maifredi@campus.unimib.it](mailto:r.maifredi@campus.unimib.it
+Riccardo	Maifredi	[r.maifredi@campus.unimib.it](mailto:r.maifredi@campus.unimib.it)
 
-|-------------|--------|
-|**Name:**    |John Doe|
-|**Position:**|CEO     |
+
+<table>
+  <tr>
+    <td>Key 1</td>
+    <td>Value 1</td>
+  </tr>
+  <tr>
+    <td>Key 2</td>
+    <td>Value 2</td>
+  </tr>
+  <tr>
+    <td>Key 3</td>
+    <td>Value 3</td>
+  </tr>
+</table>
 
