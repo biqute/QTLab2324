@@ -23,26 +23,26 @@ $ git clone https://github.com/biqute/QTLab2324.git
     └── README.md    # README file
 
 ## Contributors
-
-Davide	Santi	        [d.santi2@campus.unimib.it](mailto:d.santi2@campus.unimib.it)  
-Federico Finardi	    [f.finardi1@campus.unimib.it](mailto:f.finardi1@campus.unimib.it)  
-Alberto	Costanzo	    [a.costanzo1975@campus.unimib.it](mailto:a.costanzo1975@campus.unimib.it)  
-Edoardo	Torregiani	    [e.torreggiani@campus.unimib.it](mailto:e.torreggiani@campus.unimib.it)  
-Riccardo	Maifredi	[r.maifredi@campus.unimib.it](mailto:r.maifredi@campus.unimib.it)
-
-
 <table>
   <tr>
     <td>Davide	Santi</td>
     <td><a href="d.santi2@campus.unimib.it">d.santi2@campus.unimib.it</a></td>
   </tr>
   <tr>
-    <td>Key 2</td>
-    <td>Value 2</td>
+    <td> Federico Finardi </td>
+    <td><a href="mailto:f.finardi1@campus.unimib.it)">mailto:f.finardi1@campus.unimib.it)</a></td> </td>
   </tr>
-  <tr>
-    <td>Key 3</td>
-    <td>Value 3</td>
+    <tr>
+    <td> Alberto Costanzo </td>
+    <td><a href="a.costanzo1975@campus.unimib.it">a.costanzo1975@campus.unimib.it</a></td> </td>
+  </tr>
+    <tr>
+    <td> Edoardo Torregiani </td>
+    <td><a href="e.torreggiani@campus.unimib.it">e.torreggiani@campus.unimib.it</a></td> </td>
+  </tr>
+    <tr>
+    <td> Riccardo Maifredi </td>
+    <td><a href="r.maifredi@campus.unimib.it">r.maifredi@campus.unimib.it</a></td> </td>
   </tr>
 </table>
 
