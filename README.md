@@ -29,7 +29,7 @@ $ git clone https://github.com/biqute/QTLab2324.git
       <td><a href="a.costanzo1975@campus.unimib.it">a.costanzo1975@campus.unimib.it</a></td> </td>
     <tr>
       <td> Federico Finardi </td>
-      <td><a href="mailto:f.finardi1@campus.unimib.it)">f.finardi1@campus.unimib.it)</a></td> </td>
+      <td><a href="mailto:f.finardi1@campus.unimib.it">f.finardi1@campus.unimib.it</a></td> </td>
     </tr>
       <td> Riccardo Maifredi </td>
       <td><a href="r.maifredi@campus.unimib.it">r.maifredi@campus.unimib.it</a></td> </td>
