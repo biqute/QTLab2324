@@ -18,7 +18,7 @@ $ git clone https://github.com/biqute/QTLab2324.git
     QTLab2223
     │  
     ├── IRdetection  # Single IR photon detection
-    ├── PAandQubit   # Parametric amplifier characterization   
+    ├── PAandQubit   # Qubit and Parametric amplifier characterization   
     ├── LICENSE      # License file
     └── README.md    # README file
 
