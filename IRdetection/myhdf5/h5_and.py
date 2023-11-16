@@ -12,6 +12,7 @@ def dic_to_h5(file_path, data_dict):
                 # Store the values in the group as a dataset
                 group.create_dataset('data', data=values)
             print(f"HDF5 file '{file_path}' created successfully.")
+            hf.close()
         except Exception as e:
             print(f"HDF5 file '{file_path}' not created.")
 
@@ -26,6 +27,7 @@ def h5_to_dic(file_path):
                 dataset = group['data'] # Access the dataset named 'data' within each group
                 data_array = dataset[:] # Get the data as a NumPy array
                 dic.update({key: list(data_array)})
+                hf.close()
     
     except Exception as e:
         print(f"Error opening the file: {e}")
@@ -64,5 +66,6 @@ def open_h5(file_path):
                 # Now you can work with the data_array as a NumPy array
                 print(f"Contents of the group '{key}':")
                 print(data_array)
+                hf.close()
     except Exception as e:
         print(f"Error opening the file: {e}")
