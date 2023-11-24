@@ -75,10 +75,19 @@ class N99xx:
     # R2 - Port 2 reference receiver measurement
     self.vna.query(f'CALC:PAR1:DEF {par};*OPC?')
     return
+
+
+
+  
+
+  def r_hdf(self, name):
+    with h5py.File(name, 'r' ) as f:
+      gp = f[name]
+      gp
   
 
   def w_hdf(self, name, name_data, dataset):             # name = nome file hdf5    # name_data = NA o SA
-    with h5py.File(name, "a") as f:                      # creo file hdf5 di nome tra virgolette e lo apro in modalità scrittura
+    with h5py.File(name, "a") as f:                      # creo file hdf5 di nome tra virgolette e lo apro in modalità a= append
       if name_data not in f.keys():
         gp = f.create_group(name_data)
       else:
