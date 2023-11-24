@@ -1,11 +1,14 @@
 ###################################
 #             Methods             #
 #
-# reset       :
 # get_data    :
 # get_name    :
+# reset       :
 # set_mode    :
 # set_NA_par  :
+
+# r_hdf       : 
+# w_hdf       :
 #                                 #
 ###################################
 
@@ -13,6 +16,7 @@
 import pyvisa
 import numpy as np
 import time
+import h5py 
 
 class N99xx:
   
@@ -29,16 +33,11 @@ class N99xx:
     return
   
 
-  def get_data(self):
+  def get_data(self, fmin, fmax):
     
-    print('Impostare range di frequenze (GHz).')
-    print('f min: ')
-    fmin = float(input()) * 1e9
-    print('f max: ')
-    fmax = float(input()) * 1e9
-
-    self.vna.query(f'FREQ:START {fmin};*OPC?')     #set freq iniziale
-    self.vna.query(f'FREQ:STOP {fmax};*OPC?')      #set freq finale
+    # frequenze in GHz
+    self.vna.write(f'FREQ:START {fmin * 1e9}')     #set freq iniziale                      CONTROLLARE DIFFERENZA WRITE E QUERY
+    self.vna.write(f'FREQ:STOP {fmax * 1e9}')      #set freq finale
 
     valori = self.vna.query('TRACE:DATA? SDATA')  # pag 767  lista di parte reale e parte immaginaria alternati
     valori = list(map(float, valori.strip('\n').split(',')))
@@ -77,3 +76,17 @@ class N99xx:
     self.vna.query(f'CALC:PAR1:DEF {par};*OPC?')
     return
   
+
+  def w_hdf(self, name, name_data, dataset):             # name = nome file hdf5    # name_data = NA o SA
+    with h5py.File(name, "a") as f:                      # creo file hdf5 di nome tra virgolette e lo apro in modalità scrittura
+      if name_data not in f.keys():
+        gp = f.create_group(name_data)
+      else:
+        gp = f[name_data]
+      gp_data = gp.create_group(f'fIQ_{len(gp.keys())}')
+      gp_data.create_dataset('f', data = dataset[0])
+      gp_data.create_dataset('I', data = dataset[1])
+      gp_data.create_dataset('Q', data = dataset[2])
+
+      # capire per SA quali e quanti dati devo caricare
+      # mettere la condizione che l'utente usi solo NA o SA
