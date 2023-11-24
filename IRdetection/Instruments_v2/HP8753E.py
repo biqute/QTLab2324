@@ -1,20 +1,24 @@
 import pyvisa
+import time
 import numpy as np
 import matplotlib.pyplot as plt
-import time
 from scipy.signal import find_peaks
-from myhdf5 import h5_and as h5
+import h5_and as h5
 import h5py
 
-class HP8753E():
 
+class HP8753E():
     def __init__(self,name='GPIB0::16::INSTR'):
-        resources = pyvisa.ResourceManager('@py')
+        resources = pyvisa.ResourceManager()
         self._vna = resources.open_resource(name)
         self._sleep = 0.5     #sleep between commands
         self._path = None     #save path for data files
         self._params = {}
         return
+
+    def get_path(self):
+        print('Current path: ', self._path)
+        return    
 
     def reset(self):
         self._vna.write('*RST')
@@ -72,51 +76,65 @@ class HP8753E():
         self._path = path
         return
  
-    def set_par(self):
-        npt = input('How many points?')
+    def set_par(self, npt=801, center=1e6, span=1e6, IFBW=100, power=-20):
+        #npt = float(input('How many points?'))
         self.set_point(npt)
         time.sleep(self._sleep)
-        center = input('Frequency center')
+        #center = float(input('Frequency center'))
         self.set_center(center)
         time.sleep(self._sleep)
-        span = input('Frequency span')
+        #span = float(input('Frequency span'))
         self.set_span(span)
         self._params["span"] = span
         time.sleep(self._sleep)
-        IFBW = input('IFBW?')
+        #IFBW = float(input('IFBW?'))
         self.set_IFBW(IFBW)
         self._params["IFBW"] = IFBW
         time.sleep(self._sleep)
-        power = input('Power (dBm)?')
+        #power = float(input('Power (dBm)?'))
         self.set_power(power)
         self._params["power"] = power
         time.sleep(self._sleep)
         self.set_scale()
         return
-    
-    def start_single_measure(self, npt=800, center=5.175*1e6, span=8000,IFBW=300,power=-20):
-        self.set_point(npt)
-        time.sleep(self._sleep)
-        self.set_center(center)
-        time.sleep(self._sleep)
-        self.set_span(span)
-        self._params["span"] = span
-        time.sleep(self._sleep)
-        self.set_IFBW(IFBW)
-        self._params["IFBW"] = IFBW
-        time.sleep(self._sleep)
-        self.set_power(power)
-        self._params["power"] = power
-        time.sleep(self._sleep)
-        self.set_scale()
-        return        
+
+    def output_data_format(self, format):
+        if format == 'raw data array 1':
+            msg = 'OUTPRAW1;'
+        elif format == 'raw data array 2':
+            msg = 'OUTPRAW2;'
+        elif format == 'raw data array 3':
+            msg = 'OUTPRAW3;'
+        elif format == 'raw data array 4':
+            msg = 'OUTPRAW4;'
+        elif format == 'error-corrected data':
+            msg = 'OUTPDATA;'
+        elif format == 'error-corrected trace memory':
+            msg = 'OUTPMEMO;'
+        elif format == 'formatted data':
+            msg = 'DISPDATA;OUTPFORM'
+        elif format == 'formatted memory':
+            msg = 'DISPMEMO;OUTPFORM'
+        elif format == 'formatted data/memory':
+            msg = 'DISPDDM;OUTPFORM'
+        elif format == 'formatted data-memory':
+            msg = 'DISPDMM;OUTPFORM'
+        self._vna.write(msg)
+        return
+
+    def get_y_data(self, form):
+        self.output_data_format(form)
+        ydata = self._vna.write('OUTPDATA')
+        return ydata
 
 
-    def get_data(self):
+    def get_data(self, format):
         dtype = 'float'
-        ydata = self._vna.query('OUTPDTRC?').strip().split(',')
-        ydata = np.array(ydata)
-        ydata = ydata[np.arange(int(len(ydata)/2))*2].astype(dtype) #FIXME?
+        aa = self.output_data_format(format)
+        #ydata = np.array(aa.strip().split(','))
+        ydata = np.array(aa)
+       # ydata = ydata[np.arange(int(len(ydata)/2))*2].astype(dtype) #FIXME?
+        time.sleep(self._sleep)
         xdata = self._vna.query('OUTPSWPRM?').strip().split(',')
         xdata = np.array(xdata).astype(dtype)
         return xdata, ydata
@@ -185,7 +203,7 @@ class HP8753E():
         self._params["sweep"] = sweep_time
         span = float(self._vna.query('SPAN?').strip())
         self._params["span"] = span
-        bw = float(self._vna.query('BW?').strip())
+        bw = float(self._vna.query('IFBW?').strip())
         self._params["bw"] = bw
         power = float(self._vna.query('POWE?').strip())
         self._params["power"] = power
@@ -199,8 +217,9 @@ class HP8753E():
         print("Span: ", span)
         print("IF BW: ", bw)
         print("Power: ", power)
-        print("(freq_min, freq_max): ", freq_min, freq_max)      
-        return npt, center, sweep_time, span, bw, power, freq_min, freq_max
+        print("(freq_min, freq_max): ", freq_min, freq_max)   
+        vec = [npt, center, sweep_time, span, bw, power, freq_min, freq_max]   
+        return vec
 
     def find_peak(self, n_std=5):
         d = self.get_data_as_dic()
@@ -211,16 +230,16 @@ class HP8753E():
        
     def routine(self):
         path = input('Where do you want to save the upcoming files?')
-        fmin = input('Frequency start (Hz)') 
-        fmax = input('Frequency stop  (Hz)')
-        pn   = input('Frequency precision')
+        fmin = float(input('Frequency start (Hz)'))
+        fmax = float(input('Frequency stop  (Hz)'))
+        pn   = float(input('Frequency precision'))
         self.set_save_path(path=path)
         self.set_frequencies(fmin, fmax) 
         centers = np.arange(fmin, fmax, pn)
         count = 0
         self.set_par()
         for centroid in centers:
-            self.start_single_measure(npt=800,center=centroid,span=100,IFBW=100,power=-20)
+            self.set_par(npt=800,center=centroid,span=100,IFBW=100,power=-20)
             d = self.get_data_as_dic()
             freq_max_index = d['xdata'].index(max(d['ydata']))
             file_name = 'Scansione_1.hdf5'
