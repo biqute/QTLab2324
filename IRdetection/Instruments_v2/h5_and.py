@@ -1,7 +1,8 @@
 import numpy as np
 import h5py
 
-def dic_to_h5(file_path, data_dict):
+def dic_to_h5(file_path, data_dict):   
+    #dictionary to hdf5
 
     with h5py.File(file_path, 'w') as hf:
         try:
@@ -16,7 +17,7 @@ def dic_to_h5(file_path, data_dict):
         except Exception as e:
             print(f"HDF5 file '{file_path}' not created.")
 
-def h5_to_dic(file_path):
+def h5_to_dic(file_path):       #hdf5 to dictionary
     
     dic = dict()
     try:
