@@ -1,9 +1,10 @@
 ###################################
 #             Methods             #
 #
+# reset
+# clear
 # get_data    :
 # get_name    :
-# reset       :
 # set_mode    :
 # set_NA_par  :
 
@@ -26,7 +27,7 @@ class N99xx:
     self._sleep = 1
     try:
       rm = pyvisa.ResourceManager()
-      self.risorsa = rm.open_resource(f"tcpip0::{ip}::inst0::INSTR")
+      self._risorsa = rm.open_resource(f"tcpip0::{ip}::inst0::INSTR")
       self._connessione_riuscita = True
       print("Connessione riuscita!")
     except pyvisa.Error as e:
@@ -36,26 +37,33 @@ class N99xx:
 
   def reset(self):
     if self._connessione_riuscita:
-      self.vna.write('*RST')
+      self._risorsa.write('*RST')     
+      time.sleep(self._sleep)
+    else:
+      print("Impossibile eseguire il metodo reset: nessuna connessione attiva.")
+    return
+
+
+  def clear(self):
+    if self._connessione_riuscita:
+      self._risorsa.write('*CLS')     #*CLS   è il reset che svuota la memoria (il buffer), utile se si inchioda
       time.sleep(self._sleep)
     else:
       print("Impossibile eseguire il metodo reset: nessuna connessione attiva.")
     return
   
 
-  def get_data(self, fmin, fmax):
+  def get_data(self):
     if self._connessione_riuscita:
-      # frequenze in GHz
-      self.vna.write(f'FREQ:START {fmin * 1e9}')     #set freq iniziale                    
-      self.vna.write(f'FREQ:STOP {fmax * 1e9}')      #set freq finale
-
-      valori = self.vna.query('TRACE:DATA? SDATA')  # pag 767  lista di parte reale e parte immaginaria alternati
+      
+      valori = self._risorsa.query('TRACE:DATA? SDATA')  # pag 767  lista di parte reale e parte immaginaria alternati
+      
       valori = list(map(float, valori.strip('\n').split(',')))
 
       I = np.array(valori[::2])   # parte immaginaria
       Q = np.array(valori[1::2])  # parte reale
 
-      f = self.vna.query('FREQ:DATA?')
+      f = self._risorsa.query('FREQ:DATA?')
       f = np.array(list(map(float, f.strip('\n').split(',')))) / 1e9    # per esprimere i valori in GHz 
       return {'f': f, 'I': I, 'Q': Q}
     else:
@@ -65,18 +73,23 @@ class N99xx:
 
   def get_name(self):
     if self._connessione_riuscita:
-      print(self.vna.query('*IDN?'))
+      print(self._risorsa.query('*IDN?'))
     else:
       print("Impossibile eseguire il metodo get_name: nessuna connessione attiva.")
     return
   
+
+  def runhold(self):                              #pag 419
+    self._risorsa.query('TRIG:HOLD;*OPC?')
+    return
 
   def set_mode(self, mode):
     if self._connessione_riuscita:
       valid_modes = ['NA', 'SA']
       if mode not in valid_modes:
         raise ValueError("Modalità non valida. Scegliere NA o SA.")
-      self.vna.query(f'INST:SEL "{mode}";*OPC?')
+      self._risorsa.query(f'INST:SEL "{mode}";*OPC?')
+      time.sleep(self._sleep)                                                 #pausa di un secondo
     else:
       print("Impossibile eseguire il metodo set_mode: nessuna connessione attiva.")
     return
@@ -92,11 +105,20 @@ class N99xx:
     # R1 - Port 1 reference receiver measurement
     # R2 - Port 2 reference receiver measurement
     if self._connessione_riuscita:
-      self.vna.query(f'CALC:PAR1:DEF {par};*OPC?')
+      self._risorsa.query(f'CALC:PAR1:DEF {par};*OPC?')
+      time.sleep(self._sleep)
     else:
       print("Impossibile eseguire il metodo set_NA_par: nessuna connessione attiva.")
     return
   
+  def set_freq_range(self, fmin, fmax):
+    
+    # frequenze in GHz
+    self._risorsa.write(f'FREQ:START {fmin * 1e9}')     #set freq iniziale                    
+    self._risorsa.write(f'FREQ:STOP {fmax * 1e9}')      #set freq finale
+    return
+  
+      
 
 #///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////#
 # Metodi di scrittura e lettura in un file HDF5
