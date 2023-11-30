@@ -203,20 +203,14 @@ class HP9753E:
         ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')
         plt.show()
         return
-    
+'''
     def find_peak(self, n_std=5):
         d = self.get_data_as_dic()
         ii, d = find_peaks(-d['ydata'],height=-np.mean(d['ydata'])+n_std*np.std(d['ydata']))
         freq = d['xdata'][ii]
         heights = d['peak_heights']
         return freq, heights
-    
-    '''
-    Mancano le funzioni per:
-        1) Fare un power sweep
-    '''
-
-'''     
+        
     def get_data_as_dic(self):
         dtype = 'float'
         ydata = np.array(self._vna.query('OUTPDTRC?').strip().split(','))
