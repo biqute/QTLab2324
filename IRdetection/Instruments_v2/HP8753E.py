@@ -14,7 +14,20 @@ class HP8753E():
         self._sleep = 0.5     #sleep between commands
         self._path = None     #save path for data files
         self._params = {}
+        self._channel = 'CHAN1'
+        self._data_format = 'OUTPRE2'
+        self._Scoeff = 'S21'       
         return
+
+    def set_S_coeff(self, coeff):
+        self._vna.write(str(coeff))
+
+    def set_data_format(self, formato):
+        self._vna.write(str(formato))
+        
+    def set_channel(self, canale):
+        #What channel should we look at?
+        self._vna.write(str(canale))
 
     def get_path(self):
         print('Current path: ', self._path)
@@ -32,16 +45,6 @@ class HP8753E():
         print(self._vna.query('*IDN?'))    
         return
 
-    def set_NA(self,ch="1",net="B",sweep_type = "CONT"):
-        self._vna.write('CHAN'+ch)
-        time.sleep(self._sleep)
-        self._vna.write('NA')
-        time.sleep(self._sleep)
-        self._vna.write('MEAS '+net)
-        time.sleep(self._sleep)
-        self._vna.write(sweep_type) #set continuous sweep
-        return
-
     def set_point(self,npt):
         self._vna.write('POIN '+str(npt))
         return
@@ -55,7 +58,7 @@ class HP8753E():
         return        
 
     def set_IFBW(self,bw):
-        self._vna.write('BW '+str(bw))
+        self._vna.write('IFBW '+str(bw))
         return        
 
     def set_frequencies(self,fmin,fmax):
@@ -98,46 +101,28 @@ class HP8753E():
         self.set_scale()
         return
 
-    def output_data_format(self, format):
-        if format == 'raw data array 1':
-            msg = 'OUTPRAW1;'
-        elif format == 'raw data array 2':
-            msg = 'OUTPRAW2;'
-        elif format == 'raw data array 3':
-            msg = 'OUTPRAW3;'
-        elif format == 'raw data array 4':
-            msg = 'OUTPRAW4;'
-        elif format == 'error-corrected data':
-            msg = 'OUTPDATA;'
-        elif format == 'error-corrected trace memory':
-            msg = 'OUTPMEMO;'
-        elif format == 'formatted data':
-            msg = 'DISPDATA;OUTPFORM'
-        elif format == 'formatted memory':
-            msg = 'DISPMEMO;OUTPFORM'
-        elif format == 'formatted data/memory':
-            msg = 'DISPDDM;OUTPFORM'
-        elif format == 'formatted data-memory':
-            msg = 'DISPDMM;OUTPFORM'
-        self._vna.write(msg)
-        return
+    def set_data_output(self,tipo):
+        self._vna.write(str(tipo))
 
-    def get_y_data(self, form):
-        self.output_data_format(form)
-        ydata = self._vna.write('OUTPDATA')
-        return ydata
+    def output_data_format(self, format):
+        if format == 'pre raw data':
+            #This format is SamplerCal+Input Ratioing+Averaging
+            self._vna.write('OUTPPRE') 
+        elif format == 'raw data':
+            self._vna.write('OUTPRAW')
+        elif format == 'error correction':
+            self._vna.write('OUTPCALC')
+        elif format == 'error corrected':
+            self._vna.write('OUTPDATA')
+        elif format == 'formatted data':
+            self._vna.write('OUTPFORM')
+        return
 
 
     def get_data(self, format):
-        dtype = 'float'
-        aa = self.output_data_format(format)
-        #ydata = np.array(aa.strip().split(','))
-        ydata = np.array(aa)
-       # ydata = ydata[np.arange(int(len(ydata)/2))*2].astype(dtype) #FIXME?
-        time.sleep(self._sleep)
-        xdata = self._vna.query('OUTPSWPRM?').strip().split(',')
-        xdata = np.array(xdata).astype(dtype)
-        return xdata, ydata
+        self.output_data_format(format)
+        data = self._vna.query()
+        return data
         
     def get_data_as_dic(self):
         dtype = 'float'
@@ -228,7 +213,12 @@ class HP8753E():
         heights = d['peak_heights']
         return freq, heights
        
-    def routine(self):
+    def P_sweep(self):
+
+        #Questa funzione permette di:
+            #  effettuare uno scan in frequenze tra fmin e fmax
+            # crea un file hdf5 ogni volta che viene rivelata una deviazione dalla media maggiore di 5 sigma 
+            # per ogni picco trovato crea un gruppo che contiene i relativi dati
         path = input('Where do you want to save the upcoming files?')
         fmin = float(input('Frequency start (Hz)'))
         fmax = float(input('Frequency stop  (Hz)'))
@@ -244,6 +234,7 @@ class HP8753E():
             freq_max_index = d['xdata'].index(max(d['ydata']))
             file_name = 'Scansione_1.hdf5'
             if ((max(d['ydata'])-np.mean(d['ydata']))/np.std(d['ydata']) < 3):
+                count = 0
                 with h5py.File(path+file_name,'w') as hf:
                     print('Start_single_measure worked!!')
                     count = count + 1
@@ -257,3 +248,24 @@ class HP8753E():
                     group_2.create_dataset(group_name_plt, data=f)
                     hf.close()
         return
+
+        def IQ_meas():
+
+            # Questa funzione serve per:
+                # leggere I e Q
+                # Calcolare |S21|
+                # Calcolare la fase
+
+            return I, Q
+
+        def T_sweep():
+            
+            #Questa funzione serve per
+                #Comunicazione con gas handler 
+                #Fare uno sweep in temperatura
+                #Quando la temperatura è stabile chiamo funzione 
+                    #per sweep in freqeuenza
+                #
+            return
+
+
