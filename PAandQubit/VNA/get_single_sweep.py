@@ -32,22 +32,3 @@ vna.set_freq_range(f_min, f_max)
 
 sweep = vna.get_data()
 vna.w_hdf(hdf5_file, name_group, sweep)
-
-# for i in np.arange(99):         #FUNZIONA!!
-
-#     vna.w_hdf('culone.hdf5', 'NA', vna.get_data())
-#     if i==50:
-#         print('Sono a metà')
-
-#vna.runhold()
-
-    #prima_lett = vna.r_hdf_data('culone.hdf5', 'NA',  1)
-
-# f = prima_lett['f']
-# I = prima_lett['I']
-# Q = prima_lett['Q']
-
-
-
-# plt.plot(f, 20*np.log10(np.abs(Q + 1j*I)))
-# plt.show()
