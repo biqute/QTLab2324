@@ -149,13 +149,12 @@ class HP8753E:
 
 
 
-    def get_IQ(self, data_fmt = 'FORM2', out_fmt = 'OUTPRAW;'):        #NON ho capito nulla :)
+    def get_IQ(self, data_fmt = 'FORM2', out_fmt = 'OUTPRAW1'):        #NON ho capito nulla :)
         '''Get data'''
 
         self.set_format(data_fmt)
         self.data_outp_fmt(out_fmt)
 
-        lista = self._vna.query('OUTPDATA')
         '''
         num_bytes = 8*int(int(float(self.points)))+4
         raw_bytes = self._vna.read_bytes(4)
