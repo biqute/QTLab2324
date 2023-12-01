@@ -13,7 +13,7 @@ into Python bytes objects. For example, it can be used to
 handle binary data stored in files or coming in from network connections.
 '''
 
-class HP9753E:
+class HP8753E:
     def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
         self._vna = pyvisa.ResourceManager().open_resource(board)
         self._sleep = 0.5     #sleep between commands
