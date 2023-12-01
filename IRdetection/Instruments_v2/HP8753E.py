@@ -13,7 +13,7 @@ into Python bytes objects. For example, it can be used to
 handle binary data stored in files or coming in from network connections.
 '''
 
-class HP9753E:
+class HP8753E:
     def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
         self._vna = pyvisa.ResourceManager().open_resource(board)
         self._sleep = 0.5     #sleep between commands
@@ -42,7 +42,7 @@ class HP9753E:
         print('VNA object created correctly!\n')
         print('Default number of points for a sweep: ' + str(self.points))
 
-    def ask_name_read_oat(self):
+    def ask_name_read_oat(self):                #???
         '''Reading bytes one at a time, if the instrument times out at
         the first char, then it did not respond'''
         self._vna.write('*IDN?')
@@ -92,7 +92,7 @@ class HP9753E:
         return        
 
     def set_power(self,power):
-        self._vna.write("POWE "+str(power))
+        self._vna.write("POWE "+str(power)) #non va un +'dB' ?
         return
 
     def set_save_path(self,path):
@@ -143,13 +143,13 @@ class HP9753E:
         self.vna.write(fmt)
 
 
-    def get_IQ(self, data_fmt = 'FORM2', out_fmt = 'formatted data'):
+    def get_IQ(self, data_fmt = 'FORM2', out_fmt = 'formatted data'):        #NON ho capito nulla :)
         '''Get data'''
 
         self.set_format(data_fmt)
         self.output_data_format(out_fmt)
         
-        num_bytes = 8*int(int(float(self.points)))+4
+        num_bytes = 8*int(int(float(self.points)))+4 #perchè c'è due volte int??
         #time.sleep(2)
         raw_bytes = self._vna.read_bytes(num_bytes)
         #This method will read at most the number of bytes specified.
@@ -192,7 +192,7 @@ class HP9753E:
     
     def plot_current_S21(self, I, Q):
         modS21, phaseS21 = self.compute_S21(I, Q)
-        fmin = self._vna.query('STAR?')
+        fmin = self._vna.query('STAR?')               #start e stop sono già stati settati?
         fmax = self._vna.query('STOP?')
         passo = (fmax-fmin)/self.points
         x = list(np.arange(fmin, fmax, passo))
