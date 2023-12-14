@@ -3,10 +3,8 @@ import struct
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.signal import find_peaks
 import h5_and as h5
-#from myhdf5 import h5_and as h5
-#import h5py
+from scipy.signal import find_peaks
 
 '''
 Structs converts between Python values and C structs serialized 
@@ -14,7 +12,7 @@ into Python bytes objects. For example, it can be used to
 handle binary data stored in files or coming in from network connections.
 '''
 
-class HP9753E:
+class HP8753E:
     def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
         self._vna = pyvisa.ResourceManager().open_resource(board)
         self._sleep = 0.5     #sleep between commands
@@ -45,8 +43,8 @@ class HP9753E:
 
     def ask_name(self):
         '''Who am I?'''
-        self._vna.query('*IDN?')
-        return
+        return self._vna.query('*IDN?')
+        
 
     def reset(self):
         self._vna.write('*RST')
@@ -77,7 +75,7 @@ class HP9753E:
         return        
 
     def set_IFBW(self,bw):
-        self._vna.write('BW '+str(bw))
+        self._vna.write('IFBW '+str(bw))
         return
     
     def set_scale(self,tipo='AUTO'):
@@ -94,18 +92,13 @@ class HP9753E:
     
     def set_par(self, npt, center, span, IFBW, power):
         self.set_point(npt)
-        time.sleep(self._sleep)
         self.set_center(center)
-        time.sleep(self._sleep)
         self.set_span(span)
         self._params["span"] = span
-        time.sleep(self._sleep)
         self.set_IFBW(IFBW)
         self._params["IFBW"] = IFBW
-        time.sleep(self._sleep)
         self.set_power(power)
         self._params["power"] = power
-        time.sleep(self._sleep)
         self.set_scale()
         return
 
@@ -122,13 +115,15 @@ class HP9753E:
         (POLA, LINM, LOGM, PHAS, DELA, SMIC, SWR, REAL, IMAG)
         '''
         self._vna.write(fmt)
+        return
     
     def data_outp_fmt(self, fmt):
         '''
         Set the format by which data will be outputted by the VNA.
         (OUTPPRE, OUTPRAW, OUTPCALC, OUTPDATA, OUTPFORM)
         '''
-        self.vna.write(fmt)
+        self._vna.write(fmt)
+        return 
     
     def set_format(self, fmt):
         '''
@@ -141,52 +136,39 @@ class HP9753E:
         self._vna.write(fmt)
 
 
-    def get_IQF(self, data_fmt = 'FORM2', out_fmt = 'OUTPFORM'):
+    def get_IQF_single_meas(self,  data_fmt = 'FORM2', out_fmt = 'OUTPRAW1', percorso=r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IRdetection\Test_data'):
         '''Get imaginary and real data and also the frequency they correspond to.'''
+        self.set_save_path(path=percorso)
+        #t = int(1/self._vna.query('IFBW'))*self.points + 2  #Time required for frequency sweep
+        #time.sleep(t)
+        start = float(self._vna.query('STAR?'))
+        span = float(self._vna.query('SPAN?'))
+        f_n = [start + (i-1) * span/self.points  for i in range(self.points)] #Get the value corresponding frequency
+        f_n = np.array(f_n)
 
+        self._vna.write('SING')
         self.set_format(data_fmt+';')                       #Set the data format (FORM2 is default so watch out for the header!)
-        self.output_data_format('DISPDATA;'+out_fmt+';')    #Write to the VNA to display structured data (OUTPFORM is default),
-                                                            #This has to be done after the frequency sweep is completed...how can we know?
-        t = int(1/self._vna.query('IFBW'))*self.points + 2  #Time required for frequency sweep
-        time.sleep(t)
-        start = self._vna.query('STAR')
-        span = self._vna.query('SPAN')
-        f_n = [(start + (i-1) * span/(i-1))  for i in range(self.points)] #Get the value corresponding frequency
+        self.data_outp_fmt(out_fmt+';')                     #Write to the VNA to display structured data (OUTPFORM is default   
+        _ = self._vna.read_bytes(2)
+        h2 = self._vna.read_bytes(2)
+        bytesnum = int.from_bytes(h2, "big")
+        raw = self._vna.read_bytes(bytesnum)
+        format = '>' + str(bytesnum//4) + 'f'
+        #>  stands for big-endian number
+        #f is for floating point type
+        x = struct.unpack(format, raw)
 
-        #Now we begin to read the header
-        ftb = self._vna.read_bytes(2)                       #First two bytes #A
-        try:
-            ('#' in ftb)
-        except: 
-            print('# is not in the file!', ftb)
-
-        bytes_num = self._vna.read_bytes(2)                 #Second two bytes (number of bytes stored in the VNA's buffer)
-        try:
-            bytes_num is int
-        except:
-            print('Second two bytes do not represent an integer!', bytes_num)
-        
-        raw_bytes = self._vna.read_bytes(bytes_num)
 
         #This method will read at most the number of bytes specified. Returns a byte class object see
         #https://docs.python.org/3/library/stdtypes.html#bytes documentation
 
-        no_header = raw_bytes[4:] #We are not interested in the header!
+        #no_header = raw_bytes[4:] #We are not interested in the header!
         #Now...data are stored in binary code IEEE...to get them as ordinary numbers we have to use struct.unpack
         #and as format we have to pass the correct one for FORM2 type of data
 
-        format = '>' + str(bytes_num) + 'f'
-        #>  stands for big-endian number
-        #f is for floating point type
-        x = struct.unpack(format, no_header)
-
-        q = list(x)
-        i = q.copy()
-
-        '''Creates a copy of amp_i'''
-
-        del i[1::2]
-        del q[0::2]
+        i = np.array(x[::2])
+        q = np.array(x[1::2])
+        thisdict = {"I": i, "Q":q, "F":f_n}
         '''Slycing operation;
         1=Start index
         :: = Every second element
@@ -194,6 +176,7 @@ class HP9753E:
         This is done becouse we assume that i and q values occupy
         respectively odd and even positions
         '''
+        h5.dic_to_h5(self._path, thisdict)
         return i, q, f_n
     
     def compute_S21(self, I, Q):
