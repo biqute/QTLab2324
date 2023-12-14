@@ -1,8 +1,7 @@
 import numpy as np
 import h5py
 
-def dic_to_h5(file_path, data_dict):   
-    #dictionary to hdf5
+def dic_to_h5(file_path, data_dict):   #dictionary to hdf5
 
     with h5py.File(file_path, 'w') as hf:
         try:
