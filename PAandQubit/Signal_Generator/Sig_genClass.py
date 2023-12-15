@@ -28,9 +28,12 @@
 # 02 | pul_gen_params
 # 03 | pul_gen_mode   
 # 
+# Frequency
+# 01 | RF_freq
 # 
 # Level
 # 01 | RF_onoff                       #
+# 02 | lvl_ampl
 ###################################
 
 
@@ -57,7 +60,7 @@ class SMA100B:
             print("Connessione riuscita!")
         except pyvisa.Error as e:
             print(f"Errore durante la connessione: {e}")
-        return
+        
 
 
 
@@ -66,17 +69,22 @@ class SMA100B:
             print(self._resource.query('*IDN?'))
         else:
             print("Impossibile eseguire il metodo get_name: nessuna connessione attiva.")
-        return
+        
 
 
     def reset(self):
         self._resource.write('*RST')
-        return
+        
 
 
 
 
     
+
+
+# trigger
+
+
 
 
 
@@ -90,19 +98,19 @@ class SMA100B:
             else:
                 print('Error. Write FAST or SMO')    
             
-        return
+        
 
     #pagina 603-604
     def pul_gen_params(self, period, delay, width):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.           
         if self._connect_success:
 
             
-            self._resource.write(f'SOUR:PULM:PER {period*1e-6}')
-            self._resource.write(f'SOUR:PULM:DEL {delay}')                  #passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
-            self._resource.write(f'SOUR:PULM:WIDT {width*1e-6}')
+            self._resource.write(f'SOUR:PULM:PER {period*1e-6}') # micro
+            self._resource.write(f'SOUR:PULM:DEL {delay*1e-6}')  # micro                #passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
+            self._resource.write(f'SOUR:PULM:WIDT {width*1e-6}') # micro
 
-            print(self._resource.query('SOUR:PULM:DEL?'))
-        return    
+            #print(self._resource.query('SOUR:PULM:DEL?'))
+            
 
 
     def pul_gen_mode(self, mode):
@@ -112,10 +120,12 @@ class SMA100B:
 
             else:
                 print("Error. Invalid string mode. Write SING DOUB PTR")
-        return            
+                    
 
-
-
+    def pul_state(self, mode):
+        if self._connect_success:
+            self._resource.write(f'SOUR:PULM:STAT {mode}')
+        
 
 
 
@@ -128,8 +138,14 @@ class SMA100B:
     def RF_onoff (self, switch):                                            #accendere o spegnere il segnale
         if self._connect_success:
             self._resource.write(f'OUTP:STAT {switch}')
-        return
+        
+    def RF_freq (self, freq):
+        if self._connect_success:
+            self._resource.write(f'SOUR:FREQ:CW {freq*1e6}')
     
+    def lvl_ampl (self, amplitude):
+        if self._connect_success:
+            self._resource.write(f'SOUR:POW:LEV:IMM:AMPL {amplitude}')
     
 ##### FUNZIONI DA IMPLEMENTARE????? #####
 
