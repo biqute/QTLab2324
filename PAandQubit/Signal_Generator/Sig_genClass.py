@@ -102,7 +102,7 @@ class SMA100B:
 
 # 2.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def transition_type(self, trans_type):                                      #così fa solo da fast a smoothed
+    def transition_type(self, trans_type: str):                                      #così fa solo da fast a smoothed
         if self._connect_success:            
             if trans_type in {'FAST', 'SMO'}:
                 self._resource.write(f'SOUR1:PULM:TTYP {trans_type}')  
@@ -113,7 +113,7 @@ class SMA100B:
 
 # 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_gen_params(self, period, delay, width):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.           
+    def pul_gen_params(self, period: float, delay: float, width: float):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.           
         if self._connect_success:
             
             self._resource.write(f'SOUR:PULM:PER {period*1e-6}') # micro
@@ -126,7 +126,7 @@ class SMA100B:
 
 # 2.3 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_gen_mode(self, mode):
+    def pul_gen_mode(self, mode: str):
         if self._connect_success:
             if mode in {'SING', 'DOUB', 'PTR'}:
                 self._resource.write(f'SOUR:PULM:MODE {mode}')
@@ -138,7 +138,7 @@ class SMA100B:
 
 # 2.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_trig_mode(self, mode):
+    def pul_trig_mode(self, mode: str):
         if self._connect_success:
             if mode in {'AUTO', 'EXT', 'EGAT', 'SING', 'ESIN'}:
                 self._resource.write(f'SOUR:PULM:TRIG:MODE {mode}')
@@ -150,7 +150,7 @@ class SMA100B:
 
 # 2.5 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_state(self, mode):
+    def pul_state(self, mode: str):
         if self._connect_success:
             self._resource.write(f'SOUR:PULM:STAT {mode}')
         else:
@@ -161,7 +161,7 @@ class SMA100B:
 
 #3.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_freq (self, freq):
+    def RF_freq (self, freq: float):
         if self._connect_success:
             self._resource.write(f'SOUR:FREQ:CW {freq*1e6}')
         else:
@@ -172,7 +172,7 @@ class SMA100B:
 
 # 4.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_state (self, switch):                                            # Turn ON or OFF the signal
+    def RF_state (self, switch: bool):                                            # Turn ON or OFF the signal
         if self._connect_success:
             self._resource.write(f'OUTP:STAT {switch}')
         else:
@@ -180,7 +180,7 @@ class SMA100B:
 
 # 4.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_lvl_ampl (self, amplitude):
+    def RF_lvl_ampl (self, amplitude: float):
         if self._connect_success:
             self._resource.write(f'SOUR:POW:LEV:IMM:AMPL {amplitude}')
         else:
