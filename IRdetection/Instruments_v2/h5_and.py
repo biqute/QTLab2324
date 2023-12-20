@@ -1,16 +1,33 @@
 import numpy as np
 import h5py
 
-def dic_to_h5(file_path, data_dict):   #dictionary to hdf5
+
+
+def dic_to_h5_data(file_path, data_dict, run):   #dictionary to hdf5
 
     with h5py.File(file_path, 'w') as hf:
         try:
+            group = hf.create_group('Raw_data'+str(run))
         # Create a group for each key in the dictionary
             for key, values in data_dict.items():
                 # Create a group for the current key
-                group = hf.create_group(key)
                 # Store the values in the group as a dataset
-                group.create_dataset('data', data=values)
+                group.create_dataset(str(key), data=values)
+            print(f"HDF5 file '{file_path}' created successfully.")
+            hf.close()
+        except Exception as e:
+            print(f"HDF5 file '{file_path}' not created.")
+
+def dic_to_h5_plots(file_path, data_dict, run):   #dictionary to hdf5
+
+    with h5py.File(file_path, 'w') as hf:
+        try:
+            group = hf.create_group('Raw_data'+str(run))
+        # Create a group for each key in the dictionary
+            for key, values in data_dict.items():
+                # Create a group for the current key
+                # Store the values in the group as a dataset
+                group.create_dataset(str(key), data=values)
             print(f"HDF5 file '{file_path}' created successfully.")
             hf.close()
         except Exception as e:
