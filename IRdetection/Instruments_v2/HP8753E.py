@@ -175,6 +175,7 @@ class HP8753E:
         canvas = FigureCanvas(fig)
         canvas.draw()
         FigArray = np.array(canvas.renderer.buffer_rgba())
+        
         return FigArray
 
     def plot_S21_phase(self, phase, f): #converts S21 phase pyplot figure in numpy array
@@ -201,13 +202,35 @@ class HP8753E:
         dati.create_dataset('f', data= f)
 
         plots = run.create_group('plot')
-        plots.create_dataset('S21_abs', data = self.plot_S21_abs(self.abs_S21(i,q), f))
-        plots.create_dataset('S21_phase', data = self.plot_S21_phase(self.phase_S21(i,q), f))
-        plots.create_dataset('IvsF', data = self.plot_I(i, f))
-        plots.create_dataset('QvsF', data = self.plot_Q(q, f))
+        ImageDataset1 = plots.create_dataset(name="S21_abs", data=self.plot_S21_abs(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset1.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset1.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset1.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset1.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset1.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset2.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset2.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset2.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset2.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset2.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        ImageDataset3 = plots.create_dataset(name="I", data=self.plot_I(i, f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset3.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset3.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset3.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset3.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset3.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        ImageDataset4 = plots.create_dataset(name="Q", data=self.plot_Q(q, f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset4.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset4.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset4.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset4.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset4.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
         res = run.create_group('results')
-
         run.close()
         return 
 
@@ -217,8 +240,6 @@ class HP8753E:
                 file.write(key +' : '+ str(values) + '\n')
         file.close()
         return file
-
-
 
     '''
     def find_peak(self, n_std=5):
