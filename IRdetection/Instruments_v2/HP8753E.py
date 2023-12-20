@@ -2,6 +2,7 @@ import pyvisa
 import struct
 import time
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
 import h5py as h5
 from scipy.signal import find_peaks
@@ -119,15 +120,19 @@ class HP8753E:
         q = np.array(x[1::2]) #This is done becouse we know that i and q values occupy, respectively, odd and even positions
         return i, q, f_n
     
-    def compute_S21(self, I, Q): #Returns S21 module and phase
+    def abs_S21(self, I, Q): #Returns S21 module 
         modS21 = []
+        for i in range(len(I)):
+            modS21.append(np.sqrt(pow(I[i],2) + pow(Q[i],2)))     
+
+        return modS21     
+
+    def phase_S21(self, I, Q): #Returns S21 phase
         phaseS21 = []
         for i in range(len(I)):
-            modS21.append(np.sqrt(pow(I[i],2) + pow(Q[i],2)))
             phaseS21.append(np.arctan(Q[i]/I[i]))
         
-        return modS21, phaseS21        
-    
+        return phaseS21    
     
     def plot_current_S21(self, I, Q, f):
         modS21, phaseS21 = self.compute_S21(I, Q)
@@ -136,15 +141,59 @@ class HP8753E:
         ax[0].plot(f,modS21,color='k')
         ax[0].set(xlabel='$\\nu$ [GHz]', ylabel='|S21|')
         ax[1].plot(f,phaseS21,color='k')
-        ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')
-        
-        return fig
+        ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')        
+        return
 
-    def run(self, num, i, q, f, fig, text):
+    def plot_I(self, i, f):  #converts |S21| pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f,i,color='k')
+        plt.title('I')
+        plt.xlabel('$\\nu$ [GHz]')
+        #plt.ylabel('')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray
+
+    def plot_Q(self,q, f):  #converts |S21| pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f,q,color='k')
+        plt.title('Q')
+        plt.xlabel('$\\nu$ [GHz]')
+        #plt.ylabel('')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray
+
+    def plot_S21_abs(self, abs, f):  #converts |S21| pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f,abs,color='k')
+        plt.title('S21 Absolute value')
+        plt.xlabel('$\\nu$ [GHz]')
+        plt.ylabel('|S21|')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray
+
+    def plot_S21_phase(self, phase, f): #converts S21 phase pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f, phase, color='k')
+        plt.title('S21 Phase')
+        plt.xlabel('$\\nu$ [GHz]')
+        plt.ylabel('$\Phi$')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray        
+
+    def create_run_file(self, num, i, q, f):
         run = h5.File(self._path + "Run_"+ str(num)+ ".h5", "w")
 
         '''header = run.create_group('INFO')
-        header.create_dataset(text)'''
+        text = self.header_txt()
+        header.create_dataset('Meta\n', data=np.loadtxt(text))'''
         
         dati = run.create_group('raw_data')
         dati.create_dataset('i', data= i)
@@ -152,10 +201,10 @@ class HP8753E:
         dati.create_dataset('f', data= f)
 
         plots = run.create_group('plot')
-        plots.create_dataset('s21_abs', data = fig)
-        plots.create_dataset('s21_phase', data = fig[1])
-        plots.create_dataset('i', data = fig[2])
-        plots.create_dataset('q', data = fig[3])
+        plots.create_dataset('S21_abs', data = self.plot_S21_abs(self.abs_S21(i,q), f))
+        plots.create_dataset('S21_phase', data = self.plot_S21_phase(self.phase_S21(i,q), f))
+        plots.create_dataset('IvsF', data = self.plot_I(i, f))
+        plots.create_dataset('QvsF', data = self.plot_Q(q, f))
 
         res = run.create_group('results')
 
