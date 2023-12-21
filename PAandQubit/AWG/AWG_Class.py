@@ -1,5 +1,6 @@
-# MANUAL: https://www.keysight.com/it/en/assets/9018-03714/service-manuals/9018-03714.pdf?success=true
-# pag 212
+# MANUAL    :       https://www.keysight.com/it/en/assets/9018-03714/service-manuals/9018-03714.pdf?success=true
+# Pag 212   :       Alphabetical List of SCPI Commands and Queries
+
 
 
 #########################################################################################################
@@ -12,21 +13,31 @@
 # 1.4 | clear ...................... : Clear status.
 #                                    :
 #                                    :
-#       [2. SOURce Subsystem]
-
+#       [2. SOURce Subsystem]        :
+# 2.1 | set_frequency .............. : Sets output frequency.
+# 2.2 | set_amplitude .............. : Sets output amplitude.
+# 2.3 | set_offset ................. :
+# 2.4 | set_phase .................. : Sets waveform's phase offset angle.
+# 2.5 | set_function ............... : Selects the output function.
+#                                    :
+#                                    :
+#       [3. OUTPut Subsystem]        :
+# 3.1 | channel_state .............. : Enables or disables the front panel output connector.
+#                                    :
+#                                    :
+#       [4. APPLy Subsystem]         :
+# 4.1 | set_waveform ............... : Configure entire waveforms with one command.
 #                                    :
 #########################################################################################################à
 
 
 
 import pyvisa
-import numpy as np
 import time
-import h5py 
 
 
 
-class SMA100B:
+class Ks_33500B:
 
 # 1.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
@@ -71,26 +82,73 @@ class SMA100B:
             print("Error: No active connection.")
 
 
-    def set_frequency(self, freq: float, ch = 1):
+# [2. SOURce Subsystem] ----------------------------------------------------------------------------------------------------------------------------- #
+            
+# 2.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def set_frequency(self, freq: float, ch: int = 1):
+        # sjkasdnaksjnd
         if self._connect_success:
             self._resource.write(f'SOUR{ch}:FREQ {freq}')
         else:
             print("Error: No active connection.")
 
-    def set_amplitude(self, ampl: float, ch = 1):
+# 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def set_amplitude(self, ampl: float, ch: int = 1):
         if self._connect_success:
             self._resource.write(f'SOUR{ch}:VOLT {ampl}')
         else:
             print("Error: No active connection.")
 
-    def set_phase(self, phase: float, ch = 1):
+# 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def set_offset(self, offs: float, ch: int = 1):
+        if self._connect_success:
+            self._resource.write(f'SOUR{ch}:VOLT:OFFS {offs}')
+        else:
+            print("Error: No active connection.")
+
+# 2.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def set_phase(self, phase: float, ch: int = 1):
         if self._connect_success:
             self._resource.write(f'SOUR{ch}:PHAS {phase}')
         else:
             print("Error: No active connection.") 
 
-    def channel_state(self, ch = 1, state = 1):
+# 2.5 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def set_function(self, fun: str, ch: int = 1):
+        if self._connect_success:
+            if fun in {'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', 'DC'}:
+                self._resource.write(f'SOUR{ch}:FUNC {fun}')
+            else:
+                print("Error. Invalid string mode. Write 'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', or 'DC'")
+        else:
+            print("Error: No active connection.") 
+
+
+# [3. OUTPut Subsystem] ----------------------------------------------------------------------------------------------------------------------------- #
+
+# 3.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+
+    def channel_state(self, ch: int = 1, state: int = 1):
         if self._connect_success:
             self._resource.write(f'OUTP{ch} {state}')
         else:
             print("Error: No active connection.") 
+
+
+# [4. APPLy Subsystem] ------------------------------------------------------------------------------------------------------------------------------ #
+
+# 4.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def set_waveform(self, freq: float = 1e3, ampl: float = .1, offs: float = 0, ch: int = 1, fun = 'SIN'):
+        if self._connect_success:
+            if fun in {'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', 'DC'}:
+                self._resource.write(f'SOUR{ch}:APPL:{fun} {freq},{ampl},{offs}')
+            else:
+                print("Error. Invalid string mode. Write 'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', or 'DC'")
+        else:
+            print("Error: No active connection.")

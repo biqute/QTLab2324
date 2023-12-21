@@ -150,9 +150,9 @@ class SMA100B:
 
 # 2.5 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_state(self, mode: str):
+    def pul_state(self, state: int):
         if self._connect_success:
-            self._resource.write(f'SOUR:PULM:STAT {mode}')
+            self._resource.write(f'SOUR:PULM:STAT {state}')
         else:
             print("Error: No active connection.")            
 
@@ -172,7 +172,7 @@ class SMA100B:
 
 # 4.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_state (self, switch: bool):                                            # Turn ON or OFF the signal
+    def RF_state (self, switch: int):                                            # Turn ON or OFF the signal
         if self._connect_success:
             self._resource.write(f'OUTP:STAT {switch}')
         else:
