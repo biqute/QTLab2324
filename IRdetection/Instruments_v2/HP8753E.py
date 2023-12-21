@@ -2,15 +2,16 @@ import pyvisa
 import struct
 import time
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
-import h5_and as h5
+import h5py as h5
 from scipy.signal import find_peaks
 
 
 class HP8753E:
     def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
         self._vna = pyvisa.ResourceManager().open_resource(board)
-        self._path = None #save path for data files
+        self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Test_data/" #save path for data files
         self._params = {}
         self._vna.write('FORM2')
         
@@ -66,7 +67,7 @@ class HP8753E:
 
     def set_IFBW(self, IFBW): #sets the if band width
         self._vna.write('IFBW ' + str(IFBW))
-        self._params["if-band-width"] = IFBW
+        self._params["ifbw"] = IFBW
         return
     
     def set_power(self, power): #sets the power 
@@ -78,12 +79,14 @@ class HP8753E:
         #Set the format for the displayed data 
         #(POLA, LINM, LOGM, PHAS, DELA, SMIC, SWR, REAL, IMAG)
         self._vna.write(fmt)
+        self._params['data_fmt'] = str(fmt)
         return
     
     def data_outp_fmt(self, fmt):
         #Set the format by which data will be outputted by the VNA.
         #(OUTPPRE<1> ... <4>, OUTPRAW<1> ... <4>, OUTPCALC<01> ... <12>, OUTPDATA, OUTPFORM)
         self._vna.write(fmt)
+        self._params['data_elab'] = str(fmt)
         return 
     
     def set_format(self, fmt):
@@ -93,17 +96,15 @@ class HP8753E:
         self._vna.write(fmt)
         return
 
-    def get_IQF_single_meas(self,  data_fmt = 'FORM2', out_fmt = 'OUTPRAW1', percorso=r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IRdetection\Test_data'):
+    def get_IQF_single_meas(self,  data_fmt = 'FORM2', out_fmt = 'OUTPRAW1'):
         #Get imaginary and real data and also the frequency they correspond to
-        self.set_save_path(path=percorso)  
         start = float(self._vna.query('STAR?'))
         span = float(self._vna.query('SPAN?'))
         f_n = [start + (i-1) * span/self.points  for i in range(self.points)] #Get the value corresponding frequency
         f_n = np.array(f_n)
 
         self._vna.write('AUTO') #auto scale the active channel
-        self._vna.write('SING')
-        self._vna.write('OPC')
+        self._vna.write('OPC?;SING;')
         self.set_format(data_fmt) #Set the data format (FORM2 is default so watch out for the header!)
         self._vna.write(out_fmt) #Write to the VNA to display structured data (OUTPFORM is default)
 
@@ -117,32 +118,130 @@ class HP8753E:
 
         i = np.array(x[::2])
         q = np.array(x[1::2]) #This is done becouse we know that i and q values occupy, respectively, odd and even positions
-        thisdict = {"I": i, "Q":q, "F":f_n}
-        h5.dic_to_h5(self._path, thisdict)
         return i, q, f_n
     
-    def compute_S21(self, I, Q): #Returns S21 module and phase
+    def abs_S21(self, I, Q): #Returns S21 module 
         modS21 = []
+        for i in range(len(I)):
+            modS21.append(np.sqrt(pow(I[i],2) + pow(Q[i],2)))     
+
+        return modS21     
+
+    def phase_S21(self, I, Q): #Returns S21 phase
         phaseS21 = []
         for i in range(len(I)):
-            modS21.append(np.sqrt(np.pow(I[i],2) + np.pow(Q[i],2)))
             phaseS21.append(np.arctan(Q[i]/I[i]))
         
-        return modS21, phaseS21        
+        return phaseS21    
     
-    '''
-    def plot_current_S21(self, I, Q):
+    def plot_current_S21(self, I, Q, f):
         modS21, phaseS21 = self.compute_S21(I, Q)
-        fmin = self._vna.query('STAR?')
         
         fig, ax = plt.subplots(1,2)
-        ax[0].plot(x,modS21,color='k')
+        ax[0].plot(f,modS21,color='k')
         ax[0].set(xlabel='$\\nu$ [GHz]', ylabel='|S21|')
-        ax[1].plot(x,phaseS21,color='k')
-        ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')
-        plt.show()
+        ax[1].plot(f,phaseS21,color='k')
+        ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')        
         return
-    
+
+    def plot_I(self, i, f):  #converts |S21| pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f,i,color='k')
+        plt.title('I')
+        plt.xlabel('$\\nu$ [GHz]')
+        #plt.ylabel('')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray
+
+    def plot_Q(self,q, f):  #converts |S21| pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f,q,color='k')
+        plt.title('Q')
+        plt.xlabel('$\\nu$ [GHz]')
+        #plt.ylabel('')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray
+
+    def plot_S21_abs(self, abs, f):  #converts |S21| pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f,abs,color='k')
+        plt.title('S21 Absolute value')
+        plt.xlabel('$\\nu$ [GHz]')
+        plt.ylabel('|S21|')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        
+        return FigArray
+
+    def plot_S21_phase(self, phase, f): #converts S21 phase pyplot figure in numpy array
+        fig = plt.figure(figsize=(10,8))
+        plt.plot(f, phase, color='k')
+        plt.title('S21 Phase')
+        plt.xlabel('$\\nu$ [GHz]')
+        plt.ylabel('$\Phi$')
+        canvas = FigureCanvas(fig)
+        canvas.draw()
+        FigArray = np.array(canvas.renderer.buffer_rgba())
+        return FigArray        
+
+    def create_run_file(self, num, i, q, f):
+        run = h5.File(self._path + "Run_"+ str(num)+ ".h5", "w")
+
+        '''header = run.create_group('INFO')
+        text = self.header_txt()
+        header.create_dataset('Meta\n', data=np.loadtxt(text))'''
+        
+        dati = run.create_group('raw_data')
+        dati.create_dataset('i', data= i)
+        dati.create_dataset('q', data= q)
+        dati.create_dataset('f', data= f)
+
+        plots = run.create_group('plot')
+        ImageDataset1 = plots.create_dataset(name="S21_abs", data=self.plot_S21_abs(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset1.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset1.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset1.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset1.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset1.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset2.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset2.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset2.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset2.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset2.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        ImageDataset3 = plots.create_dataset(name="I", data=self.plot_I(i, f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset3.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset3.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset3.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset3.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset3.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        ImageDataset4 = plots.create_dataset(name="Q", data=self.plot_Q(q, f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset4.attrs["CLASS"] = np.string_("IMAGE")
+        ImageDataset4.attrs["IMAGE_VERSION"] = np.string_("1.2")
+        ImageDataset4.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
+        ImageDataset4.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
+        ImageDataset4.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
+
+        res = run.create_group('results')
+        run.close()
+        return 
+
+    def header_txt(self):
+        with open('info.txt', 'w') as file:
+            for key, values in self._params.items():
+                file.write(key +' : '+ str(values) + '\n')
+        file.close()
+        return file
+
+    '''
     def find_peak(self, n_std=5):
         d = self.get_data_as_dic()
         ii, d = find_peaks(-d['ydata'],height=-np.mean(d['ydata'])+n_std*np.std(d['ydata']))
