@@ -96,6 +96,16 @@ class HP8753E:
         self._vna.write(fmt)
         return
 
+    def set_params(self, pw=-1, bw=1e3, pt=1601, cent=2e9, span=1e8 , fmt='FORM2', out_fmt='OUTPRAW1', disp_fmt='LOGM'):
+        self.set_IFBW(bw)
+        self.set_format(fmt)
+        self.set_points(pt)
+        self.set_power(pw)
+        self.set_center(cent)
+        self.set_span(span)
+        self.set_displayed_data_format(disp_fmt)
+        self.data_outp_fmt(out_fmt)
+
     def get_IQF_single_meas(self,  data_fmt = 'FORM2', out_fmt = 'OUTPRAW1'):
         #Get imaginary and real data and also the frequency they correspond to
         start = float(self._vna.query('STAR?'))
@@ -190,13 +200,12 @@ class HP8753E:
         return FigArray        
 
     def create_run_file(self, num, i, q, f):
+
         run = h5.File(self._path + "Run_"+ str(num)+ ".h5", "w")
 
-        '''header = run.create_group('INFO')
-        text = self.header_txt()
-        header.create_dataset('Meta\n', data=np.loadtxt(text))'''
-        
         dati = run.create_group('raw_data')
+        for key, value in self._params.items():
+            dati.attrs[str(key)] = value
         dati.create_dataset('i', data= i)
         dati.create_dataset('q', data= q)
         dati.create_dataset('f', data= f)
@@ -209,7 +218,7 @@ class HP8753E:
         ImageDataset1.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
         ImageDataset1.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
-        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.phase_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
         ImageDataset2.attrs["CLASS"] = np.string_("IMAGE")
         ImageDataset2.attrs["IMAGE_VERSION"] = np.string_("1.2")
         ImageDataset2.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
@@ -234,12 +243,6 @@ class HP8753E:
         run.close()
         return 
 
-    def header_txt(self):
-        with open('info.txt', 'w') as file:
-            for key, values in self._params.items():
-                file.write(key +' : '+ str(values) + '\n')
-        file.close()
-        return file
 
     '''
     def find_peak(self, n_std=5):
