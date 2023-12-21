@@ -53,7 +53,7 @@ class Ks_33500B:
             self._connect_success = True
             print("Connection successful!")
         except pyvisa.Error as e:
-            print(f"Unable to establish a connection: {e}")
+            print(f"Unable to establish a connection:\n{e}")
         
 # 1.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
