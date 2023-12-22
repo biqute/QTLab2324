@@ -87,7 +87,10 @@ class Ks_33500B:
 # 2.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
     def set_frequency(self, freq: float, ch: int = 1):
-        # sjkasdnaksjnd
+        '''
+        - Frequency in Hz;\n
+        - Channel 1 or 2.
+        '''
         if self._connect_success:
             self._resource.write(f'SOUR{ch}:FREQ {freq}')
         else:
@@ -96,6 +99,10 @@ class Ks_33500B:
 # 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
     def set_amplitude(self, ampl: float, ch: int = 1):
+        '''
+        - Amplitude in V;\n
+        - Channel 1 or 2.
+        '''        
         if self._connect_success:
             self._resource.write(f'SOUR{ch}:VOLT {ampl}')
         else:
@@ -104,6 +111,10 @@ class Ks_33500B:
 # 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
     def set_offset(self, offs: float, ch: int = 1):
+        '''
+        - Offset in V;\n
+        - Channel 1 or 2.
+        '''
         if self._connect_success:
             self._resource.write(f'SOUR{ch}:VOLT:OFFS {offs}')
         else:
@@ -111,15 +122,26 @@ class Ks_33500B:
 
 # 2.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
-    def set_phase(self, phase: float, ch: int = 1):
+    def set_phase(self, angle: float, ch: int = 1, unit = 'DEG'):
+        '''
+        - Angle in DEG units by default;\n
+        - Channel 1 or 2;\n
+        - Angle units (DEG, RAD or SEC).
+        '''
         if self._connect_success:
-            self._resource.write(f'SOUR{ch}:PHAS {phase}')
+            if unit in {'DEG', 'RAD', 'SEC'}:
+                self._resource.write(f'UNIT:ANGL {unit}')
+                self._resource.write(f'SOUR{ch}:PHAS {angle}')
         else:
             print("Error: No active connection.") 
 
 # 2.5 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
     def set_function(self, fun: str, ch: int = 1):
+        '''
+        - Function (SIN, SQU, TRI, RAMP, PULS, PRBS, NOIS, ARB or DC);\n
+        - Channel 1 or 2.
+        '''
         if self._connect_success:
             if fun in {'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', 'DC'}:
                 self._resource.write(f'SOUR{ch}:FUNC {fun}')
@@ -133,7 +155,11 @@ class Ks_33500B:
 
 # 3.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def channel_state(self, ch: int = 1, state: int = 1):
+    def channel_state(self, state: int = 1, ch: int = 1):
+        '''
+        - State ON: 1 or OFF: 0;\n
+        - Channel 1 or 2;
+        '''
         if self._connect_success:
             self._resource.write(f'OUTP{ch} {state}')
         else:
@@ -144,7 +170,14 @@ class Ks_33500B:
 
 # 4.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
-    def set_waveform(self, freq: float = 1e3, ampl: float = .1, offs: float = 0, ch: int = 1, fun = 'SIN'):
+    def set_waveform(self, freq: float = 1e3, ampl: float = .1, offs: float = 0, fun = 'SIN', ch: int = 1):
+        '''
+        - Frequency in Hz;\n
+        - Amplitude in V;\n
+        - Offset in V;\n
+        - Function (SIN, SQU, TRI, RAMP, PULS, PRBS, NOIS, ARB or DC);\n
+        - Channel 1 or 2.
+        '''
         if self._connect_success:
             if fun in {'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', 'DC'}:
                 self._resource.write(f'SOUR{ch}:APPL:{fun} {freq},{ampl},{offs}')
