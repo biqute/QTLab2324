@@ -9,7 +9,7 @@ Good whatever part of the day it is to everyone!
 ### Manuals
     Programming GPIB Manual
     HP8753E user manual
-### datatest
+### Test_data
     Contains some test data
 ### VNA_GUI
     This folder contains all files to build, set the rules and use the Guided User Interface created to:

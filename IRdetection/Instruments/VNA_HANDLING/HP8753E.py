@@ -11,7 +11,7 @@ from scipy.signal import find_peaks
 class HP8753E:
     def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
         self._vna = pyvisa.ResourceManager().open_resource(board)
-        self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Test_data/" #save path for data files
+        self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #save path for data files
         self._params = {}
         self._vna.write('FORM2')
         
@@ -23,11 +23,13 @@ class HP8753E:
         print('VNA object created correctly!\n')
         print('Default number of points for a sweep: ' + str(self.points))
 
-
-    def set_NA(self,ch=1,net="B"):
-        self._vna.write('CHAN' + str(ch)) #sets channel
-        self._vna.write('MEAS ' + net) #sets 
-        return 
+    def set_CHAN(self, ch=1 ): #sets channel    
+        self._vna.write('CHAN' + str(ch))
+        return
+    
+    def set_MEAS(self, net="B"): #sets measurement
+        self._vna.write('MEAS'+ net)
+        return
 
     def ask_name(self): #Returns the name of the instrument
         return self._vna.query('*IDN?')
