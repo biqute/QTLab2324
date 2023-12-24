@@ -15,3 +15,5 @@ Good whatever part of the day it is to everyone!
     This folder contains all files to build, set the rules and use the Guided User Interface created to:
         1) Communicate easily with VNA 
         2) Visualiza real time informations about a VNA sweep (Power sweep or frequency sweep)
+### Notebooks
+    This folders contains various notebooks...
