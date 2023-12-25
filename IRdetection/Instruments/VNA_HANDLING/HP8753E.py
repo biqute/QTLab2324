@@ -1,11 +1,9 @@
 import pyvisa
 import struct
-import time
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
 import h5py as h5
-from scipy.signal import find_peaks
 
 
 class HP8753E:
@@ -25,6 +23,10 @@ class HP8753E:
 
     def set_CHAN(self, ch=1 ): #sets channel    
         self._vna.write('CHAN' + str(ch))
+        return
+
+    def set_mode(self, mode='SING'): #sets the measurement mode
+        self._vna.write(mode)
         return
     
     def set_MEAS(self, net="B"): #sets measurement
