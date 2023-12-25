@@ -1,0 +1,3 @@
+!pip install --upgrade pip
+!pip install pyqt5
+!pip isntall pyqt5-tools
