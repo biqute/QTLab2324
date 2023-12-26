@@ -1,3 +1,6 @@
+#This is the original, it has to be copied in VNA_HANDLER folder
+#We have to understand relative imports!
+
 import pyvisa
 import struct
 import matplotlib.pyplot as plt
