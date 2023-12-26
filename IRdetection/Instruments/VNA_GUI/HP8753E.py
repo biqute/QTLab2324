@@ -19,6 +19,7 @@ class HP8753E:
         print('Default number of points for a sweep: ' + str(self.points))
 
     def check_status(self):
+        msg = 'All is fine'
         self._vna.write('OUTPSTAT')
         _ = self._vna.read_bytes(2)
         check = self._vna.read_bytes(1)
@@ -26,8 +27,6 @@ class HP8753E:
             self._vna.write('OUTPERRO')
             msg = self._vna.read_bytes()
             print(msg)
-        else:
-            msg = 'All is fine'
         return check, msg
 
     def set_CHAN(self, ch=1 ): #sets channel    
