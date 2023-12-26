@@ -7,16 +7,24 @@ import h5py as h5
 
 
 class HP8753E:
-    def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
-        self._vna = pyvisa.ResourceManager().open_resource(board)
-        self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #save path for data files
-        self._params = {}
-        self._vna.write('FORM2')
-        self._vna.write('POIN ' + str(num_points)) #sets the number of points
-        self.points = num_points
-        self.freqs = np.zeros(num_points)
-        print('VNA object created correctly!\n')
-        print('Default number of points for a sweep: ' + str(self.points))
+
+    _instance = None
+    _vna = None
+
+    def __new__(self, board='GPIB0::16::INSTR', num_points = 1601 ):
+        if self._instance is None:
+            print('Creating the object')
+            self._instance = super(HP8753E, self).__new__(self)
+            self._vna = pyvisa.ResourceManager().open_resource(board)
+            self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #save path for data files
+            self._params = {}
+            self._vna.write('FORM2')
+            self._vna.write('POIN ' + str(num_points)) #sets the number of points
+            self.points = num_points
+            self.freqs = np.zeros(num_points)
+            print('VNA object created correctly!\n')
+            print('Default number of points for a sweep: ' + str(self.points))
+        return self._instance
 
     def check_status(self):
         msg = 'All is fine'

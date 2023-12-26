@@ -11,9 +11,11 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QMessageBox
 import HP8753E as hp
+import pyvisa
 
 
 class Ui_MainWindow(object):
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 600)
@@ -251,22 +253,22 @@ class Ui_MainWindow(object):
         self.frame.setFrameShape(QtWidgets.QFrame.Box)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
-        self.comboBox = QtWidgets.QComboBox(self.frame)
-        self.comboBox.setGeometry(QtCore.QRect(10, 10, 121, 30))
+        self.mode_selector= QtWidgets.QComboBox(self.frame)
+        self.mode_selector.setGeometry(QtCore.QRect(10, 10, 121, 30))
         font = QtGui.QFont()
         font.setFamily("Roboto")
         font.setPointSize(12)
-        self.comboBox.setFont(font)
-        self.comboBox.setObjectName("comboBox")
-        self.comboBox.addItem("")
-        self.comboBox.addItem("")
+        self.mode_selector.setFont(font)
+        self.mode_selector.setObjectName("mode_selector")
+        self.mode_selector.addItem("")
+        self.mode_selector.addItem("")
         self.frame_2 = QtWidgets.QFrame(self.frame)
         self.frame_2.setGeometry(QtCore.QRect(0, 0, 140, 51))
         self.frame_2.setFrameShape(QtWidgets.QFrame.Box)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
         self.frame_2.raise_()
-        self.comboBox.raise_()
+        self.mode_selector.raise_()
         self.gridLayout.addWidget(self.frame, 1, 1, 1, 1)
         self.frame_4 = QtWidgets.QFrame(self.gridLayoutWidget)
         self.frame_4.setFrameShape(QtWidgets.QFrame.Box)
@@ -667,8 +669,10 @@ class Ui_MainWindow(object):
         self.comboBox_2.setItemText(2, _translate("MainWindow", "FORM3"))
         self.comboBox_2.setItemText(3, _translate("MainWindow", "FORM4"))
         self.comboBox_2.setItemText(4, _translate("MainWindow", "FORM5"))
-        self.comboBox.setItemText(0, _translate("MainWindow", "SING"))
-        self.comboBox.setItemText(1, _translate("MainWindow", "CONT"))
+        self.mode_selector.setItemText(0, _translate("MainWindow", "SING"))
+        self.mode_selector.setItemText(1, _translate("MainWindow", "CONT"))
+        self.mode_selector.setCurrentIndex(0)
+        self.mode_selector.activated.connect(self.combobox_write)
         self.comboBox_3.setCurrentText(_translate("MainWindow", "OUTPFORM"))
         self.comboBox_3.setItemText(0, _translate("MainWindow", "OUTPPRE1"))
         self.comboBox_3.setItemText(1, _translate("MainWindow", "OUTPPRE2"))
@@ -708,7 +712,6 @@ class Ui_MainWindow(object):
         self.com.setStatusTip(_translate("MainWindow", "Establish connection with VNA instrument"))
         self.com.setText(_translate("MainWindow", "Communicate"))
         self.com.clicked.connect(self.communicate)
-        
         self.label_8.setText(_translate("MainWindow", "Current Sweep Progression"))
         self.res.setText(_translate("MainWindow", "Reset"))
         self.res.clicked.connect(self.reset)
@@ -746,9 +749,16 @@ class Ui_MainWindow(object):
         msg.setIcon(QtWidgets.QMessageBox.Question)
         msg.setWindowTitle('Question')
         msg.setText(text)
-        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+        msg.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
         msg.setDefaultButton(QMessageBox.Cancel)
+        msg.buttonClicked.connect(self.popup_button)
         msg.exec_()
+
+    def popup_button(self, i):
+        vna = hp.HP8753E()
+        if i.text() == 'Yes':
+            self.critical_popup('Machine reset...')
+            vna.reset()    
 
     def communicate(self):
         vna = hp.HP8753E()
@@ -763,9 +773,13 @@ class Ui_MainWindow(object):
         return vna
 
     def reset(self, vna):
-        vna = self.communicate()
+        vna = hp.HP8753E()
         self.question_popup('Sure you want to reset?')
-        vna.reset()
+
+    def combobox_write(self, _): # We receive the index, but don't use it.
+        vna = hp.HP8753E()
+        ctext = self.mode_selector.currentText()
+        vna._vna.write(str(ctext))
 
 
 
