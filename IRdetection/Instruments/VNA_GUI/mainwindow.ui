@@ -541,6 +541,192 @@
      <property name="verticalSpacing">
       <number>5</number>
      </property>
+     <item row="5" column="0">
+      <widget class="QLabel" name="label_11">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>26</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="statusTip">
+        <string>Select data output format</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>DOF</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_9">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>26</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>MEAS</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_13">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>26</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>CHAN</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>12</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Parameter</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_10">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>26</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="statusTip">
+        <string>Select data format</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>FMT</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_12">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>26</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="statusTip">
+        <string>Select data display type</string>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="text">
+        <string>DDF</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QFrame" name="frame">
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QComboBox" name="comboBox">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>121</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Roboto</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <item>
+         <property name="text">
+          <string>SING</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>CONT</string>
+         </property>
+        </item>
+       </widget>
+       <widget class="QFrame" name="frame_2">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>140</width>
+          <height>51</height>
+         </rect>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+       <zorder>frame_2</zorder>
+       <zorder>comboBox</zorder>
+      </widget>
+     </item>
      <item row="3" column="1">
       <widget class="QFrame" name="frame_6">
        <property name="frameShape">
@@ -588,33 +774,6 @@
          </property>
         </item>
        </widget>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QLCDNumber" name="lcdNumber_6"/>
-     </item>
-     <item row="3" column="2">
-      <widget class="QLCDNumber" name="lcdNumber_3"/>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="label_1">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>26</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>MODE</string>
-       </property>
       </widget>
      </item>
      <item row="6" column="1">
@@ -671,15 +830,128 @@
        </widget>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QFrame" name="frame">
+     <item row="0" column="1">
+      <widget class="QLabel" name="label_6">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>12</pointsize>
+         <weight>50</weight>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="text">
+        <string>Selector</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_1">
+       <property name="font">
+        <font>
+         <family>Roboto</family>
+         <pointsize>26</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
        <property name="frameShape">
         <enum>QFrame::Box</enum>
        </property>
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="QComboBox" name="comboBox">
+       <property name="text">
+        <string>MODE</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1">
+      <widget class="QFrame" name="frame_5">
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QComboBox" name="comboBox_4">
+        <property name="geometry">
+         <rect>
+          <x>10</x>
+          <y>10</y>
+          <width>120</width>
+          <height>30</height>
+         </rect>
+        </property>
+        <property name="font">
+         <font>
+          <family>Roboto</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="currentText">
+         <string>LOGM</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>POLA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>LINM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>LOGM</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>PHAS</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>DELA</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SMIC</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>SWR</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>REAL</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>IMAG</string>
+         </property>
+        </item>
+       </widget>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QFrame" name="frame_7">
+       <property name="frameShape">
+        <enum>QFrame::Box</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <widget class="QComboBox" name="comboBox_6">
         <property name="geometry">
          <rect>
           <x>10</x>
@@ -694,35 +966,20 @@
           <pointsize>12</pointsize>
          </font>
         </property>
+        <property name="currentText">
+         <string>B</string>
+        </property>
         <item>
          <property name="text">
-          <string>SING</string>
+          <string>A</string>
          </property>
         </item>
         <item>
          <property name="text">
-          <string>CONT</string>
+          <string>B</string>
          </property>
         </item>
        </widget>
-       <widget class="QFrame" name="frame_2">
-        <property name="geometry">
-         <rect>
-          <x>0</x>
-          <y>0</y>
-          <width>140</width>
-          <height>51</height>
-         </rect>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
-       <zorder>frame_2</zorder>
-       <zorder>comboBox</zorder>
       </widget>
      </item>
      <item row="5" column="1">
@@ -809,310 +1066,11 @@
        </widget>
       </widget>
      </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_11">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>26</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="statusTip">
-        <string>Select data output format</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>DOF</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_9">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>26</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>MEAS</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_13">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>26</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>CHAN</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>12</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="text">
-        <string>Parameter</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLCDNumber" name="lcdNumber_1"/>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_10">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>26</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="statusTip">
-        <string>Select data format</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>FMT</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_12">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>26</pointsize>
-         <weight>75</weight>
-         <bold>true</bold>
-        </font>
-       </property>
-       <property name="statusTip">
-        <string>Select data display type</string>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <property name="text">
-        <string>DDF</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="2">
-      <widget class="QLCDNumber" name="lcdNumber_5"/>
-     </item>
-     <item row="4" column="2">
-      <widget class="QLCDNumber" name="lcdNumber_4"/>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLCDNumber" name="lcdNumber_2"/>
-     </item>
-     <item row="4" column="1">
-      <widget class="QFrame" name="frame_5">
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QComboBox" name="comboBox_4">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>120</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Roboto</family>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="currentText">
-         <string>LOGM</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>POLA</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>LINM</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>LOGM</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>PHAS</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>DELA</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>SMIC</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>SWR</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>REAL</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>IMAG</string>
-         </property>
-        </item>
-       </widget>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="label_5">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>12</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="text">
-        <string>Current Value</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QLabel" name="label_6">
-       <property name="font">
-        <font>
-         <family>Roboto</family>
-         <pointsize>12</pointsize>
-         <weight>50</weight>
-         <bold>false</bold>
-        </font>
-       </property>
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="text">
-        <string>Selector</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="QFrame" name="frame_7">
-       <property name="frameShape">
-        <enum>QFrame::Box</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <widget class="QComboBox" name="comboBox_6">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>121</width>
-          <height>30</height>
-         </rect>
-        </property>
-        <property name="font">
-         <font>
-          <family>Roboto</family>
-          <pointsize>12</pointsize>
-         </font>
-        </property>
-        <property name="currentText">
-         <string>B</string>
-        </property>
-        <item>
-         <property name="text">
-          <string>A</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>B</string>
-         </property>
-        </item>
-       </widget>
-      </widget>
-     </item>
     </layout>
     <zorder>frame_8</zorder>
     <zorder>frame_4</zorder>
     <zorder>frame_5</zorder>
     <zorder>frame_6</zorder>
-    <zorder>lcdNumber_6</zorder>
-    <zorder>lcdNumber_1</zorder>
-    <zorder>lcdNumber_2</zorder>
-    <zorder>lcdNumber_3</zorder>
-    <zorder>lcdNumber_4</zorder>
-    <zorder>lcdNumber_5</zorder>
     <zorder>label_1</zorder>
     <zorder>label_9</zorder>
     <zorder>label_13</zorder>
@@ -1121,7 +1079,6 @@
     <zorder>label_10</zorder>
     <zorder>label_4</zorder>
     <zorder>label_6</zorder>
-    <zorder>label_5</zorder>
     <zorder>frame</zorder>
     <zorder>frame_7</zorder>
    </widget>

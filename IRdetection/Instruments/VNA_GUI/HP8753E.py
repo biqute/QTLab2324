@@ -40,9 +40,9 @@ class HP8753E:
             print(msg)
         return check, msg
 
-    def set_CHAN(self, ch=1 ): #sets channel    
-        self._vna.write('CHAN' + str(ch))
-        return
+    def set_chan(self, chan='S21'):
+        c = self._vna.write(chan)
+        return 
 
     def set_mode(self, mode='SING'): #sets the measurement mode
         self._vna.write(mode)
@@ -119,15 +119,13 @@ class HP8753E:
         self._vna.write(fmt)
         return
 
-    def set_params(self, pw=-1, bw=1e3, pt=1601, cent=2e9, span=1e8 , fmt='FORM2', out_fmt='OUTPRAW1', disp_fmt='LOGM'):
+    def set_params(self, pw=-1, bw=1e3, pt=1601, cent=2e9, span=1e8):
         self.set_IFBW(bw)
-        self.set_format(fmt)
         self.set_points(pt)
         self.set_power(pw)
         self.set_center(cent)
         self.set_span(span)
-        self.set_displayed_data_format(disp_fmt)
-        self.data_outp_fmt(out_fmt)
+        
 
     def get_IQF_single_meas(self,  data_fmt = 'FORM2', out_fmt = 'OUTPRAW1'):
         #Get imaginary and real data and also the frequency they correspond to
