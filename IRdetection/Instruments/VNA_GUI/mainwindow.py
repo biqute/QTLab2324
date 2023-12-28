@@ -714,7 +714,7 @@ class Ui_MainWindow(object):
         self.actionQ_Plot.triggered.connect(self.Q_widget)
         self.actionS21Abs_Plot.triggered.connect(self.S21Abs_widget)
         self.actionS21Phase_Plot.triggered.connect(self.S21Phase_widget)
-        self.action_set_params.triggered.connect(self.Params_widget)
+        #self.action_set_params.triggered.connect(self.Params_widget)
 
     def I_widget(self):
         # Create an instance of your widget class
