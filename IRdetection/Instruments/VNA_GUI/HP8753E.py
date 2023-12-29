@@ -21,12 +21,17 @@ class HP8753E:
             self._vna = pyvisa.ResourceManager().open_resource(board)
             self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #save path for data files
             self._params = {}
+            self._params["center"] = 2e8
+            self._params["span"] = 1e8
+            self._params["points"] = num_points
+            self._params["IFBW"] = 100
+            self._params["power"] = -20
             self._vna.write('FORM2')
             self._vna.write('POIN ' + str(num_points)) #sets the number of points
-            self.points = num_points
-            self.freqs = np.zeros(num_points)
+            self._points = num_points
+            self._freqs = np.zeros(num_points)
             print('VNA object created correctly!\n')
-            print('Default number of points for a sweep: ' + str(self.points))
+            print('Default number of points for a sweep: ' + str(self._points))
         return self._instance
 
     def check_status(self):
@@ -63,40 +68,64 @@ class HP8753E:
         self._vna.write('POIN ' + str(npt))
         self._params["points"] = npt
         return
+
+    def get_points(self):
+        return self._points
     
     def set_start(self, start): #sets the start frequency to measure
         self._vna.write('STAR ' + str(start))
         self._params["start"] = start
         return
+
+    def get_start(self):
+        return self._params["start"]
     
     def set_stop(self, stop): #sets the stop frequency to measure
         self._vna.write('STOP ' + str(stop))
         self._params["stop"] = stop
         return
 
+    def get_stop(self):
+        return self._params["stop"]
+
     def set_center(self, center): #sets the center frequency to measure
         self._vna.write('CENT ' + str(center))
         self._params["center"] = center
         return
+
+    def get_center(self):
+        return self._params["center"]
 
     def set_span(self, span): #sets the span frequency
         self._vna.write('SPAN ' + str(span))
         self._params["span"] = span
         return
 
+    def get_span(self):
+        return self._params["span"]
+
     def set_save_path(self,path):
         self._path = path
         return
 
+    def get_save_path(self):
+        return self._path
+
     def set_IFBW(self, IFBW): #sets the if band width
         self._vna.write('IFBW ' + str(IFBW))
-        self._params["ifbw"] = IFBW
+        self._params["IFBW"] = IFBW
         return
+
+    def get_IFBW(self):
+        return self._params["IFBW"]
     
     def set_power(self, power): #sets the power 
         self._vna.write('POWE ' + str(power))
         self._params["power"] = power
         return      
+
+    def get_power(self):
+        return self._params['power']
 
     def set_displayed_data_format(self, fmt):
         #Set the format for the displayed data 

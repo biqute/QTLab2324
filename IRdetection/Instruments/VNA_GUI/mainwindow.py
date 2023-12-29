@@ -16,7 +16,7 @@ from plotI import MplCanvasI , I_Widget
 from plotQ import MplCanvasQ, Q_Widget
 from plotS21 import MplCanvasS21, S21Abs_Widget
 from plotPhase import MplCanvasPhase, S21Phase_Widget
-from params import Params
+from Params import Ui_Params
 
 
 class Ui_MainWindow(object):
@@ -714,8 +714,14 @@ class Ui_MainWindow(object):
         self.actionQ_Plot.triggered.connect(self.Q_widget)
         self.actionS21Abs_Plot.triggered.connect(self.S21Abs_widget)
         self.actionS21Phase_Plot.triggered.connect(self.S21Phase_widget)
-        #self.action_set_params.triggered.connect(self.Params_widget)
+        self.action_set_params.triggered.connect(self.Params_widget)
 
+    def Params_widget(self):
+        self._params = QtWidgets.QWidget()
+        self.ui = Ui_Params()
+        self.ui.setupUi(self._params)
+        self._params.show()
+    
     def I_widget(self):
         # Create an instance of your widget class
         self.I_widget = I_Widget()

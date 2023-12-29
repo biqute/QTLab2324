@@ -9,12 +9,18 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import HP8753E as hp  
+from dialog_parameter import Ui_Parameterdialog as pd   
+
+     
+class Ui_Params(object):
+
+    _Parameterdialog = None
 
 
-class Ui_Params_v2(object):
-    def setupUi(self, Params_v2):
-        Params_v2.setObjectName("Params_v2")
-        Params_v2.resize(552, 538)
+    def setupUi(self, Params):
+        Params.setObjectName("Params")
+        Params.resize(552, 538)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -151,14 +157,14 @@ class Ui_Params_v2(object):
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
-        Params_v2.setPalette(palette)
-        self.widgetTitle = QtWidgets.QLabel(Params_v2)
+        Params.setPalette(palette)
+        self.widgetTitle = QtWidgets.QLabel(Params)
         self.widgetTitle.setGeometry(QtCore.QRect(40, 50, 361, 51))
         font = QtGui.QFont()
         font.setPointSize(20)
         self.widgetTitle.setFont(font)
         self.widgetTitle.setObjectName("widgetTitle")
-        self.gridLayoutWidget = QtWidgets.QWidget(Params_v2)
+        self.gridLayoutWidget = QtWidgets.QWidget(Params)
         self.gridLayoutWidget.setGeometry(QtCore.QRect(40, 100, 471, 421))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
@@ -244,31 +250,99 @@ class Ui_Params_v2(object):
         self.IFBW_pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
         self.IFBW_pushButton.setObjectName("IFBW_pushButton")
         self.gridLayout.addWidget(self.IFBW_pushButton, 4, 2, 1, 1)
+        self.POWER_pushButton.clicked.connect(self.change_POWER)
+        self.POWER_pushButton.clicked.connect(self.change_POWER_lcd)
+        self.POINTS_pushButton.clicked.connect(self.change_POINTS)        
+        self.POWER_pushButton.clicked.connect(self.change_POINTS_lcd)
+        self.CENTER_pushButton.clicked.connect(self.change_CENTER)        
+        self.POWER_pushButton.clicked.connect(self.change_CENTER_lcd)
+        self.SPAN_pushButton.clicked.connect(self.change_SPAN)
+        self.POWER_pushButton.clicked.connect(self.change_SPAN_lcd)
+        self.IFBW_pushButton.clicked.connect(self.change_IFBW)
+        self.POWER_pushButton.clicked.connect(self.change_IFBW_lcd)
 
-        self.retranslateUi(Params_v2)
-        QtCore.QMetaObject.connectSlotsByName(Params_v2)
+        self.retranslateUi(Params)
+        QtCore.QMetaObject.connectSlotsByName(Params)
 
-    def retranslateUi(self, Params_v2):
+    def retranslateUi(self, Params):
         _translate = QtCore.QCoreApplication.translate
-        Params_v2.setWindowTitle(_translate("Params_v2", "Form"))
-        self.widgetTitle.setText(_translate("Params_v2", "Frequency Sweep Parameters"))
-        self.POWER_label.setText(_translate("Params_v2", "POWER"))
-        self.POINTS_label.setText(_translate("Params_v2", "POINTS"))
-        self.SPAN_label.setText(_translate("Params_v2", "SPAN"))
-        self.IFBW_label.setText(_translate("Params_v2", "IFBW"))
-        self.CENTER_label.setText(_translate("Params_v2", "CENTER"))
-        self.POWER_pushButton.setText(_translate("Params_v2", "Change Power"))
-        self.POINTS_pushButton.setText(_translate("Params_v2", "Change Points Number"))
-        self.CENTER_pushButton.setText(_translate("Params_v2", "Change Center"))
-        self.SPAN_pushButton.setText(_translate("Params_v2", "Change Frequency Span"))
-        self.IFBW_pushButton.setText(_translate("Params_v2", "Change IFBW"))
+        Params.setWindowTitle(_translate("Params", "Form"))
+        self.widgetTitle.setText(_translate("Params", "Frequency Sweep Parameters"))
+        self.POWER_label.setText(_translate("Params", "POWER"))
+        self.POINTS_label.setText(_translate("Params", "POINTS"))
+        self.SPAN_label.setText(_translate("Params", "SPAN"))
+        self.IFBW_label.setText(_translate("Params", "IFBW"))
+        self.CENTER_label.setText(_translate("Params", "CENTER"))
+        self.POWER_pushButton.setText(_translate("Params", "Change Power"))
+        self.POINTS_pushButton.setText(_translate("Params", "Change Points Number"))
+        self.CENTER_pushButton.setText(_translate("Params", "Change Center"))
+        self.SPAN_pushButton.setText(_translate("Params", "Change Frequency Span"))
+        self.IFBW_pushButton.setText(_translate("Params", "Change IFBW"))
 
+    def open_le(self):
+        self._Parameterdialog = QtWidgets.QDialog()
+        ui = pd()
+        ui.setupUi(self._Parameterdialog)
+        self._Parameterdialog.show()
+        return ui.get_value()
+
+    def change_POWER_lcd(self):
+        vna = hp.HP8753E()
+        self.POWER_lcd.display(vna.get_power())
+
+    def change_POINTS_lcd(self):
+        vna = hp.HP8753E()
+        self.POINTS_lcd.display(vna.get_points())
+
+    def change_SPAN_lcd(self):
+        vna = hp.HP8753E()
+        self.SPAN_lcd.display(vna.get_span())
+
+    def change_IFBW_lcd(self):
+        vna = hp.HP8753E()
+        self.IFBW_lcd.display(vna.get_IFBW())
+
+    def change_CENTER_lcd(self):
+        vna = hp.HP8753E()
+        self.CENTER_lcd.display(vna.get_center())
+
+    def change_POWER(self):
+        pw = self.open_le()
+        vna = hp.HP8753E()
+        #vna.set_power(float(pw))
+        self.POWER_lcd.display(pw)
+
+    def change_POINTS(self):
+        pn = self.open_le()
+        vna = hp.HP8753E()
+        #vna.set_points(float(pn))
+        self.POINTS_lcd.display(pn)
+
+    def change_CENTER(self):
+        cn = self.open_le()
+        vna = hp.HP8753E()
+        #vna.set_center(float(cn))
+        self.CENTER_lcd.display(cn)
+
+    def change_SPAN(self):
+        sn = self.open_le()
+        vna = hp.HP8753E()
+        #vna.set_span(float(sn))
+        self.SPAN_lcd.display(sn)
+
+    def change_IFBW(self):
+        bw = self.open_le()
+        vna = hp.HP8753E()
+        #vna.set_IFBW(float(bw))
+        self.IFBW_lcd.display(bw)
+
+    
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    Params_v2 = QtWidgets.QWidget()
-    ui = Ui_Params_v2()
-    ui.setupUi(Params_v2)
-    Params_v2.show()
+    Params = QtWidgets.QWidget()
+    ui = Ui_Params()
+    ui.setupUi(Params)
+    Params.show()
     sys.exit(app.exec_())
