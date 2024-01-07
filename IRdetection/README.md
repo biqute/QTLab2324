@@ -12,7 +12,7 @@ Good whatever part of the day it is to everyone!
 ### Test_data
     Contains some test data
 ### VNA_GUI
-    This folder contains all files to build, set the rules and use the Guided User Interface created to:
+    This folder contains all files to build, set the rules and use the Graphical User Interface created to:
         1) Communicate easily with VNA 
         2) Visualiza real time informations about a VNA sweep (Power sweep or frequency sweep)
 ### Notebooks
