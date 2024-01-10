@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Params_v2</class>
- <widget class="QWidget" name="Params_v2">
+ <class>Parameters</class>
+ <widget class="QWidget" name="Parameters">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>552</width>
-    <height>538</height>
+    <width>618</width>
+    <height>567</height>
    </rect>
   </property>
   <property name="palette">
@@ -25,9 +25,9 @@
      <colorrole role="Button">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -43,27 +43,27 @@
      <colorrole role="Midlight">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>231</red>
-        <green>247</green>
-        <blue>233</blue>
+        <red>229</red>
+        <green>246</green>
+        <blue>247</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Dark">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>104</red>
-        <green>120</green>
-        <blue>106</blue>
+        <red>101</red>
+        <green>118</green>
+        <blue>120</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Mid">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>139</red>
-        <green>160</green>
-        <blue>141</blue>
+        <red>135</red>
+        <green>158</green>
+        <blue>160</blue>
        </color>
       </brush>
      </colorrole>
@@ -106,9 +106,9 @@
      <colorrole role="Window">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -124,9 +124,9 @@
      <colorrole role="AlternateBase">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>231</red>
-        <green>247</green>
-        <blue>233</blue>
+        <red>229</red>
+        <green>246</green>
+        <blue>247</blue>
        </color>
       </brush>
      </colorrole>
@@ -162,9 +162,9 @@
      <colorrole role="Button">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -180,27 +180,27 @@
      <colorrole role="Midlight">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>231</red>
-        <green>247</green>
-        <blue>233</blue>
+        <red>229</red>
+        <green>246</green>
+        <blue>247</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Dark">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>104</red>
-        <green>120</green>
-        <blue>106</blue>
+        <red>101</red>
+        <green>118</green>
+        <blue>120</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Mid">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>139</red>
-        <green>160</green>
-        <blue>141</blue>
+        <red>135</red>
+        <green>158</green>
+        <blue>160</blue>
        </color>
       </brush>
      </colorrole>
@@ -243,9 +243,9 @@
      <colorrole role="Window">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -261,9 +261,9 @@
      <colorrole role="AlternateBase">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>231</red>
-        <green>247</green>
-        <blue>233</blue>
+        <red>229</red>
+        <green>246</green>
+        <blue>247</blue>
        </color>
       </brush>
      </colorrole>
@@ -290,18 +290,18 @@
      <colorrole role="WindowText">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>104</red>
-        <green>120</green>
-        <blue>106</blue>
+        <red>101</red>
+        <green>118</green>
+        <blue>120</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Button">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -317,36 +317,36 @@
      <colorrole role="Midlight">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>231</red>
-        <green>247</green>
-        <blue>233</blue>
+        <red>229</red>
+        <green>246</green>
+        <blue>247</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Dark">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>104</red>
-        <green>120</green>
-        <blue>106</blue>
+        <red>101</red>
+        <green>118</green>
+        <blue>120</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Mid">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>139</red>
-        <green>160</green>
-        <blue>141</blue>
+        <red>135</red>
+        <green>158</green>
+        <blue>160</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Text">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>104</red>
-        <green>120</green>
-        <blue>106</blue>
+        <red>101</red>
+        <green>118</green>
+        <blue>120</blue>
        </color>
       </brush>
      </colorrole>
@@ -362,27 +362,27 @@
      <colorrole role="ButtonText">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>104</red>
-        <green>120</green>
-        <blue>106</blue>
+        <red>101</red>
+        <green>118</green>
+        <blue>120</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Base">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
      <colorrole role="Window">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -398,9 +398,9 @@
      <colorrole role="AlternateBase">
       <brush brushstyle="SolidPattern">
        <color alpha="255">
-        <red>208</red>
-        <green>240</green>
-        <blue>212</blue>
+        <red>203</red>
+        <green>237</green>
+        <blue>240</blue>
        </color>
       </brush>
      </colorrole>
@@ -428,54 +428,65 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QLabel" name="widgetTitle">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>50</y>
-     <width>361</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>20</pointsize>
-    </font>
-   </property>
-   <property name="text">
-    <string>Frequency Sweep Parameters</string>
-   </property>
-  </widget>
   <widget class="QWidget" name="gridLayoutWidget">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>100</y>
-     <width>471</width>
-     <height>421</height>
+     <x>70</x>
+     <y>70</y>
+     <width>270</width>
+     <height>480</height>
     </rect>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="0" column="0">
-     <widget class="QLabel" name="POWER_label">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-       </font>
+    <item row="4" column="0">
+     <widget class="QLCDNumber" name="Center_lcd">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
       </property>
       <property name="lineWidth">
        <number>3</number>
       </property>
-      <property name="text">
-       <string>POWER</string>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLCDNumber" name="Power_lcd">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="baseSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>3</number>
+      </property>
+      <property name="midLineWidth">
+       <number>2</number>
       </property>
      </widget>
     </item>
-    <item row="1" column="1">
-     <widget class="QLCDNumber" name="POINTS_lcd">
+    <item row="2" column="0">
+     <widget class="QLCDNumber" name="Span_lcd">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
@@ -485,153 +496,203 @@
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QLabel" name="POINTS_label">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-       </font>
+     <widget class="QLCDNumber" name="Points_lcd">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
       </property>
       <property name="lineWidth">
        <number>3</number>
-      </property>
-      <property name="text">
-       <string>POINTS</string>
       </property>
      </widget>
     </item>
     <item row="3" column="0">
-     <widget class="QLabel" name="SPAN_label">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-      <property name="text">
-       <string>SPAN</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="0">
-     <widget class="QLabel" name="IFBW_label">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-      <property name="text">
-       <string>IFBW</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
      <widget class="QLCDNumber" name="IFBW_lcd">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
       <property name="lineWidth">
        <number>3</number>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="0">
-     <widget class="QLabel" name="CENTER_label">
-      <property name="font">
-       <font>
-        <pointsize>16</pointsize>
-       </font>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Box</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-      <property name="text">
-       <string>CENTER</string>
       </property>
      </widget>
     </item>
     <item row="0" column="1">
-     <widget class="QLCDNumber" name="POWER_lcd">
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
+     <widget class="QPushButton" name="power_pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="lineWidth">
-       <number>3</number>
+      <property name="font">
+       <font>
+        <family>MS Shell Dlg 2</family>
+        <pointsize>12</pointsize>
+       </font>
       </property>
-     </widget>
-    </item>
-    <item row="2" column="1">
-     <widget class="QLCDNumber" name="CENTER_lcd">
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="1">
-     <widget class="QLCDNumber" name="SPAN_lcd">
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
-       <number>3</number>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="2">
-     <widget class="QPushButton" name="POWER_pushButton">
       <property name="text">
        <string>Change Power</string>
       </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
      </widget>
     </item>
-    <item row="1" column="2">
-     <widget class="QPushButton" name="POINTS_pushButton">
+    <item row="1" column="1">
+     <widget class="QPushButton" name="points_pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
       <property name="text">
        <string>Change Points Number</string>
       </property>
      </widget>
     </item>
-    <item row="2" column="2">
-     <widget class="QPushButton" name="CENTER_pushButton">
+    <item row="2" column="1">
+     <widget class="QPushButton" name="span_pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="text">
-       <string>Change Center</string>
+       <string>Change Span</string>
       </property>
      </widget>
     </item>
-    <item row="3" column="2">
-     <widget class="QPushButton" name="SPAN_pushButton">
-      <property name="text">
-       <string>Change Frequency Span</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="2">
+    <item row="3" column="1">
      <widget class="QPushButton" name="IFBW_pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
       <property name="text">
        <string>Change IFBW</string>
       </property>
      </widget>
     </item>
+    <item row="4" column="1">
+     <widget class="QPushButton" name="Center_pushButton">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>12</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Change Center</string>
+      </property>
+     </widget>
+    </item>
    </layout>
+  </widget>
+  <widget class="QLabel" name="label">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>30</y>
+     <width>201</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::Box</enum>
+   </property>
+   <property name="lineWidth">
+    <number>3</number>
+   </property>
+   <property name="text">
+    <string>VNA Main Parameters</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="get_IQF_pushButton">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>120</y>
+     <width>181</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="focusPolicy">
+    <enum>Qt::StrongFocus</enum>
+   </property>
+   <property name="text">
+    <string>Get IQF</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="crf_pushButton">
+   <property name="geometry">
+    <rect>
+     <x>400</x>
+     <y>240</y>
+     <width>181</width>
+     <height>91</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Create Run File</string>
+   </property>
   </widget>
  </widget>
  <resources/>

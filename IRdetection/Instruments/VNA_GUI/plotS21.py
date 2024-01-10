@@ -6,7 +6,7 @@ from PyQt5 import QtCore, QtWidgets
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.figure import Figure
-
+import time
 import HP8753E as hp
 
 
@@ -38,5 +38,6 @@ class S21Abs_Widget(QtWidgets.QMainWindow):
     def get_data(self):
         vna = hp.HP8753E()
         i, q, f = vna.get_IQF_single_meas()
+        time.sleep(30)
         S21 = vna.abs_S21(i, q)
         return f, S21

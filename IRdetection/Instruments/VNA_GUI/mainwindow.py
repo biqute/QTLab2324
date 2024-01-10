@@ -16,8 +16,7 @@ from plotI import MplCanvasI , I_Widget
 from plotQ import MplCanvasQ, Q_Widget
 from plotS21 import MplCanvasS21, S21Abs_Widget
 from plotPhase import MplCanvasPhase, S21Phase_Widget
-from Params import Ui_Params
-
+from Params_v2 import Ui_Parameters
 
 class Ui_MainWindow(object):
 
@@ -702,7 +701,6 @@ class Ui_MainWindow(object):
         self.label_8.setText(_translate("MainWindow", "Current Sweep Progression"))
         self.res.setText(_translate("MainWindow", "Reset"))
         self.res.clicked.connect(self.reset_value)
-        self.res.clicked.connect(self.reset)
         self.menuInit.setTitle(_translate("MainWindow", "Plots"))
         self.menuF_SWEEP.setTitle(_translate("MainWindow", "F-SWEEP"))
         self.menuP_SWEEP.setTitle(_translate("MainWindow", "P-SWEEP"))
@@ -719,7 +717,7 @@ class Ui_MainWindow(object):
 
     def Params_widget(self):
         self._params = QtWidgets.QWidget()
-        self.ui = Ui_Params()
+        self.ui = Ui_Parameters()
         self.ui.setupUi(self._params)
         self._params.show()
     
@@ -749,7 +747,7 @@ class Ui_MainWindow(object):
 
    
     def reset(self):
-        self.question_popup(text='Resetting Machine', action=self.reset_popup_button)
+        self.question_popup(text='Resetting Machine', action=self._popup_button)
 
     def reset_value(self):
         vna = hp.HP8753E()

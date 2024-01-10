@@ -12,8 +12,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Dialog(object):
-    def setupUi(self, Dialog, param):
-        self.param = param
+
+    test_value = 0
+
+    def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(400, 130)
         self.gridLayout_2 = QtWidgets.QGridLayout(Dialog)
@@ -27,6 +29,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.addWidget(self.label, 0, 1, 1, 1)
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setObjectName("lineEdit")
+        self.lineEdit.setText('-12')
         self.gridLayout_2.addWidget(self.lineEdit, 1, 1, 1, 1)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -41,23 +44,23 @@ class Ui_Dialog(object):
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     def change_val(self):
-        self.param(self.lineEdit.text())
+        try: self.test_value = float(self.lineEdit.text())
+        except: pass
+
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Parameter Dialog"))
         self.label.setText(_translate("Dialog", "Change Parameter Value"))
 
-def get_value(value):
-    return value
+
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
     Dialog = QtWidgets.QDialog()
     ui = Ui_Dialog()
-    ui.setupUi(Dialog,get_value)
-    Dialog.show()
-    if 
-    
+    ui.setupUi(Dialog)
+    if Dialog.exec_():
+        print("test: " + str(ui.test_value))
     sys.exit(app.exec_())

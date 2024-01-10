@@ -1,4 +1,4 @@
-import sys
+import time
 import matplotlib
 matplotlib.use('Qt5Agg')
 
@@ -38,5 +38,6 @@ class S21Phase_Widget(QtWidgets.QMainWindow):
     def get_data(self):
         vna = hp.HP8753E()
         i, q, f = vna.get_IQF_single_meas()
+        time.sleep(30)
         phase = vna.phase_S21(i, q)
         return f, phase
