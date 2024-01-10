@@ -160,7 +160,7 @@ class HP8753E:
         #Get imaginary and real data and also the frequency they correspond to
         start = float(self._vna.query('STAR?'))
         span = float(self._vna.query('SPAN?'))
-        f_n = [start + (i-1) * span/self.points  for i in range(self.points)] #Get the value corresponding frequency
+        f_n = [start + (i-1) * span/self._points  for i in range(self._points)] #Get the value corresponding frequency
         f_n = np.array(f_n)
 
         self._vna.write('AUTO') #auto scale the active channel

@@ -14,9 +14,12 @@ import HP8753E as hp
 
 class Ui_Parameterdialog(object):
 
-    _w = None
+    testo = None
 
-    def setupUi(self, Parameterdialog):
+    def __init__(self):
+        self.setupUi()
+
+    def setupUi(self):
         Parameterdialog.setObjectName("Parameterdialog")
         Parameterdialog.resize(296, 109)
         palette = QtGui.QPalette()
@@ -168,9 +171,15 @@ class Ui_Parameterdialog(object):
         self.Confirm = QtWidgets.QPushButton(Parameterdialog)
         self.Confirm.setGeometry(QtCore.QRect(170, 50, 110, 30))
         self.Confirm.setObjectName("Confirm")
-        self.Confirm.clicked.connect(self.)
+        self.Confirm.clicked.connect(self.get_value)
         self.retranslateUi(Parameterdialog)
         QtCore.QMetaObject.connectSlotsByName(Parameterdialog)
+
+
+    def get_value(self):
+        testo = self.lineEdit.text()
+        return
+
 
     def warning_popup(self, text):
         msg = QtWidgets.QMessageBox()
@@ -179,15 +188,11 @@ class Ui_Parameterdialog(object):
         msg.setText(text)
         msg.exec_()
 
-    def get_value(self):
-        _w = self.lineEdit.text()
-        return _w
-
     def retranslateUi(self, Parameterdialog):
         _translate = QtCore.QCoreApplication.translate
         Parameterdialog.setWindowTitle(_translate("Parameterdialog", "Dialog"))
         self.Parameter_label.setText(_translate("Parameterdialog", "Change Parameter value"))
-        self.lineEdit.setText(_translate("Parameterdialog", "Put value Here"))
+        #self.lineEdit.setText(_translate("Parameterdialog", "Put value Here"))
         self.Confirm.setText(_translate("Parameterdialog", "Confirm"))
 
 
@@ -196,6 +201,6 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     Parameterdialog = QtWidgets.QDialog()
     ui = Ui_Parameterdialog()
-    ui.setupUi(Parameterdialog,'POWER')
+    ui.setupUi(Parameterdialog)
     Parameterdialog.show()
     sys.exit(app.exec_())

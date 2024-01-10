@@ -444,6 +444,7 @@ class Ui_MainWindow(object):
         self.progressBar.setGeometry(QtCore.QRect(530, 390, 241, 23))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
+        self.progressBar.connectNotify
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
         self.label_8.setGeometry(QtCore.QRect(530, 340, 211, 46))
         font = QtGui.QFont()
@@ -817,3 +818,10 @@ class Ui_MainWindow(object):
         vna = hp.HP8753E()
         ctext = self.mode_selector.currentText()
         vna._vna.write(str(ctext))
+
+    def doAction(self): 
+  
+        # setting for loop to set value of progress bar 
+        for i in range(101): 
+            # setting value to progress bar 
+            self.progressBar.setValue(i)

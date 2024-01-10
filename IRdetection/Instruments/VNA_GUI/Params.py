@@ -219,6 +219,7 @@ class Ui_Params(object):
         self.CENTER_label.setFrameShape(QtWidgets.QFrame.Box)
         self.CENTER_label.setLineWidth(3)
         self.CENTER_label.setObjectName("CENTER_label")
+        
         self.gridLayout.addWidget(self.CENTER_label, 2, 0, 1, 1)
         self.POWER_lcd = QtWidgets.QLCDNumber(self.gridLayoutWidget)
         self.POWER_lcd.setFrameShadow(QtWidgets.QFrame.Plain)
@@ -250,6 +251,12 @@ class Ui_Params(object):
         self.IFBW_pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
         self.IFBW_pushButton.setObjectName("IFBW_pushButton")
         self.gridLayout.addWidget(self.IFBW_pushButton, 4, 2, 1, 1)
+
+        self.start_IQF_pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+        self.start_IQF_pushButton.setObjectName("IQF_pushButton")
+        self.gridLayout.addWidget(self.start_IQF_pushButton, 5, 2, 1, 1)
+        
+        
         self.POWER_pushButton.clicked.connect(self.change_POWER)
         self.POWER_pushButton.clicked.connect(self.change_POWER_lcd)
         self.POINTS_pushButton.clicked.connect(self.change_POINTS)        
@@ -260,9 +267,7 @@ class Ui_Params(object):
         self.POWER_pushButton.clicked.connect(self.change_SPAN_lcd)
         self.IFBW_pushButton.clicked.connect(self.change_IFBW)
         self.POWER_pushButton.clicked.connect(self.change_IFBW_lcd)
-
-        self.retranslateUi(Params)
-        QtCore.QMetaObject.connectSlotsByName(Params)
+        self.start_IQF_pushButton.clicked.connect(self.start_IQF)
 
     def retranslateUi(self, Params):
         _translate = QtCore.QCoreApplication.translate
@@ -278,13 +283,7 @@ class Ui_Params(object):
         self.CENTER_pushButton.setText(_translate("Params", "Change Center"))
         self.SPAN_pushButton.setText(_translate("Params", "Change Frequency Span"))
         self.IFBW_pushButton.setText(_translate("Params", "Change IFBW"))
-
-    def open_le(self):
-        self._Parameterdialog = QtWidgets.QDialog()
-        ui = pd()
-        ui.setupUi(self._Parameterdialog)
-        self._Parameterdialog.show()
-        return ui.get_value()
+        self.start_IQF_pushButton.setText(_translate("Params", "Start Routine"))
 
     def change_POWER_lcd(self):
         vna = hp.HP8753E()
@@ -307,37 +306,42 @@ class Ui_Params(object):
         self.CENTER_lcd.display(vna.get_center())
 
     def change_POWER(self):
-        pw = self.open_le()
         vna = hp.HP8753E()
-        #vna.set_power(float(pw))
-        self.POWER_lcd.display(pw)
+        Dialog = QtWidgets.QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(Dialog)
+    Dialog.show()
+    
+        return 
 
     def change_POINTS(self):
-        pn = self.open_le()
+        #pn = self.open_le()
         vna = hp.HP8753E()
         #vna.set_points(float(pn))
-        self.POINTS_lcd.display(pn)
+        #self.POINTS_lcd.display(pn)
 
     def change_CENTER(self):
-        cn = self.open_le()
+        #cn = self.open_le()
         vna = hp.HP8753E()
         #vna.set_center(float(cn))
-        self.CENTER_lcd.display(cn)
+        #self.CENTER_lcd.display(cn)
 
     def change_SPAN(self):
-        sn = self.open_le()
+        #sn = self.open_le()
         vna = hp.HP8753E()
         #vna.set_span(float(sn))
-        self.SPAN_lcd.display(sn)
+        #self.SPAN_lcd.display(sn)
 
     def change_IFBW(self):
-        bw = self.open_le()
+        #bw = self.open_le()
         vna = hp.HP8753E()
         #vna.set_IFBW(float(bw))
-        self.IFBW_lcd.display(bw)
+        #self.IFBW_lcd.display(bw)
 
-    
-
+    def start_IQF(self):
+        vna = hp.HP8753E()
+        vna.get_IQF_single_meas()
+  
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
