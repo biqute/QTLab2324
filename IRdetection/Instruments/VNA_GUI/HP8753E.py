@@ -1,33 +1,61 @@
+#This is the original, it has to be copied in VNA_HANDLER folder
+#We have to understand relative imports!
+
 import pyvisa
 import struct
-import time
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
 import h5py as h5
-from scipy.signal import find_peaks
 
 
 class HP8753E:
-    def __init__(self, board='GPIB0::16::INSTR', num_points = 1601):
-        self._vna = pyvisa.ResourceManager().open_resource(board)
-        self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Test_data/" #save path for data files
-        self._params = {}
-        self._vna.write('FORM2')
-        
-        self._vna.write('POIN ' + str(num_points)) #sets the number of points
-        self.points = num_points
 
-        self.freqs = np.zeros(num_points)
+    _instance = None
+    _vna = None
 
-        print('VNA object created correctly!\n')
-        print('Default number of points for a sweep: ' + str(self.points))
+    def __new__(self, board='GPIB0::16::INSTR', num_points = 1601 ):
+        if self._instance is None:
+            print('Creating the object')
+            self._instance = super(HP8753E, self).__new__(self)
+            self._vna = pyvisa.ResourceManager().open_resource(board)
+            self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #save path for data files
+            self._params = {}
+            self._params["center"] = 2e8
+            self._params["span"] = 1e8
+            self._params["points"] = num_points
+            self._params["IFBW"] = 100
+            self._params["power"] = -20
+            self._vna.write('FORM2')
+            self._vna.write('POIN ' + str(num_points)) #sets the number of points
+            self._points = num_points
+            self._freqs = np.zeros(num_points)
+            print('VNA object created correctly!\n')
+            print('Default number of points for a sweep: ' + str(self._points))
+        return self._instance
 
+    def check_status(self):
+        msg = 'All is fine'
+        self._vna.write('OUTPSTAT')
+        _ = self._vna.read_bytes(2)
+        check = self._vna.read_bytes(1)
+        if check == 1:
+            self._vna.write('OUTPERRO')
+            msg = self._vna.read_bytes()
+            print(msg)
+        return check, msg
 
-    def set_NA(self,ch=1,net="B"):
-        self._vna.write('CHAN' + str(ch)) #sets channel
-        self._vna.write('MEAS ' + net) #sets 
+    def set_chan(self, chan='S21'):
+        c = self._vna.write(chan)
         return 
+
+    def set_mode(self, mode='SING'): #sets the measurement mode
+        self._vna.write(mode)
+        return
+    
+    def set_MEAS(self, net="B"): #sets measurement
+        self._vna.write('MEAS'+ net)
+        return
 
     def ask_name(self): #Returns the name of the instrument
         return self._vna.query('*IDN?')
@@ -40,40 +68,64 @@ class HP8753E:
         self._vna.write('POIN ' + str(npt))
         self._params["points"] = npt
         return
+
+    def get_points(self):
+        return self._points
     
     def set_start(self, start): #sets the start frequency to measure
         self._vna.write('STAR ' + str(start))
         self._params["start"] = start
         return
+
+    def get_start(self):
+        return self._params["start"]
     
     def set_stop(self, stop): #sets the stop frequency to measure
         self._vna.write('STOP ' + str(stop))
         self._params["stop"] = stop
         return
 
+    def get_stop(self):
+        return self._params["stop"]
+
     def set_center(self, center): #sets the center frequency to measure
         self._vna.write('CENT ' + str(center))
         self._params["center"] = center
         return
+
+    def get_center(self):
+        return self._params["center"]
 
     def set_span(self, span): #sets the span frequency
         self._vna.write('SPAN ' + str(span))
         self._params["span"] = span
         return
 
+    def get_span(self):
+        return self._params["span"]
+
     def set_save_path(self,path):
         self._path = path
         return
 
+    def get_save_path(self):
+        return self._path
+
     def set_IFBW(self, IFBW): #sets the if band width
         self._vna.write('IFBW ' + str(IFBW))
-        self._params["ifbw"] = IFBW
+        self._params["IFBW"] = IFBW
         return
+
+    def get_IFBW(self):
+        return self._params["IFBW"]
     
     def set_power(self, power): #sets the power 
         self._vna.write('POWE ' + str(power))
         self._params["power"] = power
         return      
+
+    def get_power(self):
+        return self._params['power']
 
     def set_displayed_data_format(self, fmt):
         #Set the format for the displayed data 
@@ -96,11 +148,19 @@ class HP8753E:
         self._vna.write(fmt)
         return
 
+    def set_params(self, pw=-1, bw=1e3, pt=1601, cent=2e9, span=1e8):
+        self.set_IFBW(bw)
+        self.set_points(pt)
+        self.set_power(pw)
+        self.set_center(cent)
+        self.set_span(span)
+        
+
     def get_IQF_single_meas(self,  data_fmt = 'FORM2', out_fmt = 'OUTPRAW1'):
         #Get imaginary and real data and also the frequency they correspond to
         start = float(self._vna.query('STAR?'))
         span = float(self._vna.query('SPAN?'))
-        f_n = [start + (i-1) * span/self.points  for i in range(self.points)] #Get the value corresponding frequency
+        f_n = [start + (i-1) * span/self._points  for i in range(self._points)] #Get the value corresponding frequency
         f_n = np.array(f_n)
 
         self._vna.write('AUTO') #auto scale the active channel
@@ -190,13 +250,12 @@ class HP8753E:
         return FigArray        
 
     def create_run_file(self, num, i, q, f):
+
         run = h5.File(self._path + "Run_"+ str(num)+ ".h5", "w")
 
-        '''header = run.create_group('INFO')
-        text = self.header_txt()
-        header.create_dataset('Meta\n', data=np.loadtxt(text))'''
-        
         dati = run.create_group('raw_data')
+        for key, value in self._params.items():
+            dati.attrs[str(key)] = value
         dati.create_dataset('i', data= i)
         dati.create_dataset('q', data= q)
         dati.create_dataset('f', data= f)
@@ -209,7 +268,7 @@ class HP8753E:
         ImageDataset1.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
         ImageDataset1.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
-        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.phase_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
         ImageDataset2.attrs["CLASS"] = np.string_("IMAGE")
         ImageDataset2.attrs["IMAGE_VERSION"] = np.string_("1.2")
         ImageDataset2.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
@@ -234,12 +293,6 @@ class HP8753E:
         run.close()
         return 
 
-    def header_txt(self):
-        with open('info.txt', 'w') as file:
-            for key, values in self._params.items():
-                file.write(key +' : '+ str(values) + '\n')
-        file.close()
-        return file
 
     '''
     def find_peak(self, n_std=5):
