@@ -14,12 +14,12 @@ class HP8753E:
     _instance = None
     _vna = None
 
-    def __new__(self, board='GPIB0::16::INSTR', num_points = 1601 ):
+    def __new__(self, board = 'GPIB0::16::INSTR', num_points = 1601 ):
         if self._instance is None:
             print('Creating the object')
             self._instance = super(HP8753E, self).__new__(self)
             self._vna = pyvisa.ResourceManager().open_resource(board)
-            self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #save path for data files
+            self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #saves path for data files
             self._params = {}
             self._params["center"] = 2e8
             self._params["span"] = 1e8
@@ -45,22 +45,22 @@ class HP8753E:
             print(msg)
         return check, msg
 
-    def set_chan(self, chan='S21'):
+    def set_chan(self, chan = 'S21'): #sets the channel to measure
         c = self._vna.write(chan)
         return 
 
-    def set_mode(self, mode='SING'): #sets the measurement mode
+    def set_mode(self, mode = 'SING'): #sets the measurement mode
         self._vna.write(mode)
         return
     
-    def set_MEAS(self, net="B"): #sets measurement
+    def set_MEAS(self, net = "B"): #sets measurement
         self._vna.write('MEAS'+ net)
         return
 
-    def ask_name(self): #Returns the name of the instrument
+    def ask_name(self): #returns the name of the instrument
         return self._vna.query('*IDN?')
         
-    def reset(self): #Presets the instrument
+    def reset(self): #presets the instrument
         self._vna.write('*RST')
         return
 
@@ -148,7 +148,7 @@ class HP8753E:
         self._vna.write(fmt)
         return
 
-    def set_params(self, pw=-1, bw=1e3, pt=1601, cent=2e9, span=1e8):
+    def set_params(self, pw = -1, bw = 1e3, pt = 1601, cent = 2e9, span = 1e8):
         self.set_IFBW(bw)
         self.set_points(pt)
         self.set_power(pw)
@@ -251,7 +251,7 @@ class HP8753E:
 
     def create_run_file(self, num, i, q, f):
 
-        run = h5.File(self._path + "Run_"+ str(num)+ ".h5", "w")
+        run = h5.File(self._path + "Run_" + str(num) + ".h5", "w")
 
         dati = run.create_group('raw_data')
         for key, value in self._params.items():
@@ -261,28 +261,28 @@ class HP8753E:
         dati.create_dataset('f', data= f)
 
         plots = run.create_group('plot')
-        ImageDataset1 = plots.create_dataset(name="S21_abs", data=self.plot_S21_abs(self.abs_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset1 = plots.create_dataset(name="S21_abs", data = self.plot_S21_abs(self.abs_S21(i,q), f), dtype = 'uint8', chunks = True, compression = 'gzip', compression_opts = 9)
         ImageDataset1.attrs["CLASS"] = np.string_("IMAGE")
         ImageDataset1.attrs["IMAGE_VERSION"] = np.string_("1.2")
         ImageDataset1.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
         ImageDataset1.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
         ImageDataset1.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
-        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.phase_S21(i,q), f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset2 = plots.create_dataset(name="S21_phase", data=self.plot_S21_phase(self.phase_S21(i,q), f), dtype = 'uint8', chunks = True, compression = 'gzip', compression_opts = 9)
         ImageDataset2.attrs["CLASS"] = np.string_("IMAGE")
         ImageDataset2.attrs["IMAGE_VERSION"] = np.string_("1.2")
         ImageDataset2.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
         ImageDataset2.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
         ImageDataset2.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
-        ImageDataset3 = plots.create_dataset(name="I", data=self.plot_I(i, f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset3 = plots.create_dataset(name="I", data=self.plot_I(i, f), dtype = 'uint8', chunks = True, compression = 'gzip', compression_opts = 9)
         ImageDataset3.attrs["CLASS"] = np.string_("IMAGE")
         ImageDataset3.attrs["IMAGE_VERSION"] = np.string_("1.2")
         ImageDataset3.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")
         ImageDataset3.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
         ImageDataset3.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
-        ImageDataset4 = plots.create_dataset(name="Q", data=self.plot_Q(q, f), dtype='uint8', chunks=True, compression='gzip', compression_opts=9)
+        ImageDataset4 = plots.create_dataset(name="Q", data=self.plot_Q(q, f), dtype = 'uint8', chunks = True, compression = 'gzip', compression_opts = 9)
         ImageDataset4.attrs["CLASS"] = np.string_("IMAGE")
         ImageDataset4.attrs["IMAGE_VERSION"] = np.string_("1.2")
         ImageDataset4.attrs["IMAGE_SUBCLASS"] = np.string_("IMAGE_TRUECOLOR")

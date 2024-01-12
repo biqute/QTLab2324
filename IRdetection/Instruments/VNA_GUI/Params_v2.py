@@ -288,12 +288,12 @@ class Ui_Parameters(object):
         self.get_IQF_pushButton.setFont(font)
         self.get_IQF_pushButton.setFocusPolicy(QtCore.Qt.StrongFocus)
         self.get_IQF_pushButton.setObjectName("get_IQF_pushButton")
-        self.crf_pushButton = QtWidgets.QPushButton(Parameters)
-        self.crf_pushButton.setGeometry(QtCore.QRect(400, 240, 181, 91))
+        self.reset_pushButton = QtWidgets.QPushButton(Parameters)
+        self.reset_pushButton.setGeometry(QtCore.QRect(400, 240, 181, 91))
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.crf_pushButton.setFont(font)
-        self.crf_pushButton.setObjectName("crf_pushButton")
+        self.reset_pushButton.setFont(font)
+        self.reset_pushButton.setObjectName("reset")
 
         self.power_pushButton.clicked.connect(self.change_POWER)
         self.points_pushButton.clicked.connect(self.change_POINTS)       
@@ -301,6 +301,7 @@ class Ui_Parameters(object):
         self.span_pushButton.clicked.connect(self.change_SPAN)
         self.IFBW_pushButton.clicked.connect(self.change_IFBW)
         self.get_IQF_pushButton.clicked.connect(self.get_IQF)
+        self.reset_pushButton.clicked.connect(self.reset)
 
         self.retranslateUi(Parameters)
         QtCore.QMetaObject.connectSlotsByName(Parameters)
@@ -315,7 +316,7 @@ class Ui_Parameters(object):
         self.Center_pushButton.setText(_translate("Parameters", "Change Center"))
         self.label.setText(_translate("Parameters", "VNA Main Parameters"))
         self.get_IQF_pushButton.setText(_translate("Parameters", "Get IQF"))
-        self.crf_pushButton.setText(_translate("Parameters", "Create Run File"))
+        self.reset_pushButton.setText(_translate("Parameters", "Reset Parameters"))
 
 
     def change_POWER(self):
@@ -376,6 +377,15 @@ class Ui_Parameters(object):
         vna.create_run_file(num=1, i=I,q=Q,f=F)
         return
 
+    def reset(self):
+        vna = hp.HP8753E()
+        vna.reset()
+        self.Center_lcd.display(vna.get_center())
+        self.Span_lcd.display(vna.get_span())
+        self.Points_lcd.display(vna.get_points())
+        self.Power_lcd.display(vna.get_power())
+        self.IFBW_lcd.display(vna.get_IFBW())
+        return 
   
 if __name__ == "__main__":
     import sys
