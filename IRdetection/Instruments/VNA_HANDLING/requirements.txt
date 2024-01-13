@@ -1,5 +1,0 @@
-!pip install pyvisa
-!pip install struct
-!pip install matplotlib.pyplot as plt
-!pip install numpy as np
-!pip install h5py as h5
