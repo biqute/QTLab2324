@@ -34,6 +34,5 @@ class I_Widget(QtWidgets.QMainWindow):
         self.setCentralWidget(sc)
     def get_data(self):
         vna = hp.HP8753E()
-        i, q, f = vna.get_IQF_single_meas()
-        time.sleep(30)
+        i, q, f = vna._I, vna._Q, vna._F
         return f, i
