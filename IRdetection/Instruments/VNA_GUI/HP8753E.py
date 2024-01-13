@@ -7,19 +7,23 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
 import h5py as h5
+from pathlib import Path
 
 
 class HP8753E:
 
     _instance = None
     _vna = None
+    _I = []
+    _Q = []
+    _F = []
 
     def __new__(self, board = 'GPIB0::16::INSTR', num_points = 1601 ):
         if self._instance is None:
             print('Creating the object')
             self._instance = super(HP8753E, self).__new__(self)
             self._vna = pyvisa.ResourceManager().open_resource(board)
-            self._path = "C:/Users/kid/SynologyDrive/Lab2023/KIDs/QTLab2324/IRdetection/Instruments/Test_data/" #saves path for data files
+            self._path = "C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRdetection\\Instruments\\Test_data\\" #saves path for data files
             self._params = {}
             self._params["center"] = 2e8
             self._params["span"] = 1e8
@@ -42,7 +46,6 @@ class HP8753E:
         if check == 1:
             self._vna.write('OUTPERRO')
             msg = self._vna.read_bytes()
-            print(msg)
         return check, msg
 
     def set_chan(self, chan = 'S21'): #sets the channel to measure
@@ -65,7 +68,7 @@ class HP8753E:
         return
 
     def set_points(self, npt): #sets the number of points in the sweep
-        self._vna.write('POIN ' + str(npt))
+        self._vna.write('POIN' + str(npt))
         self._params["points"] = npt
         return
 
@@ -148,11 +151,11 @@ class HP8753E:
         self._vna.write(fmt)
         return
 
-    def set_params(self, pw = -1, bw = 1e3, pt = 1601, cent = 2e9, span = 1e8):
+    def set_params(self, pw = -1, bw = 1e3, pt = 1601, start = 2e9, span = 1e8):
         self.set_IFBW(bw)
         self.set_points(pt)
         self.set_power(pw)
-        self.set_center(cent)
+        self.set_start(start)
         self.set_span(span)
         
 
@@ -178,6 +181,10 @@ class HP8753E:
 
         i = np.array(x[::2])
         q = np.array(x[1::2]) #This is done becouse we know that i and q values occupy, respectively, odd and even positions
+
+        self._I = i
+        self._Q = q
+        self._F = f_n
         return i, q, f_n
     
     def abs_S21(self, I, Q): #Returns S21 module 
@@ -251,7 +258,7 @@ class HP8753E:
 
     def create_run_file(self, num, i, q, f):
 
-        run = h5.File(self._path + "Run_" + str(num) + ".h5", "w")
+        run = h5.File(str(self._path) + "Run_" + str(num) + ".h5", "w")
 
         dati = run.create_group('raw_data')
         for key, value in self._params.items():

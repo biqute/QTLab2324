@@ -16,7 +16,7 @@ from plotI import MplCanvasI , I_Widget
 from plotQ import MplCanvasQ, Q_Widget
 from plotS21 import MplCanvasS21, S21Abs_Widget
 from plotPhase import MplCanvasPhase, S21Phase_Widget
-from Params_v2 import Ui_Parameters
+from Params import Ui_Parameters
 
 class Ui_MainWindow(object):
 
@@ -439,11 +439,11 @@ class Ui_MainWindow(object):
         self.com.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.com.setAutoFillBackground(True)
         self.com.setObjectName("pushButton")
-        self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
+        '''self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
         self.progressBar.setGeometry(QtCore.QRect(530, 390, 241, 23))
         self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
-        self.progressBar.connectNotify
+        self.progressBar.connectNotify'''
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
         self.label_8.setGeometry(QtCore.QRect(530, 340, 211, 46))
         font = QtGui.QFont()
@@ -699,7 +699,7 @@ class Ui_MainWindow(object):
         self.com.setStatusTip(_translate("MainWindow", "Establish connection with VNA instrument"))
         self.com.setText(_translate("MainWindow", "Communicate"))
         self.com.clicked.connect(self.communicate)
-        self.label_8.setText(_translate("MainWindow", "Current Sweep Progression"))
+        #self.label_8.setText(_translate("MainWindow", "Current Sweep Progression"))
         self.res.setText(_translate("MainWindow", "Reset"))
         self.res.clicked.connect(self.reset_value)
         #self.menuInit.setTitle(_translate("MainWindow", "Plots"))
@@ -717,7 +717,7 @@ class Ui_MainWindow(object):
         self.action_set_params.triggered.connect(self.Params_widget)
 
     def Params_widget(self):
-        self._params = QtWidgets.QWidget()
+        self._params = QtWidgets.QMainWindow()
         self.ui = Ui_Parameters()
         self.ui.setupUi(self._params)
         self._params.show()
