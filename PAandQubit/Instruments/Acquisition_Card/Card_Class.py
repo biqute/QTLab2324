@@ -6,9 +6,9 @@
 
 
 import pyvisa
-import numpy as np
+import niscope
 import time
-import h5py 
+
 
 
 
