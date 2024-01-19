@@ -125,7 +125,7 @@ class N9916A:
 	def set_freq_range(self, fmin: float, fmax: float):
 		if self._connect_success:
 			# frequenze in GHz
-			self._resource.write(f'FREQ:START {fmin * 1e9}')     # set freq iniziale                    
+			self._resource.write(f'FREQ:START {fmin * 1e9}')     # set freq iniziale in GHz                    
 			self._resource.write(f'FREQ:STOP {fmax * 1e9}')      # set freq finale
 		else:
 			print("Error: No active connection.")
