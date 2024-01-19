@@ -24,6 +24,7 @@ class Ui_Parameters(object):
     _I = None
     _Q = None
     _F = None
+    
     num = 0
 
     def setupUi(self, Parameters):
@@ -329,17 +330,17 @@ class Ui_Parameters(object):
         self.crf_pushButton.setFont(font)
         self.crf_pushButton.setObjectName("crf_pushButton")
         self.verticalLayout.addWidget(self.crf_pushButton)
-        self.check_pushButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
+        self.vlp_pushButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.check_pushButton.sizePolicy().hasHeightForWidth())
-        self.check_pushButton.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(self.vlp_pushButton.sizePolicy().hasHeightForWidth())
+        self.vlp_pushButton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(14)
-        self.check_pushButton.setFont(font)
-        self.check_pushButton.setObjectName("check_pushButton")
-        self.verticalLayout.addWidget(self.check_pushButton)
+        self.vlp_pushButton.setFont(font)
+        self.vlp_pushButton.setObjectName("vlp_pushButton")
+        self.verticalLayout.addWidget(self.vlp_pushButton)
         self.reset_pushButton = QtWidgets.QPushButton(self.verticalLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -408,7 +409,7 @@ class Ui_Parameters(object):
         self.IFBW_pushButton.clicked.connect(self.change_IFBW)
         self.get_IQF_pushButton.clicked.connect(self.get_IQF)
         self.crf_pushButton.clicked.connect(self.crf)
-        self.check_pushButton.clicked.connect(self.check)
+        self.vlp_pushButton.clicked.connect(self.reset())
         self.reset_pushButton.clicked.connect(self.reset)
         self.preset_pushButton.clicked.connect(self.preset)
 
@@ -432,7 +433,7 @@ class Ui_Parameters(object):
         self.points_pushButton.setText(_translate("Parameters", "Change Points Number"))
         self.get_IQF_pushButton.setText(_translate("Parameters", "Get IQF"))
         self.crf_pushButton.setText(_translate("Parameters", "Create Run File"))
-        self.check_pushButton.setText(_translate("Parameters", "Check Status"))
+        self.vlp_pushButton.setText(_translate("Parameters", "View Current Parameters"))
         self.reset_pushButton.setText(_translate("Parameters", "Reset parameters"))
         self.preset_pushButton.setText(_translate("Parameters", "PRESET VNA"))
         self.menuPlots.setTitle(_translate("Parameters", "Plots"))
@@ -522,7 +523,7 @@ class Ui_Parameters(object):
         self.progressBar.reset()
         return
 
-    def check(self):
+    def check_status(self):
         vna = hp.HP8753E()
         _, msg = vna.check_status()
         msg = QtWidgets.QMessageBox()
