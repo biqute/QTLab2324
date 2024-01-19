@@ -25,6 +25,7 @@ class HP8753E:
             self._vna = pyvisa.ResourceManager().open_resource(board)
             self._path = "C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRdetection\\Instruments\\Test_data\\" #saves path for data files
             self._params = {}
+            self._params["start"] = 1e9
             self._params["center"] = 2e8
             self._params["span"] = 1e8
             self._params["points"] = num_points

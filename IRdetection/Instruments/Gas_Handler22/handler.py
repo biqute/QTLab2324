@@ -38,7 +38,7 @@ class FridgeHandler:
     def execute(self, cmd):
         self._inst.write('$'+ str(cmd))
 
-    def read(self, cmd):                #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
+    def read(self, cmd): #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
         out = '?'
         while ('?' in out[0]) or ('E' in out[0]) or ('A' in out[0]):
             out = self._inst.query_ascii_values(str(cmd), converter='s')
@@ -46,12 +46,15 @@ class FridgeHandler:
         out = str.rstrip(out[0])
         return out
 
-    def set_control(self, stringa='C3'):
-        print('Choose between local and remote')
+    def set_control(self, stringa):
         if (stringa=='local'):
-            self._inst.write('C0')
+            self.execute('C0') #local & locked
+        elif (stringa=='remote_locked'):
+            self.execute('C1') #remote & locked
+        elif (stringa=='local_unlocked'):
+            self.execute('C2') #local & unlocked
         elif (stringa=='remote'):
-            self._inst.write('C3')
+            self.execute('C3') #remote & unlocked
         else:
             print('Choose between local and remote')
         return
