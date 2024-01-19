@@ -24,6 +24,7 @@ class Ui_Parameters(object):
     _I = None
     _Q = None
     _F = None
+    
     num = 0
 
     def setupUi(self, Parameters):
@@ -409,6 +410,7 @@ class Ui_Parameters(object):
         self.get_IQF_pushButton.clicked.connect(self.get_IQF)
         self.crf_pushButton.clicked.connect(self.crf)
         self.vlp_pushButton.clicked.connect(self.reset_lcd)
+        self.vlp_pushButton.clicked.connect(self.reset())
         self.reset_pushButton.clicked.connect(self.reset)
         self.preset_pushButton.clicked.connect(self.preset)
 
@@ -433,6 +435,7 @@ class Ui_Parameters(object):
         self.get_IQF_pushButton.setText(_translate("Parameters", "Get IQF"))
         self.crf_pushButton.setText(_translate("Parameters", "Create Run File"))
         self.vlp_pushButton.setText(_translate("Parameters", "View Last Parameters"))
+        self.vlp_pushButton.setText(_translate("Parameters", "View Current Parameters"))
         self.reset_pushButton.setText(_translate("Parameters", "Reset parameters"))
         self.preset_pushButton.setText(_translate("Parameters", "PRESET VNA"))
         self.menuPlots.setTitle(_translate("Parameters", "Plots"))
@@ -522,7 +525,7 @@ class Ui_Parameters(object):
         self.progressBar.reset()
         return
 
-    def check(self):
+    def check_status(self):
         vna = hp.HP8753E()
         _, msg = vna.check_status()
         msg = QtWidgets.QMessageBox()
