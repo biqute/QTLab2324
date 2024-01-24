@@ -17,6 +17,7 @@ from plotQ import MplCanvasQ, Q_Widget
 from plotS21 import MplCanvasS21, S21Abs_Widget
 from plotPhase import MplCanvasPhase, S21Phase_Widget
 from Params import Ui_Parameters
+from PSweep import Ui_PSWeep
 
 class Ui_MainWindow(object):
 
@@ -730,8 +731,8 @@ class Ui_MainWindow(object):
 
     def PSweep_widget(self):
         self._PSweep = QtWidgets.QMainWindow()
-        self.ui = Ui_Parameters()
-        self.ui.setupUi(self._params)
+        self.ui = Ui_PSWeep()
+        self.ui.setupUi(self._PSweep)
         self._PSweep.show()
     
     def I_widget(self):

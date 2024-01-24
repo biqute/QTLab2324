@@ -58,6 +58,12 @@ class HP8753E:
     def set_mode(self, mode = 'SING'): #sets the measurement mode
         self._vna.write(mode)
         return
+
+    def set_power_start(self, start):
+        self._params['power_start'] = start
+
+    def set_power_stop(self, stop):
+        self._params['power_stop'] = stop
     
     def set_MEAS(self, net = "B"): #sets measurement
         self._vna.write('MEAS'+ net)

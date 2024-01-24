@@ -185,7 +185,7 @@ class Ui_PSWeep(object):
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(self.Set_power_start_pushButton.sizePolicy().hasHeightForWidth())
         self.Set_power_start_pushButton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
@@ -338,12 +338,11 @@ class Ui_PSWeep(object):
         self.Set_points_pushButton.clicked.connect(self.set_points)
         self.Set_power_start_pushButton.clicked.connect(self.set_power_start)
         self.Set_power_stop_pushButton.clicked.connect(self.set_power_stop)
-        self.GET_IQF_pushButton.clicked.connect(self.Get_IQF)
+        self.GET_IQF_pushButton.clicked.connect(self.Power_sweep)
         self.crf_pushButton.clicked.connect(self.crf)
 
         #self.action_Set_Main_Parameters.triggered.connect(self.MainParamsWidget)
-        #self.action_Set_IQF_Parameters.triggered.connect(self.ParamsWidget)
-
+        #self.action_Set_IQF_Parameters.triggered.connect(self.ParamsWidget)s
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -357,7 +356,7 @@ class Ui_PSWeep(object):
         self.Set_points_pushButton.setText(_translate("MainWindow", "SET POINTS NUMBER"))
         self.Set_power_stop_pushButton.setText(_translate("MainWindow", "SET POWER STOP"))
         self.cp_label.setText(_translate("MainWindow", "CURRENT POWER"))
-        self.GET_IQF_pushButton.setText(_translate("MainWindow", "GET IQF"))
+        self.GET_IQF_pushButton.setText(_translate("MainWindow", "POWER SWEEP"))
         self.crf_pushButton.setText(_translate("MainWindow", "CREATE HDF5"))
         self.menuMenu.setTitle(_translate("MainWindow", "Menu"))
         self.action_Set_Main_Parameters.setText(_translate("MainWindow", "Set Main Parameters"))
@@ -368,9 +367,10 @@ class Ui_PSWeep(object):
         vna = hp.HP8753E()
         powers = np.arange(vna._params['power_start'],vna._params['power_stop'], 5)
         for pow in powers:
-            self.set_params(pow, bw=vna._params['IFBW'], pt = vna._params['points'], start=vna._params['start'], span = vna._params['span'])
-            self.sleep(1)
-            self._I, self._Q, self._F = self.get_IQF_single_meas()
+            vna.set_params(pow, bw=vna._params['IFBW'], pt = vna._params['points'], start=vna._params['start'], span = vna._params['span'])
+            time.sleep(1)
+            self._I, self._Q, self._F = vna.get_IQF_single_meas()
+            self.crf()
         return
 
     def show_params(self):
@@ -392,7 +392,7 @@ class Ui_PSWeep(object):
             print('IFBW: ', vna.get_IFBW())
         return 
 
-    def set_POINTS(self):
+    def set_points(self):
         vna = hp.HP8753E()
         Dialog = QtWidgets.QDialog()
         ui = uid()
@@ -435,6 +435,7 @@ class Ui_PSWeep(object):
 
     def crf(self):
         vna = hp.HP8753E()
+        vna.set_save_path("C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRdetection\\Instruments\\PSweep_test\\")
         myfile = Path(str(vna._path)+"PowerSweep_"+str(self.num)+".h5")
         if (myfile.is_file()==True):
             print('File exists already!')
@@ -445,3 +446,13 @@ class Ui_PSWeep(object):
             print('File does not exist') 
         self.progressBar.reset()
         return
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    wg = QtWidgets.QMainWindow()
+    ui = Ui_PSWeep()
+    ui.setupUi(wg)
+    wg.show()
+    sys.exit(app.exec_())
