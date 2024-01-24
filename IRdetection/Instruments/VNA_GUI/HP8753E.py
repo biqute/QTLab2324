@@ -31,6 +31,8 @@ class HP8753E:
             self._params["points"] = num_points
             self._params["IFBW"] = 100
             self._params["power"] = -20
+            self._params["power_start"] = -20
+            self._params["power_stop"] = 0
             self._vna.write('FORM2')
             self._vna.write('POIN ' + str(num_points)) #sets the number of points
             self._points = num_points
@@ -301,7 +303,6 @@ class HP8753E:
         run.close()
         return 
 
-
     '''
     def find_peak(self, n_std=5):
         d = self.get_data_as_dic()
@@ -309,20 +310,4 @@ class HP8753E:
         freq = d['xdata'][ii]
         heights = d['peak_heights']
         return freq, heights
-    
-    def F_sweep(self, npt=1601, ctr=2e6, sp=2e6, bw=100, pw=-20, f_min=1e6, f_max=1e9, f1='FORM2', f2='OUTPFORM'):
-        #This function has to:
-        #1) Make a F(frequency) sweep given a series of initial parameters
-        #2) Return I,Q,F data as a hdf5 file
-        self.set_par(npt=npt, center=ctr, span=sp, IFBW=bw, power=pw) #Set initial parameters
-        self.set_f_range(fmin=f_min, f_max=f_max)
-        start = self._vna.query('STAR')
-        stop  = self._vna.query('STOP')
-        freqs = list(np.arange(start, stop, self.points))
-        for freq in freqs:
-            I, Q, F = self.get_IQ(data_fmt=f1, out_fmt=f2)
-            time.sleep(2)
-            dic = {'I': I, 'Q':Q, 'F':F}
-            file = h5.dic_to_h5(self._path, dic)
-        return
-    '''
+'''

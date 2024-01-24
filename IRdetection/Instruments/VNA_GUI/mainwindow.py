@@ -25,6 +25,7 @@ class Ui_MainWindow(object):
     _S21Abs_widget = None
     _S21Phase_widget = None
     _params = None
+    _PSweep = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -623,11 +624,14 @@ class Ui_MainWindow(object):
         self.actionS21Phase_Plot = QtWidgets.QAction(MainWindow)
         self.actionS21Phase_Plot.setObjectName("actionS21Phase_Plot")'''
         self.action_set_params = QtWidgets.QAction(MainWindow)
+        self.action_PSweep = QtWidgets.QAction(MainWindow)
         self.action_set_params.setObjectName("action_set_params")
+        self.action_PSweep.setObjectName("action_PSweep")
         #self.menuInit.addAction(self.actionI_Plot)
         #self.menuInit.addAction(self.actionQ_Plot)
         #self.menuInit.addAction(self.actionS21Abs_Plot)
         #self.menuInit.addAction(self.actionS21Phase_Plot)
+        self.menuP_SWEEP.addAction(self.action_PSweep)
         self.menuF_SWEEP.addAction(self.action_set_params)
         #self.menubar.addAction(self.menuInit.menuAction())
         self.menubar.addAction(self.menuF_SWEEP.menuAction())
@@ -710,17 +714,25 @@ class Ui_MainWindow(object):
         #self.actionS21Abs_Plot.setText(_translate("MainWindow", "S21-Abs"))
         #self.actionS21Phase_Plot.setText(_translate("MainWindow", "S21-Phase"))
         self.action_set_params.setText(_translate("MainWindow", "Set-Params"))
+        self.action_PSweep.setText(_translate("MainWindow", "Power Sweep Params"))
         #self.actionI_Plot.triggered.connect(self.I_widget)
         #self.actionQ_Plot.triggered.connect(self.Q_widget)
         #self.actionS21Abs_Plot.triggered.connect(self.S21Abs_widget)
         #self.actionS21Phase_Plot.triggered.connect(self.S21Phase_widget)
         self.action_set_params.triggered.connect(self.Params_widget)
+        self.action_PSweep.triggered.connect(self.PSweep_widget)
 
     def Params_widget(self):
         self._params = QtWidgets.QMainWindow()
         self.ui = Ui_Parameters()
         self.ui.setupUi(self._params)
         self._params.show()
+
+    def PSweep_widget(self):
+        self._PSweep = QtWidgets.QMainWindow()
+        self.ui = Ui_Parameters()
+        self.ui.setupUi(self._params)
+        self._PSweep.show()
     
     def I_widget(self):
         # Create an instance of your widget class

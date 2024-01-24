@@ -17,6 +17,7 @@ from plotI import MplCanvasI , I_Widget
 from plotQ import MplCanvasQ, Q_Widget
 from plotS21 import MplCanvasS21, S21Abs_Widget
 from plotPhase import MplCanvasPhase, S21Phase_Widget
+from plotIQ import MplCanvasIQ, IQ_Widget
 
 
 class Ui_Parameters(object):
@@ -379,6 +380,8 @@ class Ui_Parameters(object):
         self.actionI.setObjectName("actionI")
         self.actionQ = QtWidgets.QAction(Parameters)
         self.actionQ.setObjectName("actionQ")
+        self.actionIQ = QtWidgets.QAction(Parameters)
+        self.actionIQ.setObjectName("actionIQ")
         self.actionS21 = QtWidgets.QAction(Parameters)
         self.actionS21.setObjectName("actionS21")
         self.actionS21_phase = QtWidgets.QAction(Parameters)
@@ -393,6 +396,7 @@ class Ui_Parameters(object):
         self.menuPlots.addAction(self.actionQ)
         self.menuPlots.addAction(self.actionS21)
         self.menuPlots.addAction(self.actionS21_phase)
+        self.menuPlots.addAction(self.actionIQ)
         self.menuOther.addAction(self.actionSet_Save_Path)
         self.menuOther.addAction(self.actionSet_Start)
         self.menuOther.addAction(self.actionSet_Stop)
@@ -410,7 +414,7 @@ class Ui_Parameters(object):
         self.get_IQF_pushButton.clicked.connect(self.get_IQF)
         self.crf_pushButton.clicked.connect(self.crf)
         self.vlp_pushButton.clicked.connect(self.reset_lcd)
-        self.vlp_pushButton.clicked.connect(self.reset())
+        self.vlp_pushButton.clicked.connect(self.reset)
         self.reset_pushButton.clicked.connect(self.reset)
         self.preset_pushButton.clicked.connect(self.preset)
 
@@ -418,6 +422,7 @@ class Ui_Parameters(object):
         self.actionQ.triggered.connect(self.Q_widget)
         self.actionS21.triggered.connect(self.S21Abs_widget)
         self.actionS21_phase.triggered.connect(self.S21Phase_widget)
+        self.actionIQ.triggered.connect(self.IQ_widget)
 
         self.actionSet_Save_Path.triggered.connect(self.change_path)
         self.actionSet_Start.triggered.connect(self.change_start)
@@ -442,6 +447,7 @@ class Ui_Parameters(object):
         self.menuOther.setTitle(_translate("Parameters", "Set"))
         self.actionI.setText(_translate("Parameters", "I"))
         self.actionQ.setText(_translate("Parameters", "Q"))
+        self.actionIQ.setText(_translate("Parameters", "IvsQ"))
         self.actionS21.setText(_translate("Parameters", "S21_abs"))
         self.actionS21_phase.setText(_translate("Parameters", "S21_phase"))
         self.actionSet_Save_Path.setText(_translate("Parameters", "Set Save Path"))
@@ -570,6 +576,12 @@ class Ui_Parameters(object):
         self.Q_widget = Q_Widget()
         # Show the widget
         self.Q_widget.show()
+
+    def IQ_widget(self):
+        # Create an instance of your widget class
+        self.IQ_widget = IQ_Widget()
+        # Show the widget
+        self.IQ_widget.show()
 
     def S21Abs_widget(self):
         # Create an instance of your widget class
