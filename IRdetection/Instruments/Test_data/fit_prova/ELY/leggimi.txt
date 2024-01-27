@@ -1,0 +1,1 @@
+le misure sono prese a temperature discendenti da 410 a 30 mK, di 10 mK in 10 mK di passo. Ci sono due risonatori misurati, quindi i file pari sono di una risonanza, i file dispari dell'altra
