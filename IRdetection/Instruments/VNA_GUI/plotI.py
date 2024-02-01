@@ -29,7 +29,7 @@ class I_Widget(QtWidgets.QMainWindow):
         data = self.get_data()
         sc.axes.plot(data[0], data[1])
         sc.axes.set_xlabel('Frequency [GHz]')
-        sc.axes.set_ylabel('Power [dBm]')
+        sc.axes.set_ylabel('I')
         sc.axes.set_title('I plot')
         self.setCentralWidget(sc)
     def get_data(self):
