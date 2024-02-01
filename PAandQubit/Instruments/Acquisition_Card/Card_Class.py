@@ -2,56 +2,51 @@
 
 ##### https://niscope.readthedocs.io/en/latest/class.html#read ######
 
-
-
-
-import pyvisa
-import niscope
+import niscope as ni
 import time
 
 
 
 
-class NIPXIe:
+class PXIe5170R:
 
-# 1.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+    def __init__(self, dev_name: str):
 
-    def __init__(self):
+        self._dev_name          = dev_name
+        self._voltage_range     = 1
+        self._coupling          = 'DC'
+        self._sample_rate       = int(250e6)
+        self._num_pts           = 500
+        self._num_records       = 1
 
-        self._resource = None
+        self._session = None
         self._connect_success = False
         self._sleep = 1
 
+
+    
+    def available(self):
         try:
-            rm = pyvisa.ResourceManager()
-            self._resource = rm.open_resource("PXI0::1::BACKPLANE")
+            ni.Session(self._dev_name)
             self._connect_success = True
             print("Connection successful!")
-        except pyvisa.Error as e:
-            print(f"Unable to establish a connection: {e}")
+        except:
+            print(f"Unable to establish a connection.")
+    def voltag_range:
+    def coupling:
+    def sample_rate:
+    def num_pts:
+    def num_records:
+    def fetch(self, ):
+        with ni.Session(self._dev_name) as session: # Name of the device
+        session.channels[0].configure_vertical(range = voltage_range, coupling=ni.VerticalCoupling.AC)
+        session.configure_horizontal_timing(min_sample_rate = 250e6, min_num_pts = n_pts, ref_position = 50.0, num_records = n_recs, enforce_realtime = True)
+    with session.initiate(): # After calling this method, the digitizer leaves the Idle state and waits for a trigger
+        waveforms = session.channels[0].fetch()
+    for wfm in waveforms:
+         print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
 
-# 1.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+a = waveforms[0].samples.tolist()
 
-    def get_name(self):
-        if self._connect_success:
-            print(self._resource.query('*IDN?'))
-        else:
-            print("Error: No active connection.")
-        
-# 1.3 ----------------------------------------------------------------------------------------------------------------------------------------------- #
-
-    def reset(self):
-        if self._connect_success:
-            self._resource.write('*RST')
-            time.sleep(self._sleep)
-        else:
-            print("Error: No active connection.")
-
-# 1.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
-
-    def clear(self):
-        if self._connect_success:
-            self._resource.write('*CLS')     
-            time.sleep(self._sleep)
-        else:
-            print("Error: No active connection.")
+plt.plot(a)
+    
