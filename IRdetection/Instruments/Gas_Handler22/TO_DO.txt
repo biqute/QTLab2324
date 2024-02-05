@@ -1,0 +1,15 @@
+T - Sweep
+    -   Creare una funzione che sia in grado di leggere la temperatura della mixing chamber
+        ogni secondo.
+    -   vedi punto 2
+    -   Deve poi calcolare la derivata istantanea e appendere il valore ad una lista
+    -   Bisogna calcolare quindi le fluttuazioni della temperatura 
+            (Che andamento ci aspettiamo? Discesa esponenziale --> stabilizzazione ad un valore?)
+            Qual è il rumore legato alle fluttuazioni? Quanto vale in percentuale?2
+    -   Se la derivata è ha un valore più grande delle fluttuazioni rispetto all'andamento previsto per quello specifico valore 
+        di tempo per un periodo maggiore a N secondi allora 
+            Mandare mail per avvertire che la temperatura è instabile
+
+T - Sweep plot
+    -   Plottare in tempo reale l'andamento della temperatura 
+    -   Plottare in tempo reale l'andamento della derivata istantanea della temperatura rispetto al tempo
