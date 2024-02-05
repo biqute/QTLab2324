@@ -1,4 +1,3 @@
-#fai funzione che manda mail se temperatura va oltre tot
 import pyvisa
 import numpy as np
 import time
@@ -37,6 +36,21 @@ class FridgeHandler:
   
     def execute(self, cmd):
         self._inst.write('$'+ str(cmd))
+        
+    def comm_protocol(self,value='Q0'):
+        
+        #Defines the communication protocol
+            #Q0: "Normal"
+            #Q2: "Sends <LF> after each <CR>"
+            
+        self.execute(str(value))
+    
+    def wait(self, secs):
+        
+        #Sets a delay interval before each character is sent 
+        #from IDR via the computer interface
+        
+        self.execute('W'+str(secs))        
 
     def read(self, cmd): #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
         out = '?'
