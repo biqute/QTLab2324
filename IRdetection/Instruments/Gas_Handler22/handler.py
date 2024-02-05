@@ -155,10 +155,11 @@ class FridgeHandler:
         self.execute('A2')
         self.execute('T' + str(10*int(T)))
 
-#Possiamo provare ad implementare un tempo dopo il quale, se la temperatura non è stabile, usciamo dal ciclo?    
-    def check_stability(self, T, error, sleeptime = 5, pause = 10):     # T --> desired temperature
-                                                                                        # error --> uncertainty allowed on the temperature
-                                                                                        # interval --> minimum time of stability required. Defaults to 1 minute and half                                                             # sleeptime --> time interval between each check. Defaults to 5 seconds
+    def check_stability(self, T, error, sleeptime = 5, pause = 10):     
+        # T --> desired temperature
+        # error --> uncertainty allowed on the temperature
+        # interval --> minimum time of stability required. Defaults to 1 minute and half
+        # sleeptime --> time interval between each check. Defaults to 5 seconds
         counter = 0
         countermax = 10
         out = False
@@ -169,7 +170,8 @@ class FridgeHandler:
             if self.get_sensor(2) > 22000:
                 self.send_alert()
                 counter = countermax + 1
-            if (T-error < self.get_sensor() and self.get_sensor() < T + error): # check if values are ok. change get_sensor parameters (actually remove them -> they'll default to mixing chamber) !!!!!!!!
+            if (T-error < self.get_sensor() and self.get_sensor() < T + error): 
+                # check if values are ok. change get_sensor parameters (actually remove them -> they'll default to mixing chamber) !!!!!!!!
                 counter = 0
                 print('I found a temperature value out of range. I am going to sleep for ' + str(pause) + ' seconds')
                 time.sleep(pause) #sleeps for 10 seconds default minutes if T not stable         
@@ -199,4 +201,3 @@ class FridgeHandler:
             out = (out.split('+'))[1]           # split the string where '+' is and gives back only the second part (1)
             Temps[i] = float(out)
             print('Data at step ' + i + ' is ' + out)
-

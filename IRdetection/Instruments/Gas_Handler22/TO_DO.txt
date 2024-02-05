@@ -13,3 +13,25 @@ T - Sweep
 T - Sweep plot
     -   Plottare in tempo reale l'andamento della temperatura 
     -   Plottare in tempo reale l'andamento della derivata istantanea della temperatura rispetto al tempo
+
+
+
+    Ciao Riccardo, il tipo di refrigeratore è quello corretto, anche se come potrai immaginare questa è una pubblicazione probabilmente 
+    un po' vetusta e alcune cose sono cambiate in termini di prestazioni da allora (il concetto alla base invece no).
+    Per fare quello che hai in mente si può fare qualcosa di molto meno sofisticato e che non discenda necessariamente da principi primi,
+    che nella realtà hanno un elevato tasso di discostamento.
+    La derivata su T è utile da valutare specialmente quando voi cambiate temperatura durante lo scan per misurare il gap:
+    se la derivata è diversa da zero allora non siete ancora all'equilibrio. Ma forse questo lo avevate già implementato.
+    Per quanto riguarda invece l'invio di messaggi di allerta, si possono seguire due approcci, non necessariamente esclusivi: 
+    1) controllare la P della 1k pot (mi pare sia G4, ma potrei sbagliarmi): quando questa crolla al di sotto di un certo valore, 
+    significa che non sta pescando più, e allora non raffredda la miscela in ingresso al refrigeratore; 
+    2) verificare la T della MC, come proponi te. In questo caso non ti saprei dare però una regola generale, 
+    i valori di soglia vanno valutati sperimentalmente. A occhio direi che se la T cresce a un rate superiore a...boh? 10 mK al minuto? allora c'è un problema. 
+    Ovviamente però deve essere una crescita sostenuta nel tempo, quindi non basta mettere un controllo sulla derivata sul singolo secondo,
+    altrimenti vi dà allarme anche quando spostate intenzionalmente voi la T; piuttosto deve rimanere sopra-soglia per n secondi
+    (2 minuti? Tanto il tempo di reazione in caso di problemi non può essere tanto più breve di così) consecutivi per dare l'allarme.
+
+    Tra l'altro ti preavviso anche su questa possibilità, che spero non avvenga, ma... ancora gli ordini universitari non sono riaperti,
+    c'è perciò la possibilità non trascurabile che saremo costretti a slittare il raffreddamento. Avvisa anche i tuoi compagni di gruppo per favore.
+
+    Marco
