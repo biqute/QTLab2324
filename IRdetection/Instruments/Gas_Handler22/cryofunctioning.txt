@@ -1,0 +1,70 @@
+
+RS232 Interface
+
+    Unless the conmad starts with "$" charachter, all commands will evoke a response 
+    from the instrument. 
+    The string is of one or more printing ASCII characters and will be terminater by Carrieage
+    Return Character. This may optionally be followed by a Line Feed charachter.
+    If the command starts with "$" then the command will oeyed but no responsewill be sent.
+    All commands consist of a single letter sometime followed by a numeric parameter,
+    the whole is terminated by a Carriage Return.
+    If a "?" is answered then some syntax error was made.
+    X --> for returning the current instrument status
+    Accepted numbers vary from -32768 to 32767. 
+    If preceeded by "#" then 0 to 65535.
+    Set Temperature to 20 Kelvin
+
+                "T200" or "T20.0"
+
+    Preferable to convert all data to integers
+    num = 20
+    execute("T"+str(num*10))
+    Same for returned commands
+
+    ============================================================================================
+    ============================================================================================
+
+    CONTROLS LIST:
+
+    Cn - Define control
+        C0 - Local & Locked
+        C3 - Remote
+
+    On - Set on/off state of Still & Sorb Heaters
+        O0 - Both OFF
+        O1 - Still ON , Sorb OFF
+        O2 - Still OFF, Sorb ON in temperature control
+        O3 - Still ON , Sorb OFF in temperature control
+        O4 - Still OFF , Sorb OFF in power control
+        O5 - Still ON , Sorb ON in power control
+
+    Snnnn - Set Still Power in units of 0.1 mW (Range 0000 to 1999)
+
+    Bnnnn - Set Sorb Power in units of 1 mW (Range 0000 to 1999)
+
+    An - Set Operating mode for Mixing Chamber Heater
+        A0 - OFF
+        A1 - fixed heater power
+        A2 - temperature control
+
+    Mnnnn - Set Mix  Power in units specified by E (Range 0000 to 1999)
+
+    En - Set Exponent for mix Power Range
+     E1 - Range 2   microW, units for M are 0.001 microW
+     E2 - Range 20  microW, units for M are 0.01  microW
+     E3 - Range 200 microW, units for M are 0.1   microW
+     E4 - Range 2   milliW, units for M are 1     microW
+     E% - Range 20  milliW, units for M are 10    microW
+
+    Tnnnnn - Mix control temperature in units of 0.1mK (0 to 20000)
+
+    tnnnnn - Mix control temperature in units of 0.1mK (0 to 65000)
+
+    pnnnn - Mix Control Proportional Band in units of 0.1%
+
+    innnnn - Mix Control Integral Band in units of 0.1 minute
+
+    Knnnn - Sorb Control Temperature in units of  0.1 Kelvin
+
+
+
