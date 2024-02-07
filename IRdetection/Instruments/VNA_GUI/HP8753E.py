@@ -8,6 +8,9 @@ from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
 import h5py as h5
 from pathlib import Path
+from Gas_Handler22 import handler
+from datetime import datetime
+import time
 
 
 class HP8753E:
@@ -17,7 +20,7 @@ class HP8753E:
     _I = []
     _Q = []
     _F = []
-
+    _T = None
     def __new__(self, board = 'GPIB0::16::INSTR', num_points = 1601 ):
         if self._instance is None:
             print('Creating the object')
@@ -33,6 +36,7 @@ class HP8753E:
             self._params["power"] = -20
             self._params["power_start"] = -20
             self._params["power_stop"] = 0
+            self._params["T"] = self._T
             self._vna.write('FORM2')
             self._vna.write('POIN ' + str(num_points)) #sets the number of points
             self._points = num_points
@@ -267,7 +271,7 @@ class HP8753E:
 
     def create_run_file(self, num, i, q, f):
 
-        run = h5.File(str(self._path) + "Run_" + str(num) + ".h5", "w")
+        run = h5.File(str(self._path) + "Sample_" + str(num) + ".h5", "w")
 
         dati = run.create_group('raw_data')
         for key, value in self._params.items():
@@ -305,15 +309,60 @@ class HP8753E:
         ImageDataset4.attrs["INTERLACE_MODE"] = np.string_("INTERLACE_MODE")
         ImageDataset4.attrs["IMAGE_MINMAXRANGE"] = np.uint8(0.255)
 
-        res = run.create_group('results')
         run.close()
         return 
 
-    '''
-    def find_peak(self, n_std=5):
-        d = self.get_data_as_dic()
-        ii, d = find_peaks(-d['ydata'],height=-np.mean(d['ydata'])+n_std*np.std(d['ydata']))
-        freq = d['xdata'][ii]
-        heights = d['peak_heights']
-        return freq, heights
-'''
+    def check_T_stable(self, T, error, interval):
+        
+        fridge = handler.FridgeHandler()
+        
+        '''
+            T = temperature to check 
+            error = interval in which temperature value can float
+            interval = seconds to sample temperature T
+            We need to have a real time plot for mixing chamber temperature
+            We need to have a real time plot for 1K Pot pressure
+        '''
+        check = True
+        t0 = datetime.now() # reference time
+        current = datetime.now() # current time
+        temp, secs = [], []
+        counter = 0
+        while ((current-t0).total_seconds() < 120):
+            t = float(fridge.read('R2').strip('R+'))
+            sec = (current-t0).total_seconds() #seconds passed since t0
+            temp.append(t)
+            secs.append(sec)
+            if (t-error < T or t+error>T):
+                counter = counter + 1
+                                
+            if (counter > 4):
+                msg = 'Mixing chamber temperature is out of control!'
+                fridge.send_alert(msg=msg)
+                check = False
+                
+        return check, temp, secs
+    
+    def T_sweep(self, T_min, T_max, N_t, error):
+        
+        fridge = handler.FridgeHandler()
+        
+        '''
+            T_min = minimum temperature in mK
+            T_max = maximum temperature in mK
+            N_t = number of temperature samples
+            error = interval in which temperature value can float
+        '''
+        step = (T_max - T_min)/N_t
+        temps = np.arange(T_min, T_max, step=step)
+        run = 0
+        
+        for (i,T) in enumerate(temps):
+            check, temp , _  = self.check_T_stable(T, error)
+            if (check==True):    
+                self._params['T'] = np.mean(np.array(temp))
+                run = run + 1
+                I, Q, F = self.get_IQF_single_meas()
+                self.create_run_file(run, i=I, q=Q, f=F)
+            else:
+                time.sleep(600) #If anything goes wrong go to sleep for 600 secs

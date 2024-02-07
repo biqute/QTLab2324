@@ -1,7 +1,9 @@
 import pyvisa
 import numpy as np
 import time
-import smtplib, ssl
+import smtplib
+from datetime import datetime
+from VNA_GUI import HP8753E as vna
 
 gmail_username = 'kinekids2324'
 sent_from = 'kinekids2324@gmail.com'
@@ -36,6 +38,13 @@ class FridgeHandler:
   
     def execute(self, cmd):
         self._inst.write('$'+ str(cmd))
+  
+    def read(self, cmd):
+        answer = self._inst.query_ascii_values(str(cmd), converter='s')
+        answer = str.rstrip('\r')
+        answer = str.rstrip('\n')
+        return answer
+        
         
     def comm_protocol(self,value='Q0'):
         
@@ -52,7 +61,7 @@ class FridgeHandler:
         
         self.execute('W'+str(secs))        
 
-    def read(self, cmd): #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
+    def read2(self, cmd): #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
         out = '?'
         while ('?' in out[0]) or ('E' in out[0]) or ('A' in out[0]):
             out = self._inst.query_ascii_values(str(cmd), converter='s')
@@ -136,15 +145,14 @@ class FridgeHandler:
             time.sleep(60*10)
         return res
 
-    def send_alert(self):
+    def send_alert(self, msg):
         try:
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             server.ehlo()
             server.login(gmail_username, gmail_app_password)
             server.sendmail(sent_from, sent_to, email_text)
             server.close()
-
-            print('Email sent!')
+            print('Email alert sent!')
         except Exception as exception:
             print("Error: %s!\n\n" % exception)
 
@@ -218,50 +226,53 @@ class FridgeHandler:
         
         self._inst.write('K'+str(value))
         print('Control Temperature settled to: '+str(value*0.1)+' Kelvin')
-
-    def check_stability(self, T, error, sleeptime = 5, pause = 10):     
-        # T --> desired temperature
-        # error --> uncertainty allowed on the temperature
-        # interval --> minimum time of stability required. Defaults to 1 minute and half
-        # sleeptime --> time interval between each check. Defaults to 5 seconds
+        
+                    
+    def check_T_stable(self, T, error, interval):
+        
+        '''
+            T = temperature to check 
+            error = interval in which temperature value can float
+            interval = seconds to sample temperature T
+            We need to have a real time plot for mixing chamber temperature
+            We need to have a real time plot for 1K Pot pressure
+        '''
+        check = True
+        t0 = datetime.now() # reference time
+        current = datetime.now() # current time
+        temp, secs = [], []
         counter = 0
-        countermax = 10
-        out = False
-        while (counter < countermax): 
-            if self.get_sensor(21) < 5:
-                self.send_alert()
-                counter = countermax + 1                                                             
-            if self.get_sensor(2) > 22000:
-                self.send_alert()
-                counter = countermax + 1
-            if (T-error < self.get_sensor() and self.get_sensor() < T + error): 
-                # check if values are ok. change get_sensor parameters (actually remove them -> they'll default to mixing chamber) !!!!!!!!
-                counter = 0
-                print('I found a temperature value out of range. I am going to sleep for ' + str(pause) + ' seconds')
-                time.sleep(pause) #sleeps for 10 seconds default minutes if T not stable         
+        while ((current-t0).total_seconds() < 120):
+            t = float(self.read('R2').strip('R+'))
+            sec = (current-t0).total_seconds() #seconds passed since t0
+            temp.append(t)
+            secs.append(sec)
+            if (t-error < T or t+error>T):
+                counter = counter + 1
+                                
+            if (counter > 4):
+                msg = 'Mixing chamber temperature is out of control!'
+                self.send_alert(msg=msg)
+                check = False
+                
+        return check, temp, secs
+    
+    def T_sweep(self, T_min, T_max, N_t, error):
+        '''
+            T_min = minimum temperature in mK
+            T_max = maximum temperature in mK
+            N_t = number of temperature samples
+            error = interval in which temperature value can float
+        '''
+        step = (T_max - T_min)/N_t
+        temps = np.arange(T_min, T_max, step=step)
+        
+        T = []
+        
+        for (i,T) in enumerate(temps):
+            check, temp , _  = self.check_T_stable(T, error)
+            if (check==True):    
+                T.append(np.mean(np.array(temp)))
+                
             else:
-                counter += 1
-                time.sleep(sleeptime) #5 sec of sleep between each T check
-        if counter == countermax:
-            print("Temperature is stable and fridgeboy is ready!")
-            out = True
-        return out
-
-
-    def scan_sensor(self, sensore, dur, step, cmd):
-        # La funzione voglio che :
-            # 1. Prenda il sensore x
-            # 2. Definito una durata dur, prenda dati ogni step secondi 
-                # 2.1 Se riscontra un valore strano deve mandare un alert con un messaggio
-            # 3. Deve ritornare i dati come nome_sensore, dato, tempo
-
-        sens = self.get_sensor(sensore)
-        N = int(dur/step)
-        Temps = np.zeros(N)
-        for i in range(N):
-            out = self._inst.query_ascii_values(cmd, converter='s')
-            out = str.rstrip(out[0])
-            time.sleep(step)
-            out = (out.split('+'))[1]           # split the string where '+' is and gives back only the second part (1)
-            Temps[i] = float(out)
-            print('Data at step ' + i + ' is ' + out)
+                time.sleep(600) #If anything goes wrong go to sleep for 600 secs
