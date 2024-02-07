@@ -21,6 +21,9 @@ class HP8753E:
     _Q = []
     _F = []
     _T = None
+    _T_max = None
+    _T_min = None
+    _N_t = None
     def __new__(self, board = 'GPIB0::16::INSTR', num_points = 1601 ):
         if self._instance is None:
             print('Creating the object')
@@ -312,7 +315,7 @@ class HP8753E:
         run.close()
         return 
 
-    def check_T_stable(self, T, error, interval):
+    def check_T_stable_points(self, T, error):
         
         fridge = handler.FridgeHandler()
         
@@ -320,6 +323,7 @@ class HP8753E:
             T = temperature to check 
             error = interval in which temperature value can float
             interval = seconds to sample temperature T
+            Compute dT/dt --> if dT/dt[i] > 0.1 mK/sec  check = False
             We need to have a real time plot for mixing chamber temperature
             We need to have a real time plot for 1K Pot pressure
         '''
@@ -343,7 +347,50 @@ class HP8753E:
                 
         return check, temp, secs
     
-    def T_sweep(self, T_min, T_max, N_t, error):
+    
+    def check_T_stable_derivative(self, T, error):
+        
+        fridge = handler.FridgeHandler()
+        check = True
+        
+        '''
+            T = temperature to check 
+            error = interval in which temperature value can float
+            interval = seconds to sample temperature T
+            Compute dT/dt --> compute moving average
+        '''
+
+        t0 = datetime.now() # reference time
+        current = datetime.now() # current time
+        max_samp = 10
+        mov_av = []
+        while ((current-t0).total_seconds() < 120): # stability check will last 2 minutes
+            count = 0
+            der = []
+            while(count < max_samp):
+                current_2 = datetime.now()
+                val1 = float(fridge.read('R2').strip('R+'))
+                time.sleep(0.5)
+                val2 = float(fridge.read('R2').strip('R+'))
+                d = (val2-val1)/(current_2 - t0).total_seconds()
+                der.append(d)
+                current = datetime.now()
+            mv = np.sum(der/(current_2 - t0).total_seconds()) # computing moving average
+            mov_av.append(mv)
+            if (mv > 0.1): # if the derivative moving average is out of control stability check is negative
+                check = False
+        return check
+    
+    def set_T_max(self, tmax):
+        self._T_max = tmax
+        
+    def set_T_min(self, tmin):
+        self._T_max = tmin
+        
+    def set_N_t(self, n):
+        self._N_t = n
+    
+    def T_sweep(self):
         
         fridge = handler.FridgeHandler()
         
@@ -353,14 +400,14 @@ class HP8753E:
             N_t = number of temperature samples
             error = interval in which temperature value can float
         '''
-        step = (T_max - T_min)/N_t
-        temps = np.arange(T_min, T_max, step=step)
+        step = (self.T_max - self.T_min)/self.N_t
+        temps = np.arange(self.T_min, self.T_max, step=step)
         run = 0
         
         for (i,T) in enumerate(temps):
-            check, temp , _  = self.check_T_stable(T, error)
+            check = self.check_T_stable_derivative(T)
             if (check==True):    
-                self._params['T'] = np.mean(np.array(temp))
+                self._params['T'] = float(fridge.read('R2').strip('R+'))
                 run = run + 1
                 I, Q, F = self.get_IQF_single_meas()
                 self.create_run_file(run, i=I, q=Q, f=F)
