@@ -23,6 +23,7 @@ with niscope.Session("Dev1") as session:
     # Find all record number 3
     rec3 = [wfm for wfm in waveforms if wfm.record == 3]
 ```
+
 ### Comments:
 
 ---
@@ -45,10 +46,11 @@ session.channels[1].configure_vertical(range=10.0, coupling=niscope.VerticalCoup
 session.configure_horizontal_timing(min_sample_rate=50000000, min_num_pts=1000, ref_position=50.0, num_records=5, enforce_realtime=True)
 ```
 - [`configure_horizontal_timing`](https://niscope.readthedocs.io/en/latest/class.html#configure-horizontal-timing): Configures the common properties of the horizontal subsystem for a multi-record acquisition in terms of minimum sample rate:
-    - [`min_sample_rate`](https://niscope.readthedocs.io/en/latest/class.html#niscope.Session.min_sample_rate): Specify the sampling rate for the acquisition in Samples per second. Sets the minimum sample rate to 50 MHz;
+    - [`min_sample_rate`](https://niscope.readthedocs.io/en/latest/class.html#niscope.Session.min_sample_rate): Specify the sampling rate for the acquisition in Samples per second. Sets the minimum sample rate to 50 MHz.  
+    **NOTE:** To satisfy the Nyquist-Shannon theorem, the minimum sample rate should be at least twice the highest frequency component in the signal;
     - `min_num_pts`: The minimum number of points you need in the record for each channel;
-    - `ref_position`: The position of the Reference Event in the waveform record specified as a percentage. Sets the reference position (trigger point) to 50% of the record length.
-		[**Reference Position:**](https://documentation.help/NI-SCOPE-LabVIEW/Reference_Position.html) Specifies the position of the Reference Event in the waveform record as a percentage of the record. When the digitizer detects a trigger, it waits the length of time the [Trigger Delay](https://documentation.help/NI-SCOPE-LabVIEW/Trigger_Delay.html) property specifies. The event that occurs when the delay time elapses is the Reference Event. The Reference Event is relative to the start of the record and is a percentage of the record length. For example, the value 50.0 corresponds to the center of the waveform record and 0.0 corresponds to the first element in the waveform record;
+    - `ref_position`: The position of the Reference Event in the waveform record specified as a percentage. Sets the reference position (trigger point) to 50% of the record length.  
+	[**Reference Position:**](https://documentation.help/NI-SCOPE-LabVIEW/Reference_Position.html) Specifies the position of the Reference Event in the waveform record as a percentage of the record. When the digitizer detects a trigger, it waits the length of time the [Trigger Delay](https://documentation.help/NI-SCOPE-LabVIEW/Trigger_Delay.html) property specifies. The event that occurs when the delay time elapses is the Reference Event. The Reference Event is relative to the start of the record and is a percentage of the record length. For example, the value 50.0 corresponds to the center of the waveform record and 0.0 corresponds to the first element in the waveform record;
     - `num_records`: The number of records to acquire. Specifies to acquire 5 records.
     - `enforce_realtime`: Indicates whether the digitizer enforces real-time measurements or allows equivalent-time (RIS) measurements.
 ---

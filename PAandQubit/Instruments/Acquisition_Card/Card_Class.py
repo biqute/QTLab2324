@@ -1,4 +1,4 @@
-# NI_PXIe-1071 : 8375, 5170R, 6133 (8 inputs)
+# NI_PXIe-1071 : 8375, 5170R, 6133
 
 ##### https://niscope.readthedocs.io/en/latest/class.html#read ######
 
@@ -14,41 +14,78 @@ class PXIe5170R:
         self._sample_rate       = int(250e6)
         self._num_pts           = 500
         self._num_records       = 1
-
-        self._session = None
-        self._connect_success = False
+        self._ref_pos           = 50.0
         self._sleep = 1
 
-
-    
+    @property
     def available(self):
         try:
-            ni.Session(self._dev_name)
-            self._connect_success = True
-            print("Connection successful!")
+            with ni.Session(self._resource_name) as _:
+                print("Available communication.")
         except:
             print(f"Unable to establish a connection.")
 
-
-    def voltag_range(self, voltage_range):
-        self._voltage_range = voltage_range
-
-
-
-    def coupling():
-    def sample_rate():
-    def num_pts():
-    def num_records():
-    def fetch(self, ):
-        with ni.Session(self._dev_name) as session: # Name of the device
-        session.channels[0].configure_vertical(range = voltage_range, coupling=ni.VerticalCoupling.AC)
-        session.configure_horizontal_timing(min_sample_rate = 250e6, min_num_pts = n_pts, ref_position = 50.0, num_records = n_recs, enforce_realtime = True)
-    with session.initiate(): # After calling this method, the digitizer leaves the Idle state and waits for a trigger
-        waveforms = session.channels[0].fetch()
-    for wfm in waveforms:
-         print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
-
-a = waveforms[0].samples.tolist()
-
-plt.plot(a)
+    @property
+    def voltage_range(self):
+        return self._voltage_range
     
+    @voltage_range.setter
+    def voltag_range(self, value):
+        self._voltage_range = value
+
+    @property
+    def coupling(self):
+        return self._coupling
+    
+    @coupling.setter
+    def coupling(self, value: str):
+        mapping = {'AC': ni.VerticalCoupling.AC,'DC': ni.VerticalCoupling.DC}
+        try:
+            self._coupling = mapping[value]
+        except:
+            print("The available couplings are 'AC' or 'DC'.")
+
+    @property
+    def sample_rate(self):
+        return self._sample_rate
+    
+    @sample_rate.setter
+    def sample_rate(self, value):
+        '''In Hz'''
+        self._sample_rate = value
+    
+    @property
+    def num_pts(self):
+        return self._num_pts
+
+    @num_pts.setter
+    def num_pts(self, value: int):
+        self._num_pts = value
+
+    @property
+    def num_records(self):
+        return self._num_records
+    
+    @num_records.setter
+    def num_records(self, value: int):
+        self._num_records = value
+    
+    @property
+    def ref_position(self):
+        return self._ref_pos
+    
+    @ref_position.setter
+    def ref_position(self, value):
+        self._ref_pos = value
+        
+
+    def acquisition(self):
+        with ni.Session(self._resource_name) as session:
+            session.configure_vertical(range = self._voltage_range, coupling = self._coupling)
+            session.configure_horizontal_timing(
+                min_sample_rate     = self.sample_rate, 
+                min_num_pts         = self._num_pts, 
+                ref_position        = self._ref_pos, 
+                num_records         = self._num_records, 
+                enforce_realtime    = True
+                )
