@@ -357,7 +357,7 @@ class HP8753E:
             T = temperature to check 
             error = interval in which temperature value can float
             interval = seconds to sample temperature T
-            Compute dT/dt --> compute moving average
+            Compute dT/dt --> compute "moving" average
         '''
 
         t0 = datetime.now() # reference time
@@ -375,7 +375,7 @@ class HP8753E:
                 d = (val2-val1)/(current_2 - t0).total_seconds()
                 der.append(d)
                 current = datetime.now()
-            mv = np.sum(der/(current_2 - t0).total_seconds()) # computing moving average
+            mv = np.sum(der/(current_2 - t0).total_seconds())/len(der) # computing average
             mov_av.append(mv)
             if (mv > 0.1): # if the derivative moving average is out of control stability check is negative
                 check = False
@@ -404,7 +404,7 @@ class HP8753E:
         temps = np.arange(self.T_min, self.T_max, step=step)
         run = 0
         
-        for (i,T) in enumerate(temps):
+        for T in temps:
             check = self.check_T_stable_derivative(T)
             if (check==True):    
                 self._params['T'] = float(fridge.read('R2').strip('R+'))
