@@ -3,7 +3,6 @@ import numpy as np
 import time
 import smtplib
 from datetime import datetime
-from VNA_GUI import HP8753E as vna
 
 gmail_username = 'kinekids2324'
 sent_from = 'kinekids2324@gmail.com'

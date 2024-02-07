@@ -7,8 +7,9 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_agg import FigureCanvas
 import numpy as np
 import h5py as h5
-from pathlib import Path
-from Gas_Handler22 import handler
+import sys
+sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
+import handler
 from datetime import datetime
 import time
 
@@ -346,9 +347,23 @@ class HP8753E:
                 check = False
                 
         return check, temp, secs
+
+    
+    def low_pass(self, x):
+
+        n = len(x)
+        fhat = np.fft.fft(f,n) 
+        PSD = fhat * np.conj(fhat) / n
+        freq = 1/(dt*n) * np.arange(n)
+        L = np.arange(1, np.floor(n/2), dtype='int')
+        indeces = PSD > max(PSD)/2
+        PSDclean = PSD * indeces
+        fhat = indeces * fhat
+        ffilt = np.fft.ifft(fhat) 
+        return ffilt
     
     
-    def check_T_stable_derivative(self, T, error):
+    def check_T_stable_derivative(self, T):
         
         fridge = handler.FridgeHandler()
         check = True
@@ -360,24 +375,28 @@ class HP8753E:
             Compute dT/dt --> compute "moving" average
         '''
 
-        t0 = datetime.now() # reference time
-        current = datetime.now() # current time
-        max_samp = 10
+        t0 = datetime.now().time_stamp() # reference time
+        current = datetime.now().time_stamp() # current time
+        max_samp = 50
         mov_av = []
-        while ((current-t0).total_seconds() < 120): # stability check will last 2 minutes
+        while (current-t0 < 600): # stability check will last 10 minutes
             count = 0
             der = []
-            while(count < max_samp):
-                current_2 = datetime.now()
+            while (count < max_samp):
                 val1 = float(fridge.read('R2').strip('R+'))
-                time.sleep(0.5)
+                time.sleep(0.1)
                 val2 = float(fridge.read('R2').strip('R+'))
-                d = (val2-val1)/(current_2 - t0).total_seconds()
+                current_2 = datetime.now().time_stamp()
+                d = (val2-val1)/(current_2 - t0)
                 der.append(d)
-                current = datetime.now()
-            mv = np.sum(der/(current_2 - t0).total_seconds())/len(der) # computing average
-            mov_av.append(mv)
-            if (mv > 0.1): # if the derivative moving average is out of control stability check is negative
+                current = datetime.now().time_stamp()
+            der = self.low_pass(der)
+            der = pd.Series(der)
+            windows = der.rolling(4)
+            mave = windows.mean().tolist() 
+            mv = np.sum(der/(current - t0))/len(der) # computing average
+            if ((mv > 0.1) or mv < -0.1): # if the derivative average is out of control stability check is negative
+                break
                 check = False
         return check
     
