@@ -11,8 +11,8 @@ class digital_trigger:
         self._holdoff       = 0
         self._delay         = 0
 
-    def configure(self):
-        ni.Session.configure_trigger_digital(
+    def configure(self, session: ni.Session):
+        session.configure_trigger_digital(
             trigger_source  = self._trig_src, 
             slope           = self._slope, 
             holdoff         = self._holdoff, 
@@ -25,7 +25,7 @@ class PXIe5170R:
 
         self._resource_name     = resource_name
         self._voltage_range     = 1
-        self._coupling          = 'DC'
+        self._coupling          = ni.VerticalCoupling.DC
         self._sample_rate       = int(250e6)
         self._num_pts           = 500
         self._num_records       = 1
@@ -45,7 +45,7 @@ class PXIe5170R:
         return self._voltage_range
     
     @voltage_range.setter
-    def voltag_range(self, value):
+    def voltage_range(self, value):
         self._voltage_range = value
 
     @property
@@ -104,3 +104,8 @@ class PXIe5170R:
                 num_records         = self._num_records, 
                 enforce_realtime    = True
                 )
+            a = digital_trigger()
+            a.configure(session)
+            with session.initiate():
+                return session.channels[0].fetch()
+            
