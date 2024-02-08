@@ -11,6 +11,7 @@ import sys
 sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
 import handler
 from datetime import datetime
+import pandas as pd
 import time
 
 
@@ -352,7 +353,8 @@ class HP8753E:
     def low_pass(self, x):
 
         n = len(x)
-        fhat = np.fft.fft(f,n) 
+        dt = 0.1
+        fhat = np.fft.fft(x,n) 
         PSD = fhat * np.conj(fhat) / n
         freq = 1/(dt*n) * np.arange(n)
         L = np.arange(1, np.floor(n/2), dtype='int')
@@ -375,8 +377,8 @@ class HP8753E:
             Compute dT/dt --> compute "moving" average
         '''
 
-        t0 = datetime.now().time_stamp() # reference time
-        current = datetime.now().time_stamp() # current time
+        t0 = datetime.now().time.timestamp() # reference time
+        current = datetime.now().timestamp() # current time
         max_samp = 50
         mov_av = []
         while (current-t0 < 600): # stability check will last 10 minutes
@@ -386,10 +388,10 @@ class HP8753E:
                 val1 = float(fridge.read('R2').strip('R+'))
                 time.sleep(0.1)
                 val2 = float(fridge.read('R2').strip('R+'))
-                current_2 = datetime.now().time_stamp()
+                current_2 = datetime.now().timestamp()
                 d = (val2-val1)/(current_2 - t0)
                 der.append(d)
-                current = datetime.now().time_stamp()
+                current = datetime.now().timestamp()
             der = self.low_pass(der)
             der = pd.Series(der)
             windows = der.rolling(4)
