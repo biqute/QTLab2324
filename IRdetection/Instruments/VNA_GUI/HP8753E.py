@@ -315,44 +315,13 @@ class HP8753E:
 
         run.close()
         return 
-
-    def check_T_stable_points(self, T, error):
-        
-        fridge = handler.FridgeHandler()
-        
-        '''
-            T = temperature to check 
-            error = interval in which temperature value can float
-            interval = seconds to sample temperature T
-            Compute dT/dt --> if dT/dt[i] > 0.1 mK/sec  check = False
-            We need to have a real time plot for mixing chamber temperature
-            We need to have a real time plot for 1K Pot pressure
-        '''
-        check = True
-        t0 = datetime.now() # reference time
-        current = datetime.now() # current time
-        temp, secs = [], []
-        counter = 0
-        while ((current-t0).total_seconds() < 120):
-            t = float(fridge.read('R2').strip('R+'))
-            sec = (current-t0).total_seconds() #seconds passed since t0
-            temp.append(t)
-            secs.append(sec)
-            if (t-error < T or t+error>T):
-                counter = counter + 1
-                                
-            if (counter > 4):
-                msg = 'Mixing chamber temperature is out of control!'
-                fridge.send_alert(msg=msg)
-                check = False
-                
-        return check, temp, secs
-
     
-    def low_pass(self, x):
+    def low_pass(self, data, t, dt):
 
-        n = len(x)
-        fhat = np.fft.fft(f,n) 
+        # Compute Fast Fourier Transform
+        
+        n = len(t)-1
+        fhat = np.fft.fft(data,n) 
         PSD = fhat * np.conj(fhat) / n
         freq = 1/(dt*n) * np.arange(n)
         L = np.arange(1, np.floor(n/2), dtype='int')
@@ -363,10 +332,14 @@ class HP8753E:
         return ffilt
     
     
-    def check_T_stable_derivative(self, T):
+    def check_T_stable(self, T, duration=180, dt=.25):
         
         fridge = handler.FridgeHandler()
-        check = True
+        check = False
+        
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        fig.show()
         
         '''
             T = temperature to check 
@@ -374,32 +347,28 @@ class HP8753E:
             interval = seconds to sample temperature T
             Compute dT/dt --> compute "moving" average
         '''
-
-        t0 = datetime.now().time_stamp() # reference time
-        current = datetime.now().time_stamp() # current time
-        max_samp = 50
-        mov_av = []
-        while (current-t0 < 600): # stability check will last 10 minutes
-            count = 0
-            der = []
-            while (count < max_samp):
-                val1 = float(fridge.read('R2').strip('R+'))
-                time.sleep(0.1)
-                val2 = float(fridge.read('R2').strip('R+'))
-                current_2 = datetime.now().time_stamp()
-                d = (val2-val1)/(current_2 - t0)
-                der.append(d)
-                current = datetime.now().time_stamp()
-            der = self.low_pass(der)
-            der = pd.Series(der)
-            windows = der.rolling(4)
-            mave = windows.mean().tolist() 
-            mv = np.sum(der/(current - t0))/len(der) # computing average
-            if ((mv > 0.1) or mv < -0.1): # if the derivative average is out of control stability check is negative
-                break
-                check = False
-        return check
-    
+        window = 50 # Temperature samples for computing moving average
+        average, temp, secs = [], [], []
+        count = 0
+        for i in range(window):
+            temp.append(float(fridge.read('R2').strip('R+')))
+            average.append(np.mean(temp))
+        while (check==False):
+            value = float(fridge.read('R2').strip('R+'))
+            temp.append(value)
+            temp.pop(0)
+            av = np.mean(temp)
+            average.append(av)
+            count += 1
+            secs.append(count)
+            ax.scatter(secs,temp, color='black', s=1, marker='o', label='raw data')
+            ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
+            plt.legend()
+            plt.show()
+            if (average[count]-average[count-1] < 0.1):
+                check = True
+        return True
+                    
     def set_T_max(self, tmax):
         self._T_max = tmax
         
