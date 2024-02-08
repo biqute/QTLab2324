@@ -317,7 +317,7 @@ class HP8753E:
         run.close()
         return 
 
-    def check_T_stable_points(self, T, error):
+    def low_pass(self, data, t, dt):
         
         fridge = handler.FridgeHandler()
         
@@ -333,46 +333,47 @@ class HP8753E:
         return ffilt
     
     
-    def check_T_stable(self, T, duration=180, dt=.25):
-        
-        fridge = handler.FridgeHandler()
+    def check_T_stable(duration):
+
         check = False
+
+        t0 = datetime.now().timestamp()
+        current = datetime.now().timestamp()
         
         fig = plt.figure()
         ax = fig.add_subplot()
-        fig.show()
-        
-        '''
-            T = temperature to check 
-            error = interval in which temperature value can float
-            interval = seconds to sample temperature T
-            Compute dT/dt --> compute "moving" average
-        '''
+        while((current-t0)<duration):
+            window = 50 # Temperature samples for computing moving average
+            average, temp, secs = [], [], []
+            for i in range(window):
+                temp.append(np.random.random())
+                secs.append(i)
+                average.append(np.mean(temp))
+            count = window
+            count_equal = 0
+            while (check==False):
+                value = np.random.random()
+                temp.append(value)
+                temp.pop(0)
+                av = np.mean(temp)
+                average.append(av)
+                count += 1
+                secs.append(count)
+                secs.pop(0)
+                ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
+                ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
+                ax.set_xlim([count-window,count])
+                plt.pause(0.05)
+                if (abs(average[count-window]-average[count-1-window]) < 0.000001):
+                    count_equal += 1
+                    print(average[count-window], average[count-1-window])
+                if (count_equal > 4):
+                    check = True
+            plt.legend()
+            plt.show()
+            current = datetime.now().timestamp()
+        return True
 
-        t0 = datetime.now().time_stamp() # reference time
-        current = datetime.now().time_stamp() # current time
-        max_samp = 50
-        mov_av = []
-        while (current-t0 < 600): # stability check will last 10 minutes
-            count = 0
-            der = []
-            while (count < max_samp):
-                val1 = float(fridge.read('R2').strip('R+'))
-                time.sleep(0.1)
-                val2 = float(fridge.read('R2').strip('R+'))
-                current_2 = datetime.now().time_stamp()
-                d = (val2-val1)/(current_2 - t0)
-                der.append(d)
-                current = datetime.now().time_stamp()
-            der = self.low_pass(der)
-            der = pd.Series(der)
-            windows = der.rolling(4)
-            mave = windows.mean().tolist() 
-            mv = np.sum(der/(current - t0))/len(der) # computing average
-            if ((mv > 0.1) or mv < -0.1): # if the derivative average is out of control stability check is negative
-                break
-                check = False
-        return check
     
     def set_T_max(self, tmax):
         self._T_max = tmax
