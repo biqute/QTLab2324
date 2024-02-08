@@ -321,40 +321,8 @@ class HP8753E:
         
         fridge = handler.FridgeHandler()
         
-        '''
-            T = temperature to check 
-            error = interval in which temperature value can float
-            interval = seconds to sample temperature T
-            Compute dT/dt --> if dT/dt[i] > 0.1 mK/sec  check = False
-            We need to have a real time plot for mixing chamber temperature
-            We need to have a real time plot for 1K Pot pressure
-        '''
-        check = True
-        t0 = datetime.now() # reference time
-        current = datetime.now() # current time
-        temp, secs = [], []
-        counter = 0
-        while ((current-t0).total_seconds() < 120):
-            t = float(fridge.read('R2').strip('R+'))
-            sec = (current-t0).total_seconds() #seconds passed since t0
-            temp.append(t)
-            secs.append(sec)
-            if (t-error < T or t+error>T):
-                counter = counter + 1
-                                
-            if (counter > 4):
-                msg = 'Mixing chamber temperature is out of control!'
-                fridge.send_alert(msg=msg)
-                check = False
-                
-        return check, temp, secs
-
-    
-    def low_pass(self, x):
-
-        n = len(x)
-        dt = 0.1
-        fhat = np.fft.fft(x,n) 
+        n = len(t)-1
+        fhat = np.fft.fft(data,n) 
         PSD = fhat * np.conj(fhat) / n
         freq = 1/(dt*n) * np.arange(n)
         L = np.arange(1, np.floor(n/2), dtype='int')
@@ -365,10 +333,14 @@ class HP8753E:
         return ffilt
     
     
-    def check_T_stable_derivative(self, T):
+    def check_T_stable(self, T, duration=180, dt=.25):
         
         fridge = handler.FridgeHandler()
-        check = True
+        check = False
+        
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        fig.show()
         
         '''
             T = temperature to check 
@@ -377,8 +349,8 @@ class HP8753E:
             Compute dT/dt --> compute "moving" average
         '''
 
-        t0 = datetime.now().time.timestamp() # reference time
-        current = datetime.now().timestamp() # current time
+        t0 = datetime.now().time_stamp() # reference time
+        current = datetime.now().time_stamp() # current time
         max_samp = 50
         mov_av = []
         while (current-t0 < 600): # stability check will last 10 minutes
@@ -388,10 +360,10 @@ class HP8753E:
                 val1 = float(fridge.read('R2').strip('R+'))
                 time.sleep(0.1)
                 val2 = float(fridge.read('R2').strip('R+'))
-                current_2 = datetime.now().timestamp()
+                current_2 = datetime.now().time_stamp()
                 d = (val2-val1)/(current_2 - t0)
                 der.append(d)
-                current = datetime.now().timestamp()
+                current = datetime.now().time_stamp()
             der = self.low_pass(der)
             der = pd.Series(der)
             windows = der.rolling(4)
