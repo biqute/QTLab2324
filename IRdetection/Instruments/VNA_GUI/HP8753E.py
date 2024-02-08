@@ -11,6 +11,7 @@ import sys
 sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
 import handler
 from datetime import datetime
+import pandas as pd
 import time
 
 
@@ -315,10 +316,10 @@ class HP8753E:
 
         run.close()
         return 
-    
-    def low_pass(self, data, t, dt):
 
-        # Compute Fast Fourier Transform
+    def check_T_stable_points(self, T, error):
+        
+        fridge = handler.FridgeHandler()
         
         n = len(t)-1
         fhat = np.fft.fft(data,n) 
@@ -347,28 +348,32 @@ class HP8753E:
             interval = seconds to sample temperature T
             Compute dT/dt --> compute "moving" average
         '''
-        window = 50 # Temperature samples for computing moving average
-        average, temp, secs = [], [], []
-        count = 0
-        for i in range(window):
-            temp.append(float(fridge.read('R2').strip('R+')))
-            average.append(np.mean(temp))
-        while (check==False):
-            value = float(fridge.read('R2').strip('R+'))
-            temp.append(value)
-            temp.pop(0)
-            av = np.mean(temp)
-            average.append(av)
-            count += 1
-            secs.append(count)
-            ax.scatter(secs,temp, color='black', s=1, marker='o', label='raw data')
-            ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
-            plt.legend()
-            plt.show()
-            if (average[count]-average[count-1] < 0.1):
-                check = True
-        return True
-                    
+
+        t0 = datetime.now().time_stamp() # reference time
+        current = datetime.now().time_stamp() # current time
+        max_samp = 50
+        mov_av = []
+        while (current-t0 < 600): # stability check will last 10 minutes
+            count = 0
+            der = []
+            while (count < max_samp):
+                val1 = float(fridge.read('R2').strip('R+'))
+                time.sleep(0.1)
+                val2 = float(fridge.read('R2').strip('R+'))
+                current_2 = datetime.now().time_stamp()
+                d = (val2-val1)/(current_2 - t0)
+                der.append(d)
+                current = datetime.now().time_stamp()
+            der = self.low_pass(der)
+            der = pd.Series(der)
+            windows = der.rolling(4)
+            mave = windows.mean().tolist() 
+            mv = np.sum(der/(current - t0))/len(der) # computing average
+            if ((mv > 0.1) or mv < -0.1): # if the derivative average is out of control stability check is negative
+                break
+                check = False
+        return check
+    
     def set_T_max(self, tmax):
         self._T_max = tmax
         
