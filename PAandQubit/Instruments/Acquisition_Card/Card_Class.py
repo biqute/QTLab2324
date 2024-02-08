@@ -4,6 +4,21 @@
 
 import niscope as ni
 
+class digital_trigger:
+    def __init__(self, source = 'VAL_PFI_0'):
+        self._trig_src      = source
+        self._slope         = ni.TriggerSlope.POSITIVE
+        self._holdoff       = 0
+        self._delay         = 0
+
+    def configure(self):
+        ni.Session.configure_trigger_digital(
+            trigger_source  = self._trig_src, 
+            slope           = self._slope, 
+            holdoff         = self._holdoff, 
+            delay           = self._delay
+            )
+
 class PXIe5170R:
 
     def __init__(self, resource_name: str = 'PXI1Slot2'):
