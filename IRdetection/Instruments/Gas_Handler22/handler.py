@@ -144,7 +144,7 @@ class FridgeHandler:
             time.sleep(60*10)
         return res
 
-    def send_alert(self, msg):
+    def send_alert(self):
         try:
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
             server.ehlo()
@@ -225,53 +225,3 @@ class FridgeHandler:
         
         self._inst.write('K'+str(value))
         print('Control Temperature settled to: '+str(value*0.1)+' Kelvin')
-        
-                    
-    def check_T_stable(self, T, error, interval):
-        
-        '''
-            T = temperature to check 
-            error = interval in which temperature value can float
-            interval = seconds to sample temperature T
-            We need to have a real time plot for mixing chamber temperature
-            We need to have a real time plot for 1K Pot pressure
-        '''
-        check = True
-        t0 = datetime.now() # reference time
-        current = datetime.now() # current time
-        temp, secs = [], []
-        counter = 0
-        while ((current-t0).total_seconds() < 120):
-            t = float(self.read('R2').strip('R+'))
-            sec = (current-t0).total_seconds() #seconds passed since t0
-            temp.append(t)
-            secs.append(sec)
-            if (t-error < T or t+error>T):
-                counter = counter + 1
-                                
-            if (counter > 4):
-                msg = 'Mixing chamber temperature is out of control!'
-                self.send_alert(msg=msg)
-                check = False
-                
-        return check, temp, secs
-    
-    def T_sweep(self, T_min, T_max, N_t, error):
-        '''
-            T_min = minimum temperature in mK
-            T_max = maximum temperature in mK
-            N_t = number of temperature samples
-            error = interval in which temperature value can float
-        '''
-        step = (T_max - T_min)/N_t
-        temps = np.arange(T_min, T_max, step=step)
-        
-        T = []
-        
-        for (i,T) in enumerate(temps):
-            check, temp , _  = self.check_T_stable(T, error)
-            if (check==True):    
-                T.append(np.mean(np.array(temp)))
-                
-            else:
-                time.sleep(600) #If anything goes wrong go to sleep for 600 secs
