@@ -11,6 +11,7 @@ import sys
 sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
 import handler
 from datetime import datetime
+import pandas as pd
 import time
 
 
@@ -315,10 +316,10 @@ class HP8753E:
 
         run.close()
         return 
-    
-    def low_pass(self, data, t, dt):
 
-        # Compute Fast Fourier Transform
+    def low_pass(self, data, t, dt):
+        
+        fridge = handler.FridgeHandler()
         
         n = len(t)-1
         fhat = np.fft.fft(data,n) 
@@ -332,27 +333,21 @@ class HP8753E:
         return ffilt
     
     
-    def check_T_stable(self, T, duration=180, dt=.25):
-        
-        fridge = handler.FridgeHandler()
+    def check_begin(self):
+
         check = False
+        fridge = handler.FridgeHandler()
         
         fig = plt.figure()
         ax = fig.add_subplot()
-        fig.show()
-        
-        '''
-            T = temperature to check 
-            error = interval in which temperature value can float
-            interval = seconds to sample temperature T
-            Compute dT/dt --> compute "moving" average
-        '''
         window = 50 # Temperature samples for computing moving average
         average, temp, secs = [], [], []
-        count = 0
         for i in range(window):
             temp.append(float(fridge.read('R2').strip('R+')))
+            secs.append(i)
             average.append(np.mean(temp))
+        count = window
+        count_less = 0
         while (check==False):
             value = float(fridge.read('R2').strip('R+'))
             temp.append(value)
@@ -361,14 +356,50 @@ class HP8753E:
             average.append(av)
             count += 1
             secs.append(count)
-            ax.scatter(secs,temp, color='black', s=1, marker='o', label='raw data')
+            secs.pop(0)
+            ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
             ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
-            plt.legend()
-            plt.show()
-            if (average[count]-average[count-1] < 0.1):
+            ax.set_xlim([count-window,count])
+            plt.pause(0.05)
+            if (abs(average[count-window]-average[count-1-window]) < 1):
+                count_less += 1
+                print(average[count-window], average[count-1-window])
+            if (count_less > 4):
                 check = True
-        return True
-                    
+        plt.legend()
+        plt.show()
+        return check, temp, secs, average
+
+    def check_stable(self, temp, secs, average):
+
+        check = True
+        fridge = handler.FridgeHandler()
+        
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        window = 50 # Temperature samples for computing moving average
+        count = window
+        count_less = 0
+        value = float(fridge.read('R2').strip('R+'))
+        temp.append(value)
+        temp.pop(0)
+        av = np.mean(temp)
+        average.append(av)
+        count += 1
+        secs.append(count)
+        secs.pop(0)
+        ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
+        ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
+        ax.set_xlim([count-window,count])
+        plt.pause(0.05)
+        if (abs(average[count-window]-average[count-1-window]) > 1):
+            check = False
+            return False
+        plt.legend()
+        plt.show()
+        return check
+
+    
     def set_T_max(self, tmax):
         self._T_max = tmax
         
@@ -393,11 +424,12 @@ class HP8753E:
         run = 0
         
         for T in temps:
-            check = self.check_T_stable_derivative(T)
-            if (check==True):    
-                self._params['T'] = float(fridge.read('R2').strip('R+'))
+            fridge.set_mixc_temp(T)
+            check, temp, secs, average = self.check_begin() == True
+            if (check==True):  
+                self._params['T'] = T
                 run = run + 1
-                I, Q, F = self.get_IQF_single_meas()
-                self.create_run_file(run, i=I, q=Q, f=F)
-            else:
-                time.sleep(600) #If anything goes wrong go to sleep for 600 secs
+                while(self.check_stable(temp, secs, average)==True):    
+                    I, Q, F = self.get_IQF_single_meas()
+                    self.create_run_file(run, i=I, q=Q, f=F)
+        fridge.send_alert()
