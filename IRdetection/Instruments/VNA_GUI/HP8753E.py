@@ -333,46 +333,71 @@ class HP8753E:
         return ffilt
     
     
-    def check_T_stable(duration):
+    def check_begin(self):
 
         check = False
-
-        t0 = datetime.now().timestamp()
-        current = datetime.now().timestamp()
+        fridge = handler.FridgeHandler()
         
         fig = plt.figure()
         ax = fig.add_subplot()
-        while((current-t0)<duration):
-            window = 50 # Temperature samples for computing moving average
-            average, temp, secs = [], [], []
-            for i in range(window):
-                temp.append(np.random.random())
-                secs.append(i)
-                average.append(np.mean(temp))
-            count = window
-            count_equal = 0
-            while (check==False):
-                value = np.random.random()
-                temp.append(value)
-                temp.pop(0)
-                av = np.mean(temp)
-                average.append(av)
-                count += 1
-                secs.append(count)
-                secs.pop(0)
-                ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
-                ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
-                ax.set_xlim([count-window,count])
-                plt.pause(0.05)
-                if (abs(average[count-window]-average[count-1-window]) < 0.000001):
-                    count_equal += 1
-                    print(average[count-window], average[count-1-window])
-                if (count_equal > 4):
-                    check = True
-            plt.legend()
-            plt.show()
-            current = datetime.now().timestamp()
-        return True
+        window = 50 # Temperature samples for computing moving average
+        average, temp, secs = [], [], []
+        for i in range(window):
+            temp.append(float(fridge.read('R2').strip('R+')))
+            secs.append(i)
+            average.append(np.mean(temp))
+        count = window
+        count_less = 0
+        while (check==False):
+            value = float(fridge.read('R2').strip('R+'))
+            temp.append(value)
+            temp.pop(0)
+            av = np.mean(temp)
+            average.append(av)
+            count += 1
+            secs.append(count)
+            secs.pop(0)
+            ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
+            ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
+            ax.set_xlim([count-window,count])
+            plt.pause(0.05)
+            if (abs(average[count-window]-average[count-1-window]) < 1):
+                count_less += 1
+                print(average[count-window], average[count-1-window])
+            if (count_less > 4):
+                check = True
+        plt.legend()
+        plt.show()
+        return check, temp, secs, average
+
+    def check_stable(self, temp, secs, average):
+
+        check = True
+        fridge = handler.FridgeHandler()
+        
+        fig = plt.figure()
+        ax = fig.add_subplot()
+        window = 50 # Temperature samples for computing moving average
+        count = window
+        count_less = 0
+        value = float(fridge.read('R2').strip('R+'))
+        temp.append(value)
+        temp.pop(0)
+        av = np.mean(temp)
+        average.append(av)
+        count += 1
+        secs.append(count)
+        secs.pop(0)
+        ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
+        ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
+        ax.set_xlim([count-window,count])
+        plt.pause(0.05)
+        if (abs(average[count-window]-average[count-1-window]) > 1):
+            check = False
+            return False
+        plt.legend()
+        plt.show()
+        return check
 
     
     def set_T_max(self, tmax):
@@ -399,11 +424,12 @@ class HP8753E:
         run = 0
         
         for T in temps:
-            check = self.check_T_stable_derivative(T)
-            if (check==True):    
-                self._params['T'] = float(fridge.read('R2').strip('R+'))
+            fridge.set_mixc_temp(T)
+            check, temp, secs, average = self.check_begin() == True
+            if (check==True):  
+                self._params['T'] = T
                 run = run + 1
-                I, Q, F = self.get_IQF_single_meas()
-                self.create_run_file(run, i=I, q=Q, f=F)
-            else:
-                time.sleep(600) #If anything goes wrong go to sleep for 600 secs
+                while(self.check_stable(temp, secs, average)==True):    
+                    I, Q, F = self.get_IQF_single_meas()
+                    self.create_run_file(run, i=I, q=Q, f=F)
+        fridge.send_alert()

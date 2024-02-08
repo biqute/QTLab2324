@@ -4,6 +4,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 
+
+def low_pass(data, t):
+                
+        dt = .001
+        t = np.arange(0,1,dt)
+        n = len(t)
+        fhat = np.fft.fft(data,n)
+        PSD = fhat * np.conj(fhat)/n
+        indices = PSD>max(PSD)/2
+        fhat = indices*fhat
+        ffilt = np.fft.ifft(fhat)
+        return ffilt
+
+
 def check_T_stable(duration):
 
         check = False
@@ -34,11 +48,13 @@ def check_T_stable(duration):
                 value = np.random.random()
                 temp.append(value)
                 temp.pop(0)
-                av = np.mean(temp)
-                average.append(av)
                 count += 1
                 secs.append(count)
                 secs.pop(0)
+                temp = low_pass(temp, secs)
+                av = np.mean(temp)
+                average.append(av)
+                print(np.size(secs),np.size(temp))
                 ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
                 ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
                 ax.set_xlim([count-window,count])
@@ -54,37 +70,3 @@ def check_T_stable(duration):
         return True
 
 check_T_stable(duration=60)
-
-'''
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
-xs = []
-ys = []
-
-
-def animate(i, xs, ys):
-
-    # Read temperature (Celsius) from TMP102
-    temp_c = np.random.normal()
-    # Add x and y to lists
-    xs.append(i)
-    ys.append(temp_c)
-
-    # Limit x and y lists to 20 items
-    xs = xs[-20:]
-    ys = ys[-20:]
-
-    # Draw x and y lists
-    ax.clear()
-    ax.plot(xs, ys)
-
-    # Format plot
-    plt.xticks(rotation=45, ha='right')
-    plt.subplots_adjust(bottom=0.30)
-    plt.title('TMP102 Temperature over Time')
-    plt.ylabel('Temperature (deg C)')
-
-# Set up plot to call animate() function periodically
-ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys))#, interval=10)
-plt.show()
-'''
