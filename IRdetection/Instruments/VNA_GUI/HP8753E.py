@@ -353,7 +353,7 @@ class HP8753E:
             temp.append(value)
             temp.pop(0)
             av = np.mean(temp)
-            average.append(av)
+            average.append(av)  
             count += 1
             secs.append(count)
             secs.pop(0)
