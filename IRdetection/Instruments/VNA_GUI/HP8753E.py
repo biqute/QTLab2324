@@ -26,6 +26,7 @@ class HP8753E:
     _T_max = None
     _T_min = None
     _N_t = None
+    _freqs = []
     def __new__(self, board = 'GPIB0::16::INSTR', num_points = 1601 ):
         if self._instance is None:
             print('Creating the object')
@@ -332,55 +333,63 @@ class HP8753E:
         ffilt = np.fft.ifft(fhat) 
         return ffilt
     
-    
-    def check_begin(self):
+
+    def check_begin(self, duration=300):
 
         check = False
         fridge = handler.FridgeHandler()
+
+        t0 = datetime.now().timestamp()
+        current = datetime.now().timestamp()
         
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        window = 50 # Temperature samples for computing moving average
-        average, temp, secs = [], [], []
-        for i in range(window):
-            temp.append(float(fridge.read('R2').strip('R+')))
-            secs.append(i)
-            average.append(np.mean(temp))
-        count = window
-        count_less = 0
-        while (check==False):
-            value = float(fridge.read('R2').strip('R+'))
-            temp.append(value)
-            temp.pop(0)
-            av = np.mean(temp)
-            average.append(av)  
-            count += 1
-            secs.append(count)
-            secs.pop(0)
-            ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
-            ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
-            ax.set_xlim([count-window,count])
-            plt.pause(0.05)
-            if (abs(average[count-window]-average[count-1-window]) < 1):
-                count_less += 1
-                print(average[count-window], average[count-1-window])
-            if (count_less > 4):
-                check = True
-        plt.legend()
-        plt.show()
+        _, ax = plt.subplots(1, 2, figsize=(10,5))
+
+        while((current-t0)<duration):
+            window = 10 # Temperature samples for computing moving average
+            average, temp, secs = [], [], []
+            for i in range(window):
+                temp.append(float(fridge.read('R2')))
+                secs.append(i)
+                average.append(np.mean(temp))
+            count = window
+            count_equal = 0
+            while (check==False and fridge.check_press()==True):
+                value = float(fridge.read('R2'))
+                temp.append(value)
+                temp.pop(0)
+                count += 1
+                secs.append(count)
+                secs.pop(0)
+                av = np.mean(temp)
+                average.append(av)
+                ax[0].scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
+                ax[1].plot(count, av, color='red', marker='x', label='moving average')
+                ax[1].scatter(count, 0, marker='+', color='black')
+                ax[0].set_xlim([count-window,count])
+                ax[1].set_xlim([count-window,count])
+                ax[0].set_ylim([-1,1])
+                ax[0].set_xlabel('cycle unit')
+                ax[0].set_ylabel('raw data')
+                ax[1].set_xlabel('cycle unit')
+                ax[1].set_ylabel('moving average')
+                plt.pause(0.01)
+                if (abs(average[count-window]-average[count-1-window]) < 0.001):
+                    count_equal += 1
+                    print(average[count-window], average[count-1-window])
+                if (count_equal > 4):
+                    check = True
+                    return check, temp, secs, average
+            plt.show()
+            current = datetime.now().timestamp()
         return check, temp, secs, average
 
-    def check_stable(self, temp, secs, average):
+    def check_stable(self, temp, secs, average, fig, ax):
 
         check = True
-        fridge = handler.FridgeHandler()
-        
-        fig = plt.figure()
-        ax = fig.add_subplot()
+        fridge = handler.FridgeHandler(
         window = 50 # Temperature samples for computing moving average
         count = window
-        count_less = 0
-        value = float(fridge.read('R2').strip('R+'))
+        value = float(fridge.read('R2'))
         temp.append(value)
         temp.pop(0)
         av = np.mean(temp)
@@ -404,7 +413,7 @@ class HP8753E:
         self._T_max = tmax
         
     def set_T_min(self, tmin):
-        self._T_max = tmin
+        self._T_min = tmin
         
     def set_N_t(self, n):
         self._N_t = n
@@ -419,17 +428,23 @@ class HP8753E:
             N_t = number of temperature samples
             error = interval in which temperature value can float
         '''
-        step = (self.T_max - self.T_min)/self.N_t
-        temps = np.arange(self.T_min, self.T_max, step=step)
+        self.set_save_path("C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRdetection\\Instruments\\Test_data\\Temp-sweep\\")
+        step = int((self._T_max - self._T_min)/self._N_t)
+        temps = np.arange(self._T_min, self._T_max, step=step)
         run = 0
         
         for T in temps:
             fridge.set_mixc_temp(T)
-            check, temp, secs, average = self.check_begin() == True
-            if (check==True):  
+            check, temp, secs, average = self.check_begin()
+            if (check==True and fridge.check_press()==True):  
                 self._params['T'] = T
                 run = run + 1
-                while(self.check_stable(temp, secs, average)==True):    
-                    I, Q, F = self.get_IQF_single_meas()
-                    self.create_run_file(run, i=I, q=Q, f=F)
-        fridge.send_alert()
+                fig = plt.figure()
+                ax = fig.add_subplot()
+                while(self.check_stable(temp, secs, average, fig, ax)==True):    
+                    for f in self._freqs:
+                        self.set_start(f - self.params['span']/2)
+                        I, Q, F = self.get_IQF_single_meas()
+                        self.create_run_file(str(run)+"_"+str(f), i=I, q=Q, f=F)
+            else: fridge.send_alert()
+        return 

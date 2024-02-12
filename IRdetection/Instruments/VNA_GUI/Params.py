@@ -593,7 +593,7 @@ class Ui_Parameters(object):
         # Create an instance of your widget class
         self.S21Phase_widget = S21Phase_Widget()
         # Show the widget
-        self.S21Phase.show()
+        self.S21Phase_widget.show()
 
     def change_path(self):
         vna = hp.HP8753E()
