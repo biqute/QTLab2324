@@ -1,7 +1,5 @@
 import pandas as pd
 import numpy as np
-from iminuit import Minuit
-from iminuit.cost import LeastSquares
 
 def moving_avg(x, y, size: int):
     if size % 2 == 0:
@@ -22,25 +20,14 @@ def moving_avg(x, y, size: int):
 
 
 def data_cut(x, y, L_cut, R_cut):
+    
     idx_L = np.argmin(np.abs(x - L_cut))
     idx_R = np.argmin(np.abs(x - R_cut))
 
     return {'x': x[idx_L:idx_R], 'y': y[idx_L:idx_R]}
 
-def fit(x, y, ey, fun, pars):
-    cost = LeastSquares(x, y, ey, fun)
-    m = Minuit(cost, pars)
-    result = m.migrad()
-    return [result.values[f'x{i}'] for i in range(len(result.values))]
-
-def Lorentzian(x, pars):
-
-    amplitude   = pars[0]
-    center      = pars[1]
-    width       = pars[2]
-    offset      = pars[3]
-    
-    return amplitude / (1 + ((x - center) / width) ** 2) + offset
+def Lorentzian(x, amplitude, center, width, offset):
+    return (amplitude - offset) / (1 + (2 * (x - center) / width) ** 2) + offset
 
 import numpy as np
 
