@@ -353,6 +353,7 @@ class Ui_TSweep(object):
         self.T_max_pushButton.clicked.connect(self.set_T_MAX)
         self.T_min_pushButton.clicked.connect(self.set_T_MIN)
         self.Routine_pushButton.clicked.connect(self.sweep)
+        self.show_current_pushButton.clicked.connect(self.show_params)
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -406,22 +407,24 @@ class Ui_TSweep(object):
     def show_params(self):
         fridge = handler.FridgeHandler()
         temp = self.get_MC_temp()
-        press = self.get_press()
-        self.KPOTPRESS_lcd.display(press)
+        press_14 = self.get_press(14)
+        press_15 = self.get_press(15)
+        self.KPOTPRESS_lcd.display(press_14)
+        self.KPOTPRESS2_lcd.display(press_15)
         self.MCTEMP_lcd.display(temp)
         return 
 
     def get_MC_temp(self):
         fridge = handler.FridgeHandler()
-        value = fridge.read('R2')
+        value = fridge.read('R3')
         if (value != ''):
             return value
         else:
             return 666
 
-    def get_press(self):
+    def get_press(self, num=14):
         fridge = handler.FridgeHandler()
-        value = fridge.read('R14')
+        value = fridge.read('R'+str(num))
         if (value != ''):
             return value
         else:

@@ -367,8 +367,8 @@ class Ui_PSWeep(object):
         vna = hp.HP8753E()
         powers = np.arange(vna._params['power_start'],vna._params['power_stop'], 5)
         for pow in powers:
-            vna.set_params(pow, bw=vna._params['IFBW'], pt = vna._params['points'], start=vna._params['start'], span = vna._params['span'])
-            time.sleep(1)
+            vna.set_params(pow, bw=vna._params['IFBW'], pt = vna._params['points'], center=vna._params['center'], span = vna._params['span'])
+            time.sleep(5)
             self._I, self._Q, self._F = vna.get_IQF_single_meas()
             self.crf()
         return

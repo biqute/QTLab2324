@@ -2,8 +2,11 @@ from random import randint
 
 import pyqtgraph as pg
 from PyQt5 import QtCore, QtWidgets
+sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
+import handler
 
-class MainWindow(QtWidgets.QMainWindow):
+class Plot_P15(QtWidgets.QMainWindow):
+
     def __init__(self):
         super().__init__()
 
@@ -38,13 +41,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.timer.start()
 
     def update_plot(self):
+        fridge = handler.FridgeHandler()
         self.time = self.time[1:]
         self.time.append(self.time[-1] + 1)
-        self.temperature = self.temperature[1:]
-        self.temperature.append(randint(20, 40))
+        self.press = self.press[1:]
+        self.press.append(float(fridge.get_sensor(15)))
         self.line.setData(self.time, self.temperature)
 
 app = QtWidgets.QApplication([])
-main = MainWindow()
+main = Plot_P15()
 main.show()
 app.exec()

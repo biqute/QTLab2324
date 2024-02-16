@@ -2,9 +2,12 @@ from random import randint
 
 import pyqtgraph as pg
 from PyQt5 import QtCore, QtWidgets
+sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
+import handler
 
-class LivePlot(QtWidgets.QMainWindow):
-    def __init__(self, d):
+class Plot_T(QtWidgets.QMainWindow):
+
+    def __init__(self):
         super().__init__()
 
         # Temperature vs time dynamic plot
@@ -20,7 +23,7 @@ class LivePlot(QtWidgets.QMainWindow):
         self.plot_graph.showGrid(x=True, y=True)
         self.plot_graph.setYRange(20, 40)
         self.time = list(range(10))
-        self.temperature = d
+        self.temperature = [randint(20, 40) for _ in range(10)]
         # Get a line reference
         self.line = self.plot_graph.plot(
             self.time,
@@ -34,22 +37,18 @@ class LivePlot(QtWidgets.QMainWindow):
         # Add a timer to simulate new temperature measurements
         self.timer = QtCore.QTimer()
         self.timer.setInterval(300)
-        self.timer.timeout.connect(self.update_plot(data=d))
+        self.timer.timeout.connect(self.update_plot)
         self.timer.start()
 
-    def update_plot(self, data):
+    def update_plot(self):
+        fridge = handler.FridgeHandler()
         self.time = self.time[1:]
         self.time.append(self.time[-1] + 1)
         self.temperature = self.temperature[1:]
-        self.temperature.append(data)
+        self.temperature.append(float(fridge.read('R2').strip('R+')))
         self.line.setData(self.time, self.temperature)
 
-
-'''
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication([])
-    main = LivePlot()
-    main.show()
-    app.exec()
-    sys.exit(app.exec_())'''
+app = QtWidgets.QApplication([])
+main = Plot_T()
+main.show()
+app.exec()
