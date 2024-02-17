@@ -41,10 +41,10 @@ def h5_to_dic(file_path):       #hdf5 to dictionary
             # Access each group in the HDF5 file
             for key in hf.keys():
                 group = hf[key]
-                dataset = group['data'] # Access the dataset named 'data' within each group
+                dataset = group['raw_data'] # Access the dataset named 'data' within each group
                 data_array = dataset[:] # Get the data as a NumPy array
                 dic.update({key: list(data_array)})
-                hf.close()
+        hf.close()
     
     except Exception as e:
         print(f"Error opening the file: {e}")
