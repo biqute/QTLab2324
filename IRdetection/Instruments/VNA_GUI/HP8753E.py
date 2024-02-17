@@ -223,8 +223,15 @@ class HP8753E:
 
         f_n = [start + (i-1) * span/self._points  for i in range(self._points)] #Get the value corresponding frequency
         f_n = np.array(f_n)
-        self._vna.write('AUTO') #auto scale the active channel
-        self._vna.write('OPC?;SING;')
+
+        try:
+            self._vna.write('AUTO') #auto scale the active channel
+            self._vna.write('OPC?;SING;')
+        except:
+            print('Problema con self._vna.write(SING)!! Riprovo...')
+            self.set_params(pw=self._params['power'], bw=self._params['IFBW']-100, pt=self._params['points'], center=self._params['center'], span=self._params['span'])
+            time.sleep(3)
+
         self.set_format(data_fmt) #Sets the data format (FORM2 is default so watch out for the header!)
         self._vna.write(out_fmt) #Writes to the VNA to display structured data (OUTPFORM is default)
         _ = self._vna.read_bytes(2)
@@ -237,6 +244,7 @@ class HP8753E:
 
         self._modS21 = np.array(x[::2])
         self._F = f_n
+        
         return self._modS21, f_n
 
 
@@ -287,7 +295,8 @@ class HP8753E:
         ax[0].plot(f,modS21,color='k')
         ax[0].set(xlabel='$\\nu$ [GHz]', ylabel='|S21|')
         ax[1].plot(f,phaseS21,color='k')
-        ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')        
+        ax[1].set(xlabel='$\\nu$ [GHz]', ylabel='$\Phi$')
+        plt.close()        
         return
 
     def plot_I(self, i, f):  #converts |S21| pyplot figure in numpy array
@@ -299,6 +308,7 @@ class HP8753E:
         canvas = FigureCanvas(fig)
         canvas.draw()
         FigArray = np.array(canvas.renderer.buffer_rgba())
+        plt.close()
         return FigArray
 
     def plot_Q(self,q, f):  #converts |S21| pyplot figure in numpy array
@@ -310,6 +320,7 @@ class HP8753E:
         canvas = FigureCanvas(fig)
         canvas.draw()
         FigArray = np.array(canvas.renderer.buffer_rgba())
+        plt.close()
         return FigArray
 
     def plot_S21_abs(self, abs, f):  #converts |S21| pyplot figure in numpy array
@@ -321,7 +332,7 @@ class HP8753E:
         canvas = FigureCanvas(fig)
         canvas.draw()
         FigArray = np.array(canvas.renderer.buffer_rgba())
-        
+        plt.close()        
         return FigArray
 
     def plot_S21(self, s21, f):  #converts |S21| pyplot figure in numpy array
@@ -333,7 +344,7 @@ class HP8753E:
         canvas = FigureCanvas(fig)
         canvas.draw()
         FigArray = np.array(canvas.renderer.buffer_rgba())
-        
+        plt.close()        
         return FigArray
 
     def plot_S21_phase(self, phase, f): #converts S21 phase pyplot figure in numpy array
@@ -345,6 +356,7 @@ class HP8753E:
         canvas = FigureCanvas(fig)
         canvas.draw()
         FigArray = np.array(canvas.renderer.buffer_rgba())
+        plt.close()
         return FigArray        
 
     def create_run_s21(self, num, s21, f):

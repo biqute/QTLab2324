@@ -43,15 +43,13 @@ class FridgeHandler:
         self._inst.write('$'+ str(cmd))
         time.sleep(20e-2)
   
-    def read(self, cmd):
-        answer = str(self._inst.query_ascii_values(str(cmd), converter='s'))
-        answer = answer.replace('R+','').replace(r'\r\n','').replace('[','').replace(']','').replace("'","")
-        try:
-            answer = float(answer)
-        except ValueError:
-            answer = 0
-        return answer
-        
+    def read(self, cmd):                #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
+        out = '?'
+        while ('?' in out[0]) or ('E' in out[0]) or ('A' in out[0]):
+            out = self._inst.query_ascii_values(str(cmd), converter='s')
+        out = str.rstrip(out[0])
+        return out
+
     def comm_protocol(self,value='Q0'):
         
         #Defines the communication protocol
@@ -79,6 +77,49 @@ class FridgeHandler:
             self.execute('C3') #remote & unlocked
         else:
             print('Choose between local and remote')
+        return
+
+    def get_sensor(self, cmd = 3):
+        '''Measure temperature or pressure of a sensor of the system. Default: MC temperature.'''                           
+        k = self.read('R' + str(cmd))
+        k = k.replace("R", "")
+        k = k.replace("+", "")
+        k = float(k)
+        return k 
+
+    def scan_T(self, cmd, interval, tottime):      # cmd -> command that specifies which temperature,
+                                                # interval -> time step to perform control
+                                                # time -> total time of the scansion
+        '''Temperature scansion that prints the values every "interval" seconds for a "time" time'''
+        N = int(tottime/interval)
+        Temps = np.zeros(N)
+        for i in range(N):
+            out = self._inst.query_ascii_values(cmd, converter='s')
+            out = str.rstrip(out[0])
+            time.sleep(interval)
+            out = (out.split('+'))[1]           # split the string where '+' is and gives back only the second part (1)
+            Temps[i] = float(out)
+            print('Temperature at step ' + str(i) + ' is ' + str(out))
+        return Temps
+
+    def check_stability(self, T, cmd, interval, tottime, error):      # cmd -> command that specifies which temperature,
+                                                # interval -> time step to perform control
+                                                # time -> total time of the scansion
+        '''Temperature scansion that prints the values every "interval" seconds for a "time" time'''
+        N = int(tottime/interval)
+        Temps = np.zeros(N)
+        for i in range(N):
+            if (self.check_press()==True):
+                out = self._inst.query_ascii_values(cmd, converter='s')
+                out = str.rstrip(out[0])
+                time.sleep(interval)
+                out = (out.split('+'))[1]           # split the string where '+' is and gives back only the second part (1)
+                Temps[i] = float(out)
+                print('Temperature at step ' + str(i) + ' is ' + str(out))
+                if (Temps[i] < T-error or Temps[i] > T+error):
+                    print('Temperature out of range!')
+            else:
+                self.send_alert()
         return
 
     def set_mixch_mode(self, stringa):
@@ -146,7 +187,7 @@ class FridgeHandler:
             print("Error: %s!\n\n" % exception)
 
     def check_press(self):
-        res = int(str(self._inst.query_ascii_values('R21', converter='s')).replace(']','').replace('[','').replace('R','').replace(r'\r\n','').replace("'",'').replace('.0','')) < 15
+        res = self.get_sensor(21) < 15
         if(res):
             print("Low Pressure for 1K Pot!")
             self.send_alert()
