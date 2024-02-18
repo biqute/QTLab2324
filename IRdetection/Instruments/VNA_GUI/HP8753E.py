@@ -361,7 +361,7 @@ class HP8753E:
 
     def create_run_s21(self, num, s21, f):
 
-        with h5.File(str(self._path) + "S21_" + str(num) + ".h5", "w") as run:
+        with h5.File(str(self._path) + "S21_" + str(num) + ".hdf5", "w") as run:
 
             dati = run.create_group('raw_data')
             for key, value in self._params.items():

@@ -87,19 +87,20 @@ class FridgeHandler:
         k = float(k)
         return k 
 
-    def scan_T(self, cmd, interval, tottime):      # cmd -> command that specifies which temperature,
+    def scan_T(self, cmd=3, interval=5, tottime=60):      # cmd -> command that specifies which temperature,
                                                 # interval -> time step to perform control
                                                 # time -> total time of the scansion
         '''Temperature scansion that prints the values every "interval" seconds for a "time" time'''
         N = int(tottime/interval)
         Temps = np.zeros(N)
         for i in range(N):
-            out = self._inst.query_ascii_values(cmd, converter='s')
-            out = str.rstrip(out[0])
+            try:
+                Temps[i] = float(self.get_sensor(cmd))
+            except:
+                print('Unable to read sensor ' + str(cmd))
+                pass
             time.sleep(interval)
-            out = (out.split('+'))[1]           # split the string where '+' is and gives back only the second part (1)
-            Temps[i] = float(out)
-            print('Temperature at step ' + str(i) + ' is ' + str(out))
+            print('Temperature at step ' + str(i) + ' is ' + str(Temps[i]))
         return Temps
 
     def check_stability(self, T, cmd, interval, tottime, error):      # cmd -> command that specifies which temperature,
