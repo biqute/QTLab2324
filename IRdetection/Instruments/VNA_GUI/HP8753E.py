@@ -130,7 +130,7 @@ class HP8753E:
         return self._params["center"]
 
     def set_span(self, span): #sets the span frequency
-        self._vna.write('SPAN ' + str(span))
+        self._vna.write('SPAN ' + str(int(span)))
         self._params["span"] = span
         return
 
@@ -388,7 +388,7 @@ class HP8753E:
 
     def create_run_file(self, num, i, q, f):
 
-        with h5.File(str(self._path) + "Sample_" + str(num) + ".h5", "w") as run:
+        with h5.File(str(self._path) + "Res_" + str(num) + ".h5", "w") as run:
 
             dati = run.create_group('raw_data')
             for key, value in self._params.items():
@@ -476,9 +476,9 @@ class HP8753E:
 
         check = True
         fridge = handler.FridgeHandler()
-        window = 50 # Temperature samples for computing moving average
+        window = 10 # Temperature samples for computing moving average
         count = window
-        value = float(fridge.read('R2'))
+        value = float(fridge.read('R3'))
         temp.append(value)
         temp.pop(0)
         av = np.mean(temp)
@@ -530,7 +530,7 @@ class HP8753E:
                 run = run + 1
                 fig = plt.figure()
                 ax = fig.add_subplot()
-                while(self.check_stable(temp, secs, average, fig, ax)==True):    
+                while(self.check_stable(fridge, temp, secs, average, fig, ax)==True):    
                     for f in self._freqs:
                         self.set_start(f - self.params['span']/2)
                         I, Q, F = self.get_IQF_single_meas()

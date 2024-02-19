@@ -84,6 +84,7 @@ class FridgeHandler:
         k = self.read('R' + str(cmd))
         k = k.replace("R", "")
         k = k.replace("+", "")
+        k = k.replace("T", "")
         k = float(k)
         return k 
 
@@ -194,15 +195,7 @@ class FridgeHandler:
             self.send_alert()
             for i in range(60): #STATTE FERMO PE'10 MINUTI
                 self.wait(9999)
-        return res
-
-    def get_sensor(self, cmd = 3):
-        '''Measure temperature or pressure of a sensor of the system. Default: MC temperature.'''                           
-        k = self.read('R' + str(cmd))
-        k = k.replace("R", "")
-        k = k.replace("+", "")
-        k = float(k)
-        return k       
+        return res  
 
     def state(self):
         out = self._inst.query_ascii_values('X', converter='s')
@@ -231,9 +224,9 @@ class FridgeHandler:
         Range is the command name for the power range (E1, E2 ...)'''
         
         cmd = 'E'
-        if T <= 50:
+        if T <= 45:
             cmd += '1'
-        elif T <= 90:
+        elif T <= 80:
             cmd += '2'
         elif T <= 140:
             cmd += '3'
@@ -244,7 +237,7 @@ class FridgeHandler:
 
         self.set_mix_power_range(cmd)
         self._inst.write('A2')
-        self._inst.write('T' + str(10*int(T)))
+        self._inst.write('T' + str(int(10*T)))
         
     def set_mix_prop_band(self, value):
         
