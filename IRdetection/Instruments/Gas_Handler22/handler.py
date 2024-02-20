@@ -226,9 +226,9 @@ class FridgeHandler:
         cmd = 'E'
         if T <= 45:
             cmd += '1'
-        elif T <= 80:
+        elif T <= 69:
             cmd += '2'
-        elif T <= 140:
+        elif T <= 125:
             cmd += '3'
         elif T <= 400:
             cmd += '4'
