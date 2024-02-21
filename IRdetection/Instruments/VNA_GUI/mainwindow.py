@@ -18,7 +18,8 @@ from plotS21 import MplCanvasS21, S21Abs_Widget
 from plotPhase import MplCanvasPhase, S21Phase_Widget
 from Params import Ui_Parameters
 from PSweep import Ui_PSWeep
-from TSweep import Ui_TSweep
+from TSweepv2 import Ui_TSweep
+from FindRes import Ui_FindRes
 
 class Ui_MainWindow(object):
 
@@ -629,9 +630,11 @@ class Ui_MainWindow(object):
         self.actionS21Phase_Plot = QtWidgets.QAction(MainWindow)
         self.actionS21Phase_Plot.setObjectName("actionS21Phase_Plot")'''
         self.action_set_params = QtWidgets.QAction(MainWindow)
+        self.action_find_res = QtWidgets.QAction(MainWindow)
         self.action_PSweep = QtWidgets.QAction(MainWindow)
         self.action_TSweep = QtWidgets.QAction(MainWindow)
         self.action_set_params.setObjectName("action_set_params")
+        self.action_find_res.setObjectName("action_find_res")
         self.action_PSweep.setObjectName("action_PSweep")
         self.action_TSweep.setObjectName("action_TSweep")
         #self.menuInit.addAction(self.actionI_Plot)
@@ -639,6 +642,7 @@ class Ui_MainWindow(object):
         #self.menuInit.addAction(self.actionS21Abs_Plot)
         #self.menuInit.addAction(self.actionS21Phase_Plot)
         self.menuP_SWEEP.addAction(self.action_PSweep)
+        self.menuF_SWEEP.addAction(self.action_find_res)
         self.menuF_SWEEP.addAction(self.action_set_params)
         self.menuT_SWEEP.addAction(self.action_TSweep)
         #self.menubar.addAction(self.menuInit.menuAction())
@@ -723,7 +727,8 @@ class Ui_MainWindow(object):
         #self.actionQ_Plot.setText(_translate("MainWindow", "Q"))
         #self.actionS21Abs_Plot.setText(_translate("MainWindow", "S21-Abs"))
         #self.actionS21Phase_Plot.setText(_translate("MainWindow", "S21-Phase"))
-        self.action_set_params.setText(_translate("MainWindow", "Set-Params"))
+        self.action_set_params.setText(_translate("MainWindow", "Small span"))
+        self.action_find_res.setText(_translate("MainWindow", "Find Resonances"))
         self.action_PSweep.setText(_translate("MainWindow", "Power Sweep Params"))
         self.action_TSweep.setText(_translate("MainWindow", "T SWEEP"))
         #self.actionI_Plot.triggered.connect(self.I_widget)
@@ -731,6 +736,7 @@ class Ui_MainWindow(object):
         #self.actionS21Abs_Plot.triggered.connect(self.S21Abs_widget)
         #self.actionS21Phase_Plot.triggered.connect(self.S21Phase_widget)
         self.action_set_params.triggered.connect(self.Params_widget)
+        self.action_find_res.triggered.connect(self.Res_widget)
         self.action_PSweep.triggered.connect(self.PSweep_widget)
         self.action_TSweep.triggered.connect(self.TSweep_widget)
 
@@ -739,6 +745,12 @@ class Ui_MainWindow(object):
         self.ui = Ui_Parameters()
         self.ui.setupUi(self._params)
         self._params.show()
+
+    def Res_widget(self):
+        self._res = QtWidgets.QMainWindow()
+        self.ui = Ui_FindRes()
+        self.ui.setupUi(self._res)
+        self._res.show()
 
     def PSweep_widget(self):
         self._PSweep = QtWidgets.QMainWindow()

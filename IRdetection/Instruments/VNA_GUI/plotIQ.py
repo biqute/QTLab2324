@@ -27,7 +27,7 @@ class IQ_Widget(QtWidgets.QMainWindow):
         # which defines a single set of axes as self.axes.
         sc = MplCanvasIQ(self, width=10, height=8, dpi=100)
         data = self.get_data()
-        sc.axes.plot(data[0], data[1])
+        sc.axes.scatter(data[0], data[1], marker='x', color='black', s=1)
         sc.axes.set_xlabel('I')
         sc.axes.set_ylabel('Q')
         sc.axes.set_title('I vs Q plot')
@@ -37,5 +37,6 @@ class IQ_Widget(QtWidgets.QMainWindow):
 
     def get_data(self):
         vna = hp.HP8753E()
+        vna.autoscale()
         i, q, f = vna._I, vna._Q, vna._F
         return i, q

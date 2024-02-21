@@ -29,7 +29,7 @@ class Ui_Dialog(object):
         self.gridLayout_2.addWidget(self.label, 0, 1, 1, 1)
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setObjectName("lineEdit")
-        self.lineEdit.setText('-12')
+        self.lineEdit.setText('0')
         self.gridLayout_2.addWidget(self.lineEdit, 1, 1, 1, 1)
         self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)

@@ -3,25 +3,29 @@ import numpy as np
 import time
 import smtplib
 from datetime import datetime
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import smtplib
 
 gmail_username = 'kinekids2324'
+gmail_app_password = 'ylry timq pxfu xxmw' 
 sent_from = 'kinekids2324@gmail.com'
-sent_to = ['r.maifredi@campus.unimib.it', 'a.costanzo1975@campus.unimib.it', 'e.torreggiani@campus.unimib.it']
-sent_subject = "Hey Friends!"
-sent_body = ("Hey, what's up? friend!\n\n"
+sent_to = ['r.maifredi@campus.unimib.it', 'a.costanzo1975@campus.unimib.it', 'e.torreggiani@campus.unimib.it', 'marco.faverzani@unimib.it']
+sent_subject_low_press_1K = "Low Pressure!"
+sent_body_low_press_1K = ("Low pressure for 1K POT pump!\n\n"
              "I hope you have been well!\n"
              "\n"
              "Cheers,\n"
              "Riccardo\n")
 
-email_text = """\
-From: %s
-To: %s
-Subject: %s
+# Constructing the email message
+msg = MIMEMultipart()
+msg['From'] = sent_from
+msg['To'] = ', '.join(sent_to)
+msg['Subject'] = sent_subject_low_press_1K
+msg.attach(MIMEText(sent_body_low_press_1K, 'plain'))
 
-%s
-""" % (sent_from, ", ".join(sent_to), sent_subject, sent_body)
-gmail_app_password = 'ylry timq pxfu xxmw'
+email_text = msg.as_string()
 
 class FridgeHandler:
 
@@ -37,14 +41,15 @@ class FridgeHandler:
   
     def execute(self, cmd):
         self._inst.write('$'+ str(cmd))
+        time.sleep(20e-2)
   
-    def read(self, cmd):
-        answer = self._inst.query_ascii_values(str(cmd), converter='s')
-        answer = str.rstrip('\r')
-        answer = str.rstrip('\n')
-        return answer
-        
-        
+    def read(self, cmd):                #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
+        out = '?'
+        while ('?' in out[0]) or ('E' in out[0]) or ('A' in out[0]):
+            out = self._inst.query_ascii_values(str(cmd), converter='s')
+        out = str.rstrip(out[0])
+        return out
+
     def comm_protocol(self,value='Q0'):
         
         #Defines the communication protocol
@@ -58,15 +63,7 @@ class FridgeHandler:
         #Sets a delay interval before each character is sent 
         #from IDR via the computer interface
         
-        self.execute('W'+str(secs))        
-
-    def read2(self, cmd): #It may happen that the read command returns strange things with ?s and Es. In that case you can't trust the result
-        out = '?'
-        while ('?' in out[0]) or ('E' in out[0]) or ('A' in out[0]):
-            out = self._inst.query_ascii_values(str(cmd), converter='s')
-            #print(out)       
-        out = str.rstrip(out[0])
-        return out
+        self.execute('W' + str(secs))        
 
     def set_control(self, stringa='remote'):
         #Define control type - Default to remote mode
@@ -82,13 +79,57 @@ class FridgeHandler:
             print('Choose between local and remote')
         return
 
+    def get_sensor(self, cmd = 3):
+        '''Measure temperature or pressure of a sensor of the system. Default: MC temperature.'''                           
+        k = self.read('R' + str(cmd))
+        k = k.replace("R", "")
+        k = k.replace("+", "")
+        k = k.replace("T", "")
+        k = float(k)
+        return k 
+
+    def scan_T(self, cmd=3, interval=5, tottime=60):      # cmd -> command that specifies which temperature,
+                                                # interval -> time step to perform control
+                                                # time -> total time of the scansion
+        '''Temperature scansion that prints the values every "interval" seconds for a "time" time'''
+        N = int(tottime/interval)
+        Temps = np.zeros(N)
+        for i in range(N):
+            try:
+                Temps[i] = float(self.get_sensor(cmd))
+            except:
+                print('Unable to read sensor ' + str(cmd))
+                pass
+            time.sleep(interval)
+            print('Temperature at step ' + str(i) + ' is ' + str(Temps[i]))
+        return Temps
+
+    def check_stability(self, T, cmd, interval, tottime, error):      # cmd -> command that specifies which temperature,
+                                                # interval -> time step to perform control
+                                                # time -> total time of the scansion
+        '''Temperature scansion that prints the values every "interval" seconds for a "time" time'''
+        N = int(tottime/interval)
+        Temps = np.zeros(N)
+        for i in range(N):
+            if (self.check_press()==True):
+                out = self._inst.query_ascii_values(cmd, converter='s')
+                out = str.rstrip(out[0])
+                time.sleep(interval)
+                out = (out.split('+'))[1]           # split the string where '+' is and gives back only the second part (1)
+                Temps[i] = float(out)
+                print('Temperature at step ' + str(i) + ' is ' + str(out))
+                if (Temps[i] < T-error or Temps[i] > T+error):
+                    print('Temperature out of range!')
+            else:
+                self.send_alert()
+        return
+
     def set_mixch_mode(self, stringa):
-        print('Choose between off, fhp, tc')
-        if (stringa=='off'):
+        if (stringa == 'off'):
             self._inst.write('A0')
-        elif (stringa=='fhp'):
+        elif (stringa == 'fhp'):
             self._inst.write('A1')  
-        elif (stringa=='tc'):
+        elif (stringa == 'tc'):
             self._inst.write('A2')
         else:
             print('Choose between off, fhp, tc')
@@ -136,14 +177,6 @@ class FridgeHandler:
         self._inst.write('S'+str(valore))
         print('Sorb power settled to: '+str(valore)+' mW')
 
-    def check_press(self):
-        res = self.get_sens(14) < 2800 and self.get_sens(15) < 2880
-        if(not res):
-            print("PRESSIONE ALTA!")
-            self.send_alert_mail()
-            time.sleep(60*10)
-        return res
-
     def send_alert(self):
         try:
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
@@ -155,13 +188,14 @@ class FridgeHandler:
         except Exception as exception:
             print("Error: %s!\n\n" % exception)
 
-    def get_sensor(self, cmd = 3):
-        '''Measure temperature or pressure of a sensor of the system. Default: MC temperature.'''                           
-        k = self.read('R' + str(cmd))
-        k = k.replace("R", "")
-        k = k.replace("+", "")
-        k = float(k)
-        return k       
+    def check_press(self):
+        res = self.get_sensor(21) < 15
+        if(res):
+            print("Low Pressure for 1K Pot!")
+            self.send_alert()
+            for i in range(60): #STATTE FERMO PE'10 MINUTI
+                self.wait(9999)
+        return res  
 
     def state(self):
         out = self._inst.query_ascii_values('X', converter='s')
@@ -190,11 +224,11 @@ class FridgeHandler:
         Range is the command name for the power range (E1, E2 ...)'''
         
         cmd = 'E'
-        if T <= 50:
+        if T <= 45:
             cmd += '1'
-        elif T <= 90:
+        elif T <= 69:
             cmd += '2'
-        elif T <= 140:
+        elif T <= 125:
             cmd += '3'
         elif T <= 400:
             cmd += '4'
@@ -203,7 +237,7 @@ class FridgeHandler:
 
         self.set_mix_power_range(cmd)
         self._inst.write('A2')
-        self._inst.write('T' + str(10*int(T)))
+        self._inst.write('T' + str(int(10*T)))
         
     def set_mix_prop_band(self, value):
         

@@ -27,7 +27,7 @@ class S21Abs_Widget(QtWidgets.QMainWindow):
         # which defines a single set of axes as self.axes.
         sc = MplCanvasS21(self, width=10, height=8, dpi=100)
         data = self.get_data()
-        sc.axes.plot(data[0], data[1])
+        sc.axes.scatter(data[0], data[1], marker='x', color='black', s=1)
         sc.axes.set_xlabel('Frequency [GHz]')
         sc.axes.set_ylabel('|S21|')
         sc.axes.set_title('S21 Absolute Value plot')
@@ -37,6 +37,7 @@ class S21Abs_Widget(QtWidgets.QMainWindow):
 
     def get_data(self):
         vna = hp.HP8753E()
+        vna.autoscale()
         i, q, f = vna._I, vna._Q, vna._F
         S21 = vna.abs_S21(i, q)
         return f, S21
