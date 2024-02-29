@@ -115,7 +115,7 @@ class SMA100B:
         if self._connect_success:
             
             self._resource.write(f'SOUR:PULM:PER {period*1e-6}') # micro
-            self._resource.write(f'SOUR:PULM:DEL {delay*1e-6}')  # micro                #passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
+            self._resource.write(f'SOUR:PULM:DEL {delay*1e-6}')  # micro                # passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
             self._resource.write(f'SOUR:PULM:WIDT {width*1e-6}') # micro
 
             #print(self._resource.query('SOUR:PULM:DEL?'))
@@ -161,7 +161,7 @@ class SMA100B:
 
     def RF_freq (self, freq: float):
         if self._connect_success:
-            self._resource.write(f'SOUR:FREQ:CW {freq*1e6}')
+            self._resource.write(f'SOUR:FREQ:CW {freq}')
         else:
             print("Error: No active connection.")
 
