@@ -32,6 +32,7 @@
 # 2.3 | pul_gen_mode ............... : Selects the mode for the pulse modulation.
 # 2.4 | pul_trig_mode .............. : Selects a trigger mode for generating the modulation signal.
 # 2.5 | pul_state .................. : Activates pulse modulation (1: ON, 0: OFF).
+# 2.6 | pul_exe_sing_trig .......... : If "Trigger Mode = Single", initiates a single pulse sequence manually.
 #                                    :
 #                                    :
 #       [3. Frequency]               :
@@ -154,6 +155,11 @@ class SMA100B:
         else:
             print("Error: No active connection.")            
 
+# 2.6 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def pul_exe_sing_trig(self):
+        try:
+            self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
 
 # [3. Frequency] ------------------------------------------------------------------------------------------------------------------------------------#
 
