@@ -1,72 +1,50 @@
-import matplotlib.animation as animation
 import HP8753E as hp
 import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
+import sys
+sys.path.insert(1, 'C://Users//kid//SynologyDrive//Lab2023//KIDs//QTLab2324//IRdetection//Instruments//Gas_Handler22')
+import handler
+import time
 
 
-def low_pass(data, t):
-                
-        dt = .001
-        t = np.arange(0,1,dt)
-        n = len(t)
-        fhat = np.fft.fft(data,n)
-        PSD = fhat * np.conj(fhat)/n
-        indices = PSD>max(PSD)/2
-        fhat = indices*fhat
-        ffilt = np.fft.ifft(fhat)
-        return ffilt
+def check_stability(window, disc):
+    check = False
+    fridge = handler.FridgeHandler()
+    fig, ax = plt.subplots(1, 2, figsize=(10,5))
 
+    data = []
+    mav = []
 
-def check_T_stable(duration):
+    for i in range(10):
+        time.sleep(1.5)
+        data.append(fridge.read('R32'))
 
-        check = False
+    counter = 0
+    count = 0
+    mav = [np.mean(data)]
+    while(counter < disc):
+        value = fridge.read('R32')
+        if (data[-1] - value)<10:
+            count = count + 1
+            data.pop(0)
+            data.append(value)
+            mav.append(np.mean(data))
 
-        t0 = datetime.now().timestamp()
-        current = datetime.now().timestamp()
-        
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        
-        '''
-            T = temperature to check 
-            error = interval in which temperature value can float
-            interval = seconds to sample temperature T
-            Compute dT/dt --> compute "moving" average
-        '''
+            ax[0].scatter(count, value, color='black', s=1, marker='o', label='raw data')
+            ax[1].scatter(count, np.mean(data), color='red', s=1,  marker='x', label='moving average')
+            ax[0].set_xlim([count-window,count])
+            ax[1].set_xlim([count-window,count])
+            ax[0].set_xlabel('cycle unit')
+            ax[0].set_ylabel('raw data')
+            ax[1].set_xlabel('cycle unit')
+            ax[1].set_ylabel('moving average')
+            plt.pause(0.01)
+            time.sleep(2.5)
 
-        while((current-t0)<duration):
-            window = 50 # Temperature samples for computing moving average
-            average, temp, secs = [], [], []
-            for i in range(window):
-                temp.append(np.random.random())
-                secs.append(i)
-                average.append(np.mean(temp))
-            count = window
-            count_equal = 0
-            while (check==False):
-                value = np.random.random()
-                temp.append(value)
-                temp.pop(0)
-                count += 1
-                secs.append(count)
-                secs.pop(0)
-                temp = low_pass(temp, secs)
-                av = np.mean(temp)
-                average.append(av)
-                print(np.size(secs),np.size(temp))
-                ax.scatter(secs, temp, color='black', s=1, marker='o', label='raw data')
-                ax.scatter(count, av, color='red', marker='x', s=1, label='moving average')
-                ax.set_xlim([count-window,count])
-                plt.pause(0.05)
-                if (abs(average[count-window]-average[count-1-window]) < 0.000001):
-                    count_equal += 1
-                    print(average[count-window], average[count-1-window])
-                if (count_equal > 4):
-                    check = True
-            plt.legend()
-            plt.show()
-            current = datetime.now().timestamp()
-        return True
+            if ((mav[count]-mav[count-1])<np.std(data)):
+                    counter += 1
+            check = True
+    return check, mav, data
 
-check_T_stable(duration=60)
+check_stability(50, 10)

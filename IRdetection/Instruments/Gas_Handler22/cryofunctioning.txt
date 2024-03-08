@@ -47,7 +47,7 @@ RS232 Interface
         A1 - fixed heater power
         A2 - temperature control
 
-    Mnnnn - Set Mix  Power in units specified by E (Range 0000 to 1999)
+    Mnnnn - Set Mix Power in units specified by E (Range 0000 to 1999)
 
     En - Set Exponent for mix Power Range
      E1 - Range 2   microW, units for M are 0.001 microW

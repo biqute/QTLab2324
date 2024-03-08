@@ -32,6 +32,7 @@
 # 2.3 | pul_gen_mode ............... : Selects the mode for the pulse modulation.
 # 2.4 | pul_trig_mode .............. : Selects a trigger mode for generating the modulation signal.
 # 2.5 | pul_state .................. : Activates pulse modulation (1: ON, 0: OFF).
+# 2.6 | pul_exe_sing_trig .......... : If "Trigger Mode = Single", initiates a single pulse sequence manually.
 #                                    :
 #                                    :
 #       [3. Frequency]               :
@@ -115,7 +116,7 @@ class SMA100B:
         if self._connect_success:
             
             self._resource.write(f'SOUR:PULM:PER {period*1e-6}') # micro
-            self._resource.write(f'SOUR:PULM:DEL {delay*1e-6}')  # micro                #passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
+            self._resource.write(f'SOUR:PULM:DEL {delay*1e-6}')  # micro                # passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
             self._resource.write(f'SOUR:PULM:WIDT {width*1e-6}') # micro
 
             #print(self._resource.query('SOUR:PULM:DEL?'))
@@ -154,6 +155,11 @@ class SMA100B:
         else:
             print("Error: No active connection.")            
 
+# 2.6 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+            
+    def pul_exe_sing_trig(self):
+        try:
+            self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
 
 # [3. Frequency] ------------------------------------------------------------------------------------------------------------------------------------#
 
@@ -161,7 +167,7 @@ class SMA100B:
 
     def RF_freq (self, freq: float):
         if self._connect_success:
-            self._resource.write(f'SOUR:FREQ:CW {freq*1e6}')
+            self._resource.write(f'SOUR:FREQ:CW {freq}')
         else:
             print("Error: No active connection.")
 

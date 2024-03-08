@@ -243,28 +243,28 @@ class Ui_Parameters(object):
         self.IFBW_lcd.setLineWidth(3)
         self.IFBW_lcd.setObjectName("IFBW_lcd")
         self.gridLayout.addWidget(self.IFBW_lcd, 3, 0, 1, 1)
-        self.start_lcd = QtWidgets.QLCDNumber(self.gridLayoutWidget)
+        self.center_lcd = QtWidgets.QLCDNumber(self.gridLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.start_lcd.sizePolicy().hasHeightForWidth())
-        self.start_lcd.setSizePolicy(sizePolicy)
-        self.start_lcd.setMaximumSize(QtCore.QSize(16777215, 16777215))
-        self.start_lcd.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.start_lcd.setLineWidth(3)
-        self.start_lcd.setObjectName("start_lcd")
-        self.gridLayout.addWidget(self.start_lcd, 4, 0, 1, 1)
-        self.start_pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
+        sizePolicy.setHeightForWidth(self.center_lcd.sizePolicy().hasHeightForWidth())
+        self.center_lcd.setSizePolicy(sizePolicy)
+        self.center_lcd.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.center_lcd.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.center_lcd.setLineWidth(3)
+        self.center_lcd.setObjectName("center_lcd")
+        self.gridLayout.addWidget(self.center_lcd, 4, 0, 1, 1)
+        self.center_pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.start_pushButton.sizePolicy().hasHeightForWidth())
-        self.start_pushButton.setSizePolicy(sizePolicy)
+        sizePolicy.setHeightForWidth(self.center_pushButton.sizePolicy().hasHeightForWidth())
+        self.center_pushButton.setSizePolicy(sizePolicy)
         font = QtGui.QFont()
         font.setPointSize(12)
-        self.start_pushButton.setFont(font)
-        self.start_pushButton.setObjectName("start_pushButton")
-        self.gridLayout.addWidget(self.start_pushButton, 4, 1, 1, 1)
+        self.center_pushButton.setFont(font)
+        self.center_pushButton.setObjectName("center_pushButton")
+        self.gridLayout.addWidget(self.center_pushButton, 4, 1, 1, 1)
         self.IFBW_pushButton = QtWidgets.QPushButton(self.gridLayoutWidget)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -378,6 +378,8 @@ class Ui_Parameters(object):
         Parameters.setStatusBar(self.statusbar)
         self.actionI = QtWidgets.QAction(Parameters)
         self.actionI.setObjectName("actionI")
+        self.actionScale = QtWidgets.QAction(Parameters)
+        self.actionScale.setObjectName("actionScale")
         self.actionQ = QtWidgets.QAction(Parameters)
         self.actionQ.setObjectName("actionQ")
         self.actionIQ = QtWidgets.QAction(Parameters)
@@ -388,17 +390,18 @@ class Ui_Parameters(object):
         self.actionS21_phase.setObjectName("actionS21_phase")
         self.actionSet_Save_Path = QtWidgets.QAction(Parameters)
         self.actionSet_Save_Path.setObjectName("actionSet_Save_Path")
-        self.actionSet_Start = QtWidgets.QAction(Parameters)
-        self.actionSet_Start.setObjectName("actionSet_Start")
+        self.actionSet_start = QtWidgets.QAction(Parameters)
+        self.actionSet_start.setObjectName("actionSet_center")
         self.actionSet_Stop = QtWidgets.QAction(Parameters)
         self.actionSet_Stop.setObjectName("actionSet_Stop")
+        self.menuPlots.addAction(self.actionScale)
         self.menuPlots.addAction(self.actionI)
         self.menuPlots.addAction(self.actionQ)
         self.menuPlots.addAction(self.actionS21)
         self.menuPlots.addAction(self.actionS21_phase)
         self.menuPlots.addAction(self.actionIQ)
         self.menuOther.addAction(self.actionSet_Save_Path)
-        self.menuOther.addAction(self.actionSet_Start)
+        self.menuOther.addAction(self.actionSet_start)
         self.menuOther.addAction(self.actionSet_Stop)
         self.menubar.addAction(self.menuPlots.menuAction())
         self.menubar.addAction(self.menuOther.menuAction())
@@ -408,39 +411,41 @@ class Ui_Parameters(object):
 
         self.power_pushButton.clicked.connect(self.change_POWER)
         self.points_pushButton.clicked.connect(self.change_POINTS)       
-        self.start_pushButton.clicked.connect(self.change_START)     
+        self.center_pushButton.clicked.connect(self.change_Center)     
         self.span_pushButton.clicked.connect(self.change_SPAN)
         self.IFBW_pushButton.clicked.connect(self.change_IFBW)
         self.get_IQF_pushButton.clicked.connect(self.get_IQF)
         self.crf_pushButton.clicked.connect(self.crf)
-        self.vlp_pushButton.clicked.connect(self.reset_lcd)
         self.vlp_pushButton.clicked.connect(self.reset)
+        self.vlp_pushButton.clicked.connect(self.reset_lcd)
         self.reset_pushButton.clicked.connect(self.reset)
         self.preset_pushButton.clicked.connect(self.preset)
 
         self.actionI.triggered.connect(self.I_widget)
+        self.actionScale.triggered.connect(self.Scale)
         self.actionQ.triggered.connect(self.Q_widget)
         self.actionS21.triggered.connect(self.S21Abs_widget)
         self.actionS21_phase.triggered.connect(self.S21Phase_widget)
         self.actionIQ.triggered.connect(self.IQ_widget)
 
         self.actionSet_Save_Path.triggered.connect(self.change_path)
-        self.actionSet_Start.triggered.connect(self.change_start)
+        self.actionSet_start.triggered.connect(self.change_start)
         self.actionSet_Stop.triggered.connect(self.change_stop)
 
     def retranslateUi(self, Parameters):
         _translate = QtCore.QCoreApplication.translate
+        vna = hp.HP8753E()
+        vna.set_save_path("C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRdetection\\Instruments\\Test_data\\FitRes\\")
         Parameters.setWindowTitle(_translate("Parameters", "Parameters"))
         self.window_desc.setText(_translate("Parameters", "SING SWEEP ROUTINE"))
         self.power_pushButton.setText(_translate("Parameters", "Change Power"))
-        self.start_pushButton.setText(_translate("Parameters", "Change Start"))
+        self.center_pushButton.setText(_translate("Parameters", "Change Center"))
         self.IFBW_pushButton.setText(_translate("Parameters", "Change IFBW"))
         self.span_pushButton.setText(_translate("Parameters", "Change Span"))
         self.points_pushButton.setText(_translate("Parameters", "Change Points Number"))
         self.get_IQF_pushButton.setText(_translate("Parameters", "Get IQF"))
         self.crf_pushButton.setText(_translate("Parameters", "Create Run File"))
         self.vlp_pushButton.setText(_translate("Parameters", "View Last Parameters"))
-        self.vlp_pushButton.setText(_translate("Parameters", "View Current Parameters"))
         self.reset_pushButton.setText(_translate("Parameters", "Reset parameters"))
         self.preset_pushButton.setText(_translate("Parameters", "PRESET VNA"))
         self.menuPlots.setTitle(_translate("Parameters", "Plots"))
@@ -451,8 +456,14 @@ class Ui_Parameters(object):
         self.actionS21.setText(_translate("Parameters", "S21_abs"))
         self.actionS21_phase.setText(_translate("Parameters", "S21_phase"))
         self.actionSet_Save_Path.setText(_translate("Parameters", "Set Save Path"))
-        self.actionSet_Start.setText(_translate("Parameters", "Set Start"))
+        self.actionSet_start.setText(_translate("Parameters", "Set center"))
         self.actionSet_Stop.setText(_translate("Parameters", "Set Stop"))
+
+    
+    def Scale(self):
+        vna = hp.HP8753E()
+        vna.autoscale()
+        return
 
     def change_POWER(self):
         vna = hp.HP8753E()
@@ -476,15 +487,26 @@ class Ui_Parameters(object):
             print('Points: ', vna.get_points())
         return 
 
-    def change_START(self):
+    def change_start(self):
         vna = hp.HP8753E()
         Dialog = QtWidgets.QDialog()
         ui = uid()
         ui.setupUi(Dialog)
         if Dialog.exec_():
-            self.start_lcd.display(ui.test_value)
+            self.points_lcd.display(ui.test_value)
             vna.set_start(float(ui.test_value))
-            print('Start: ', vna.get_start())
+            print('Points: ', vna.get_start())
+        return 
+
+    def change_Center(self):
+        vna = hp.HP8753E()
+        Dialog = QtWidgets.QDialog()
+        ui = uid()
+        ui.setupUi(Dialog)
+        if Dialog.exec_():
+            print('Center: ', float(ui.test_value))
+            vna.set_center(float(ui.test_value))
+            self.center_lcd.display(ui.test_value)
         return 
 
     def change_SPAN(self):
@@ -512,8 +534,8 @@ class Ui_Parameters(object):
     def get_IQF(self):
         vna = hp.HP8753E()
         self._I, self._Q, self._F = vna.get_IQF_single_meas()
-        sleep = vna.get_span()/vna.get_IFBW()
-        for i in range(0,int(sleep)):
+        sleep = int(vna.get_span()/vna.get_IFBW())
+        for i in range(0,sleep):
             self.progressBar.setValue(i) 
         time.sleep(2)
         return
@@ -549,7 +571,7 @@ class Ui_Parameters(object):
     def reset(self):
         vna = hp.HP8753E()
         vna.set_params()
-        self.start_lcd.display(vna.get_start())
+        self.center_lcd.display(vna.get_center())
         self.span_lcd.display(vna.get_span())
         self.points_lcd.display(vna.get_points())
         self.power_lcd.display(vna.get_power())
@@ -558,7 +580,7 @@ class Ui_Parameters(object):
 
     def reset_lcd(self):
         vna = hp.HP8753E()
-        self.start_lcd.display(vna.get_start())
+        self.center_lcd.display(vna.get_center())
         self.span_lcd.display(vna.get_span())
         self.points_lcd.display(vna.get_points())
         self.power_lcd.display(vna.get_power())
@@ -593,7 +615,7 @@ class Ui_Parameters(object):
         # Create an instance of your widget class
         self.S21Phase_widget = S21Phase_Widget()
         # Show the widget
-        self.S21Phase.show()
+        self.S21Phase_widget.show()
 
     def change_path(self):
         vna = hp.HP8753E()
@@ -604,13 +626,13 @@ class Ui_Parameters(object):
             vna.set_save_path(str(ui.test_value))
         return
 
-    def change_start(self):
+    def change_center(self):
         vna = hp.HP8753E()
         Dialog = QtWidgets.QDialog()
         ui = uid()
         ui.setupUi(Dialog)
         if Dialog.exec_():
-            vna.set_start(float(ui.test_value))
+            vna.set_center(float(ui.test_value))
         return
 
     def change_stop(self):

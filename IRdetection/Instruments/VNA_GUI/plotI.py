@@ -27,12 +27,13 @@ class I_Widget(QtWidgets.QMainWindow):
         # which defines a single set of axes as self.axes.
         sc = MplCanvasI(self, width=10, height=8, dpi=100)
         data = self.get_data()
-        sc.axes.plot(data[0], data[1])
+        sc.axes.scatter(data[0], data[1], s=1, marker='x', color='black')
         sc.axes.set_xlabel('Frequency [GHz]')
         sc.axes.set_ylabel('I')
         sc.axes.set_title('I plot')
         self.setCentralWidget(sc)
     def get_data(self):
         vna = hp.HP8753E()
+        vna.autoscale()
         i, q, f = vna._I, vna._Q, vna._F
         return f, i
