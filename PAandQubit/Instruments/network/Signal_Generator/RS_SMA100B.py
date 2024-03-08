@@ -158,14 +158,13 @@ class SMA100B:
 # 2.6 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
     def pul_exe_sing_trig(self):
-        try:
-            self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
+        self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
 
 # [3. Frequency] ------------------------------------------------------------------------------------------------------------------------------------#
 
 #3.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_freq (self, freq: float):
+    def RF_freq(self, freq: float):
         if self._connect_success:
             self._resource.write(f'SOUR:FREQ:CW {freq}')
         else:
@@ -176,7 +175,7 @@ class SMA100B:
 
 # 4.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_state (self, switch: int):                                            # Turn ON or OFF the signal
+    def RF_state(self, switch: int):                                            # Turn ON or OFF the signal
         if self._connect_success:
             self._resource.write(f'OUTP:STAT {switch}')
         else:
@@ -184,7 +183,7 @@ class SMA100B:
 
 # 4.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def RF_lvl_ampl (self, amplitude: float):
+    def RF_lvl_ampl(self, amplitude: float):
         if self._connect_success:
             self._resource.write(f'SOUR:POW:LEV:IMM:AMPL {amplitude}')
         else:
