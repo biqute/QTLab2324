@@ -21,7 +21,7 @@ class digital_trigger:
 
 class PXIe5170R:
 
-    def __init__(self, resource_name: str = 'PXI1Slot2'):
+    def __init__(self, resource_name: str):                         # Initialize a default set up
 
         self._resource_name     = resource_name
         self._voltage_range     = 1
