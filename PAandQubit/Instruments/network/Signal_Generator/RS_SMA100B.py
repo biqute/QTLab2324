@@ -162,7 +162,7 @@ class SMA100B:
             
     def pul_exe_sing_trig(self):
         self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
-        time.sleep(0.6)
+        time.sleep(0.4)
 
 # [3. Frequency] ------------------------------------------------------------------------------------------------------------------------------------#
 
