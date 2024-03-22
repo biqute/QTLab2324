@@ -112,9 +112,9 @@ class SMA100B:
 
 # 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_gen_params(self, period: float, delay: float, width: float):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.        
+    def pul_gen_params(self, period: float = 0, delay: float = 0, width: float = 0):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.        
         '''
-        Values must be in us
+        Values must be in μs
         '''   
         if self._connect_success:
             
