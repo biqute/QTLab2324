@@ -112,7 +112,7 @@ class SMA100B:
 
 # 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 
-    def pul_gen_params(self, period: float = 0, delay: float = 0, width: float = 0):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.        
+    def pul_gen_params(self, period: float = 400, delay: float = 0, width: float = 0):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.        
         '''
         Values must be in μs
         '''   
@@ -162,6 +162,7 @@ class SMA100B:
             
     def pul_exe_sing_trig(self):
         self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
+        time.sleep(0.6)
 
 # [3. Frequency] ------------------------------------------------------------------------------------------------------------------------------------#
 
