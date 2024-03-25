@@ -94,7 +94,7 @@ class PXIe5170R:
         self._ref_pos = value
         
 
-    def acquisition(self):
+    def acquisition(self, trig):
         with ni.Session(self._resource_name) as session:
             session.configure_vertical(range = self._voltage_range, coupling = self._coupling)
             session.configure_horizontal_timing(
@@ -107,5 +107,6 @@ class PXIe5170R:
             a = digital_trigger()
             a.configure(session)
             with session.initiate():
+                trig()
                 return session.channels[0].fetch()
             
