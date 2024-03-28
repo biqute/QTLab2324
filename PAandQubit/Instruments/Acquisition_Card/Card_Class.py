@@ -8,7 +8,7 @@ class digital_trigger:
     def __init__(self, source = 'VAL_PFI_0'):
         self._trig_src      = source
         self._slope         = ni.TriggerSlope.POSITIVE
-        self._holdoff       = 0.4
+        self._holdoff       = 0
         self._delay         = 0
 
     def configure(self, session: ni.Session):
@@ -107,7 +107,7 @@ class PXIe5170R:
         a = digital_trigger()
         a.configure(self._session)
         
-    def acquisition(self, trig, sleep):
+    def acquisition(self,  trig, sleep):
         with self._session.initiate():
             trig(sleep)
             print(self._session.acquisition_status())
