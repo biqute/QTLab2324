@@ -1,4 +1,4 @@
-import DAQ_v2
+import IRSource.PXIe5170R.DAQ as DAQ
 import sys
 import niscope as ni
 import datetime
@@ -74,7 +74,7 @@ def main():
     #Initialize DAQ session
     #===============================================================================================
 
-    handler = DAQ_v2.DAQ(device_name, device_address, id, rd, dic, vertical, horizontal, chan_char, coefficients)
+    handler = DAQ.DAQ(device_name, device_address, id, rd, dic, vertical, horizontal, chan_char, coefficients)
 
     #===============================================================================================
     #Set and test DAQ configuration
