@@ -8,7 +8,7 @@ class digital_trigger:
     def __init__(self, source = 'VAL_PFI_0'):
         self._trig_src      = source
         self._slope         = ni.TriggerSlope.POSITIVE
-        self._holdoff       = 0
+        self._holdoff       = 0.4
         self._delay         = 0
 
     def configure(self, session: ni.Session):
@@ -94,19 +94,22 @@ class PXIe5170R:
         self._ref_pos = value
         
 
-    def acquisition(self, trig):
-        with ni.Session(self._resource_name) as session:
-            session.configure_vertical(range = self._voltage_range, coupling = self._coupling)
-            session.configure_horizontal_timing(
-                min_sample_rate     = self.sample_rate, 
-                min_num_pts         = self._num_pts, 
-                ref_position        = self._ref_pos, 
-                num_records         = self._num_records, 
-                enforce_realtime    = True
-                )
-            a = digital_trigger()
-            a.configure(session)
-            with session.initiate():
-                trig()
-                return session.channels[0].fetch()
+    def open(self):
+        self._session = ni.Session(self._resource_name)
+        self._session.configure_vertical(range = self._voltage_range, coupling = self._coupling)
+        self._session.configure_horizontal_timing(
+            min_sample_rate     = self.sample_rate, 
+            min_num_pts         = self._num_pts, 
+            ref_position        = self._ref_pos, 
+            num_records         = self._num_records, 
+            enforce_realtime    = True
+            )
+        a = digital_trigger()
+        a.configure(self._session)
+        
+    def acquisition(self, trig, sleep):
+        with self._session.initiate():
+            trig(sleep)
+            print(self._session.acquisition_status())
+        return self._session.channels[0].fetch()
             
