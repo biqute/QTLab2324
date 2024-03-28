@@ -38,6 +38,8 @@ def main():
         trigger_delay  = '0.0'
     )
 
+    trigger_source, level, trigger_coupling, slope=niscope.TriggerSlope.POSITIVE, holdoff=hightime.timedelta(seconds=0.0), delay=hightime.timedelta(seconds=0.0)
+
     config['trigger'] = trigger
     config['ADCmax']  =  5
     config['ADCmin']  = -5
@@ -58,10 +60,10 @@ def main():
 
 
 
-    device_name = 
-    device_address = 
-    id = 
-    rd = 
+    device_name = _
+    device_address = _ 
+    id = _
+    rd = _
     dic = {} 
     vertical = {}
     horizontal = {}
