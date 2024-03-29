@@ -3,6 +3,7 @@
 ##### https://niscope.readthedocs.io/en/latest/class.html#read ######
 
 import niscope as ni
+import time
 
 class digital_trigger:
     def __init__(self, source = 'VAL_PFI_0'):
@@ -26,7 +27,7 @@ class PXIe5170R:
         self._resource_name     = resource_name
         self._voltage_range     = 1
         self._coupling          = ni.VerticalCoupling.DC
-        self._sample_rate       = int(100e6)
+        self._sample_rate       = int(250e6)
         self._num_pts           = 500
         self._num_records       = 1
         self._ref_pos           = 50.0
@@ -67,7 +68,7 @@ class PXIe5170R:
     @sample_rate.setter
     def sample_rate(self, value):
         '''In Hz'''
-        self._sample_rate = value
+        self._sample_rate = int(value)
     
     @property
     def num_pts(self):
@@ -107,9 +108,13 @@ class PXIe5170R:
         a = digital_trigger()
         a.configure(self._session)
         
-    def acquisition(self,  trig, sleep):
+    def acquisition(self, trig):
         with self._session.initiate():
-            trig(sleep)
-            print(self._session.acquisition_status())
+            trig()
+            time.sleep(0.01)
+            # print(self._session.acquisition_status())
         return self._session.channels[0].fetch()
             
+    
+    def aliasing(self):
+        self._session.flex_fir_antialias_filter_type('FOURTYEIGHT_TAP_STANDARD')
