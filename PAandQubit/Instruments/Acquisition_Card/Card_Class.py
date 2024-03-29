@@ -26,7 +26,7 @@ class PXIe5170R:
         self._resource_name     = resource_name
         self._voltage_range     = 1
         self._coupling          = ni.VerticalCoupling.DC
-        self._sample_rate       = int(250e6)
+        self._sample_rate       = int(100e6)
         self._num_pts           = 500
         self._num_records       = 1
         self._ref_pos           = 50.0
