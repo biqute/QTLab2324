@@ -58,20 +58,6 @@ def main():
         'delay'           : 0.0       
     }
     
-    cont_acq_conf = {
-        'path'              : '',
-        'file_name'         : name,
-        'sample_rate'       : 1e7 ,  # rate of points sampling of PXIe-5170R in Hz
-        'total_acq_time'    : 0.1 ,  # total acquisition time in seconds
-        'total_samples'     : int(cont_acq_conf['total_acq_time'] * cont_acq_conf['sample_rate'])   ,  # total number of points sampled
-        'samples_per_fetch' : 1000 ,  # number of points sampled at a time during the acquisition
-        'relative_to'       : ni.FetchRelativeTo.READ_POINTER,
-        'offset'            : 0 ,
-        'record_number'     : 0 ,
-        'num_records'       : 1
-    }
-
-    
     acq_conf = {
         'file_name'   : name                    ,        # name of the file where data will be saved
         'path'        : ''                       ,       # path to directory for saving files (default is current)
@@ -84,8 +70,29 @@ def main():
         'timeout'     : hightime.timedelta(seconds=5.0),
         'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
         'source_rate' : 700 #diode rate in hz
-    }
-        
+    }   
+    
+    cont_acq_conf = {
+        'path'              : '',
+        'file_name'         : name,
+        'sample_rate'       : 1e7 ,  # rate of points sampling of PXIe-5170R in Hz
+        'total_acq_time'    : 0.1 ,  # total acquisition time in seconds
+        'total_samples'     : int(cont_acq_conf['total_acq_time'] * cont_acq_conf['sample_rate'])   ,  # total number of points sampled
+        'samples_per_fetch' : 1000 ,  # number of points sampled at a time during the acquisition
+        'relative_to'       : ni.FetchRelativeTo.READ_POINTER,
+        'offset'            : 0 ,
+        'record_number'     : 0 ,
+        'num_records'       : 1
+    }    
+    
+    cfg1 = json.dumps(vertical)
+    cfg2 = json.dumps(horizontal)
+    cfg3 = json.dumps(chan_char)
+    with open(cont_acq_conf['path'] + 'config_' + cont_acq_conf['file_name'] + '.json','w') as f:
+        f.write(cfg1)
+        f.write(cfg2)
+        f.write(cfg3)
+
     coefficients = [] 
 
     #===============================================================================================
@@ -164,3 +171,17 @@ def main():
             f.write(cfg)
 
         handler.logger.info('END EXECUTION\n\n')
+
+        try:
+            handler.initiate()
+            handler.waveform.extend([handler._session.channels[i].fetch(num_samples=handler.acq_conf['length'], timeout=acq_conf['timeout'], relative_to=acq_conf['relative_to'], num_records=acq_conf['num_records']) for i in handler.channels])
+            handler.logger.debug('Time from the trigger event to the first point in the waveform record: ' + str(handler._session.acquisition_start_time))
+            handler.logger.debug('Actual number of samples acquired in the record: ' + str(handler._session.points_done))
+            handler.logger.debug('Number of records that have been completely acquired: ' + str(handler._session.records_done))
+        except Exception as e:
+            handler.logger.debug("Extending waveform went wrong")
+            raise MemoryError("Extending waveform went wrong")
+    
+        handler.acq()        
+        handler.fill_matrix(return_data=True)
+        handler.storage_hdf5()
