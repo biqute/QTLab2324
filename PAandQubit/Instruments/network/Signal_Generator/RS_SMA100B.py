@@ -160,8 +160,7 @@ class SMA100B:
 
 # 2.6 ----------------------------------------------------------------------------------------------------------------------------------------------- #
             
-    def pul_exe_sing_trig(self, slip: float):
-        time.sleep(slip)
+    def pul_exe_sing_trig(self):
         self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
         
         
