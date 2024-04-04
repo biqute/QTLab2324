@@ -111,10 +111,10 @@ class PXIe5170R:
     def acquisition(self, trig):
         with self._session.initiate():
             trig()
-            time.sleep(0.01)
+            time.sleep(0.1)
             # print(self._session.acquisition_status())
         return self._session.channels[0].fetch()
             
     
-    def aliasing(self):
-        self._session.flex_fir_antialias_filter_type('FOURTYEIGHT_TAP_STANDARD')
+    # def aliasing(self):
+    #     self._session.flex_fir_antialias_filter_type('FOURTYEIGHT_TAP_STANDARD')
