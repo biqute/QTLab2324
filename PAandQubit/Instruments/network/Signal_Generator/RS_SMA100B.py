@@ -66,7 +66,7 @@ class SMA100B:
             rm = pyvisa.ResourceManager()
             self._resource = rm.open_resource(f"tcpip0::{ip}::inst0::INSTR")
             self._connect_success = True
-            print("Connection successful!")
+            print("SMA100B: Connection successful!")
         except pyvisa.Error as e:
             print(f"Unable to establish a connection: {e}")
         

@@ -23,7 +23,7 @@ class digital_trigger:
 class PXIe5170R:
 
     def __init__(self, resource_name: str):                         # Initialize a default set up
-
+        
         self._resource_name     = resource_name
         self._voltage_range     = 1
         self._coupling          = ni.VerticalCoupling.DC
@@ -32,6 +32,13 @@ class PXIe5170R:
         self._num_records       = 1
         self._ref_pos           = 50.0
         self._sleep = 1
+
+        try:
+            with ni.Session(self._resource_name) as _:
+                print("5170R: Available communication!")
+        except:
+            print(f"Unable to establish a connection.")
+
 
     @property
     def available(self):
@@ -111,7 +118,7 @@ class PXIe5170R:
     def acquisition(self, trig):
         with self._session.initiate():
             trig()
-            time.sleep(0.1)
+            time.sleep(0.01)
             # print(self._session.acquisition_status())
         return self._session.channels[0].fetch()
             
