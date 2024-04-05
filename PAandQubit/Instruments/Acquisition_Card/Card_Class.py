@@ -117,10 +117,11 @@ class PXIe5170R:
         
     def acquisition(self, trig):
         with self._session.initiate():
+            time.sleep(0.1)
             trig()
-            time.sleep(0.01)
-            # print(self._session.acquisition_status())
-        return self._session.channels[0].fetch()
+            time.sleep(0.1)
+            print(self._session.acquisition_status())
+        # return self._session.channels[0].fetch()
             
     
     # def aliasing(self):
