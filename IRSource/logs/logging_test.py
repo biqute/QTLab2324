@@ -10,7 +10,6 @@ dictConfig(LOGGING_CONFIG)
 
 logger = logging.getLogger(__name__)
 logger.info('START EXECUTION')
-
 name = "test.log"
 path = r'F:\\LabIV\\QTLab2324\\IRSource\\logs\\sessions\\'
 
@@ -48,7 +47,6 @@ logger.info('Length: '        + str(config['length']))
 
 for key in trigger:
     logger.info(str(key) + ': '   + trigger[key])
-    print('Here!')
     
 # save config for data analysis
 cfg = json.dumps(config)
