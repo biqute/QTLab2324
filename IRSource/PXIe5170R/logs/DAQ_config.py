@@ -18,10 +18,10 @@ LOGGING_CONFIG = {
             'stream': 'ext://sys.stdout'
         },
         'file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
-            'filename': r'F:\\LabIV\\QTLab2324\\IRSource\\logs\\sessions\\' + date + '.log',
+            'filename': r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\' + date + '.log',
             'mode': 'a',
             'encoding': 'utf-8'
         }
@@ -37,21 +37,3 @@ LOGGING_CONFIG = {
             }
     }
 }
-   
-###################################################################
-#SMTP not working
-'''
-,
-'smtp': {
-    'level': 'DEBUG',
-    'formatter': 'standard',
-    'class': 'logging.SMTPHandler',
-    'mailhost': ('smtp.gmail.com', 465),
-    'fromaddr': 'kinekids2324@gmail.com',
-    'toaddrs': ['kinekids2324@gmail.com'],
-    'subject': 'Data Acquisition',
-    'credentials': ('kinekids2324','ylry timq pxfu xxmw')
-}
-'''
-###################################################################
-    

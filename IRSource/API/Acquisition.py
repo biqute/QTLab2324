@@ -1,9 +1,10 @@
-import IRSource.PXIe5170R.DAQ as DAQ
 import sys
 import niscope as ni
 import datetime
 import hightime
 import json
+sys.path.insert(1, r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\')
+import DAQ
 
 def get_date(file_name = None):
     now = datetime.now()
@@ -53,9 +54,18 @@ def main():
         'trigger_source'  : '1',
         'level'           : '-0.031',
         'trigger_coupling': None,
-        'slope'           : 'POSITIVE',
+        'slope'           : ni.TriggerSlope.POSITIVE,
         'holdoff'         : 0.0,
         'delay'           : 0.0       
+    }
+
+    trigger_edge = {
+        'trigger_source': '',
+        'level': '',
+        'trigger_coupling': '',
+        'slope': ni.TriggerSlope.POSITIVE,
+        'holdoff' : '',
+        'delay' : ''
     }
     
     acq_conf = {

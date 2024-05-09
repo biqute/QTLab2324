@@ -3,7 +3,6 @@ import logging
 import json
 from logging.config import dictConfig
 from DAQ_config import LOGGING_CONFIG
-import pathlib
 
 # LOG SYSTEM
 dictConfig(LOGGING_CONFIG)
@@ -11,7 +10,7 @@ dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 logger.info('START EXECUTION')
 name = "test.log"
-path = r'F:\\LabIV\\QTLab2324\\IRSource\\logs\\sessions\\'
+path = 'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\'
 
 config = {
     'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)
@@ -46,12 +45,12 @@ logger.info('Sample rate: '   + str(config['sample_rate']))
 logger.info('Length: '        + str(config['length']))
 
 for key in trigger:
-    logger.info(str(key) + ': '   + trigger[key])
+    logger.info(str(key) + ': ' + trigger[key])
     
 # save config for data analysis
 cfg = json.dumps(config)
-with open(path + 'config_' + config['file_name'] + '.json', 'w') as f:
+with open(path + 'config_' + str(config['file_name']).replace('.log','') + '.json', 'w') as f:
     f.write(cfg)
 
-logger.debug('Saved config for data analysis: config_' + config['file_name'] + '.json')
+logger.debug('Saved config for data analysis: config_' + str(config['file_name']).replace('.log','') + '.json')
 logger.info('END EXECUTION\n\n')
