@@ -59,7 +59,7 @@ class AFG310:
 
     def reset(self):
         self._diodo.write('*RST')
-        self._diodo.write('MODE1;OUTP1:STAT ON;SOUR1;SOUR1:VOLT:AMPL 1')
+        self._diodo.write('MODE1;OUTP1 ON;SOUR1;SOUR1:VOLT:AMPL 1')
         return
 
     def trigger(self):
