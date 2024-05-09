@@ -5,37 +5,78 @@
 import niscope as ni
 import hightime
 import sys
-sys.path.insert(1, r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\logs\\sessions\\')
+sys.path.insert(1, r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\')
 import logging
 import numpy as np
 import h5py
 from logging.config import dictConfig
-from logs.DAQ_config import LOGGING_CONFIG
+# Apply logging configuration
 
-# LOG SYSTEM
+from datetime import datetime
+date = datetime.now().strftime("%m-%d-%Y")
+
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s.%(msecs)03d - %(name)s - %(funcName)s - %(levelname)s - %(message)s',
+            'datefmt': '%H:%M:%S'
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'formatter': 'standard',
+            'class': 'logging.StreamHandler',
+            'stream': 'ext://sys.stdout'
+        },
+        'file': {
+            'level': 'DEBUG',
+            'formatter': 'standard',
+            'class': 'logging.FileHandler',
+            'filename': r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\' + date + '.log',
+            'mode': 'a',
+            'encoding': 'utf-8'
+        }
+    },
+    'loggers': {
+        '__main__': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+        'PXIe_5170R': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        }
+    }
+}
+
 
 class DAQ(object):
     _instance = None
+    _session = None
+    dictConfig(LOGGING_CONFIG)
+    logger = logging.getLogger(__name__)  # Initialize logger
+    logger.info('START EXECUTION')
 
-    def __new__(cls, device_name):
-        if cls._instance is None:
-            cls._instance = super(DAQ, cls).__new__(cls)
-            cls._instance._initialized = False
-        return cls._instance
-
-    def __init__(self, device_name):
-        if not self._initialized:
-            self._initialized = True
+    def __new__(self, devicename):
+        if self._instance is None:
             try: 
-                self._devicename = device_name
-                self.logger = logging.getLogger(__name__)  # Initialize logger
-                dictConfig(LOGGING_CONFIG)
-                self.logger.info('START EXECUTION')
+                self._instance = super(DAQ, self).__new__(self)
+            except Exception as e:
+                raise ConnectionRefusedError("Could not create object instance")
+            try: 
+                self._session = ni.Session(devicename)
+                print('Connected to', devicename)
+                #self.logger.info("Connected to PXIe-5170R")
             except:
                 print("Not working!")
+                #self.logger.critical("Could not connect to PXIe-5170R")
+                raise ConnectionError("Could not create object instance")
+            
             name = "test.log"
             path = 'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\logs\\sessions\\'
-            self._session = ni.Session(self._devicename)
             self.coeff = None
             self.chanchar = None
             self.vertical_dic = None
@@ -46,19 +87,18 @@ class DAQ(object):
             self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
             self.trigger = None
             self.triggertype = None
-
-            print('Connected to', self._devicename)
-            self.logger.debug("Connected to PXIe-5170R")
+        
+        return self._instance
 
 
     @classmethod
     def vertical_conf(cls, vertical):
         try:
             cls._instance.vertical_dic = vertical
-            cls._instance.logger.info("Vertical config property added")
+            cls.logger.info("Vertical config property added")
             print("Vertical config property added")
         except Exception as e:
-            cls._instance.logger.info("Vertical config property NOT added")
+            cls.logger.info("Vertical config property NOT added")
             print("Vertical config property NOT added")
 
         return cls._instance  # Return the instance of the class, not None
@@ -171,7 +211,7 @@ class DAQ(object):
             print("NOT ready to listen!")
             raise BufferError("NOT ready to listen!")
 
-    '''
+    
     @classmethod
     def disable(cls):
         try:
@@ -181,7 +221,7 @@ class DAQ(object):
         except Exception as e:
             cls._instance.logger.critical("Disabling didn't work")
             raise ValueError("Disabling didn't work")
-    '''         
+             
     @classmethod        
     def commit(cls):
         try:

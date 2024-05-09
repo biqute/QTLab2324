@@ -1,15 +1,37 @@
 import pyvisa
 import numpy as np
 
-indirizzo_uno = 'COM5'
-indirizzo_due = 'COM26'
-
 class Synthesizer:
-    _instance_uno = None
-    _instance_due = None
-    _synth_uno = None
-    _synth_due = None
+    indirizzo = None
+    istanza_uno = None
+    istanza_due = None
+    print('Inserire numero_synth == 1 per il primo synth; numero_synth == 2 per il secondo synth!')
 
+    def __new__(self, numero_synth):
+        indirizzo_uno = 'ASRL5::INSTR'
+        indirizzo_due = 'ASRL26::INSTR'
+        if numero_synth == 1:
+            try:
+                self.istanza_uno = super(Synthesizer, self).__new__(self)
+                synth_uno = pyvisa.ResourceManager()
+                synth_uno.list_resources()
+                self.indirizzo = synth_uno.open_resource(indirizzo_uno)
+                print("Si è connessi al synth_uno!")
+                return self.istanza_uno
+            except Exception as e:
+                raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_uno sia alimentato!")
+        elif numero_synth == 2:
+            try:
+                self.istanza_due = super(Synthesizer, self).__new__(self)
+                synth_due = pyvisa.ResourceManager()
+                synth_due.list_resources()
+                self.indirizzo = synth_due.open_resource(indirizzo_due)
+                print("Si è connessi al synth_due!")
+                return self.istanza_due
+            except Exception as e:
+                raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_due sia alimentato!")
+
+    '''
     def __new__(self, number):
         if self._instance_uno is None and number==1:
             try: 
@@ -25,16 +47,17 @@ class Synthesizer:
                 raise ConnectionError("Could not connect to second synth")
 
         return self._instance_uno, self._instance_due
-
+    '''
     def ask_name(self): #metodo che restituisce il nume dello strumento
-        return self._synth_uno.query('*IDN?'),self._synth_due.query('*IDN?')
+        nome = self.indirizzo.query('*IDN?')
+        return nome
 
     def reset(self): #metodo che resetta lo strumento
-        self._synth.write('*RST')
+        self.indirizzo.write('*RST')
         return
 
     def get_frequency(self): #metodo che restituisce la frequenza impostata in uscita
-        frequenza = self._synth.query('FREQ?')
+        frequenza = self.indirizzo.query('FREQ?')
         return frequenza
 
     def set_frequency(self, frequenza): #metodo che imposta la frequenza in uscita dal sintetizzatore
