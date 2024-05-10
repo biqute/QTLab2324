@@ -4,14 +4,10 @@
 
 import niscope as ni
 import hightime
-import sys
-sys.path.insert(1, r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\')
 import logging
 import numpy as np
 import h5py
 from logging.config import dictConfig
-# Apply logging configuration
-
 from datetime import datetime
 date = datetime.now().strftime("%m-%d-%Y")
 
@@ -56,6 +52,7 @@ LOGGING_CONFIG = {
 class DAQ(object):
     _instance = None
     _session = None
+    _device = None
     dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger(__name__)  # Initialize logger
     logger.info('START EXECUTION')
@@ -67,6 +64,7 @@ class DAQ(object):
             except Exception as e:
                 raise ConnectionRefusedError("Could not create object instance")
             try: 
+                self._device = devicename
                 self._session = ni.Session(devicename)
                 print('Connected to', devicename)
                 #self.logger.info("Connected to PXIe-5170R")
@@ -106,8 +104,8 @@ class DAQ(object):
     def chan_conf(cls, char):
         try:
             cls._instance.chanchar = char
-            cls._instance.logger.info("channels char config property added")
-            print("Vertical config property added")
+            cls._instance.logger.info("Channels char config property added")
+            print("Channels char config property added")
         except Exception as e:
             cls._instance.logger.info("Channels char config property NOT added")
             print("Channels char config property NOT added")
@@ -244,27 +242,42 @@ class DAQ(object):
 
         try:
             print('Starting acquisition')
-            cls._session.initiate()
+            cls._instance._session.initiate()
             cls._instance.logger.debug("Acquisition started correctly")
         except Exception as e:
             cls._instance.logger.critical("Acquisition didn't start correctly")
             raise ValueError("Acquisition didn't start correctly")
-        
+
+    def enable_channels(cls):
+        try:
+            print('Enabling channels')
+            for i in range(cls._instance._session.channel_count):
+                cls._instance._session.channels[i].channel_enabled = True
+            cls._instance.logger.debug("Enabling channels")
+        except Exception as e:
+            cls._instance.logger.critical("Could not enable channels")
+            raise ValueError("Could not enable channels")
+            
 # ==================================================================================================================================
 #__Channels configuration__
 #===================================================================================================================================        
 
     def config_vertical(cls):
-        try:
-            cls._instance.logger.debug("Configuring vertical done")
-            print("Configuring vertical done")
-            for c in cls._session.channels:
-                c.configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
-        except Exception as e:
-            print("Vertical config went wrong")
-            cls._instance.logger.error("Vertical config went wrong")
-            raise ValueError("Vertical config went wrong")
-            
+        
+        if (cls._instance._session.channels[0].channel_enabled==True and
+            cls._instance._session.channels[2].channel_enabled==True):
+            try:
+                cls._instance.logger.debug("Configuring vertical done")
+                print("Configuring vertical done")
+                cls._session.channels[0].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
+                cls._session.channels[2].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
+            except Exception as e:
+                print("Vertical config went wrong")
+                cls._instance.logger.error("Vertical config went wrong")
+                raise ValueError("Vertical config went wrong")
+        else:
+            raise TimeoutError("Chosen channels are not enabled!")
+                
     
     def config_chan_char(cls):
 
