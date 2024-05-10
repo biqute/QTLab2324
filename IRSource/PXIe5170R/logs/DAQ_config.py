@@ -12,13 +12,13 @@ LOGGING_CONFIG = {
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'formatter': 'standard',
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout'
         },
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
             'filename': r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\' + date + '.log',
@@ -27,13 +27,13 @@ LOGGING_CONFIG = {
         }
     },
     'loggers': {
-            '__main__': {
-                'handlers': ['console','file'],
-                'level': 'DEBUG'
-            },
-            'PXIe-5170R': {
-                'handlers': ['console', 'file'],
-                'level': 'DEBUG'
-            }
+        '__main__': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        },
+        'PXIe_5170R': {
+            'handlers': ['console', 'file'],
+            'level': 'DEBUG',
+        }
     }
 }

@@ -2,35 +2,62 @@ import pyvisa
 import numpy as np
 
 class Synthesizer:
-    _instance = None
-    _synth = None
-    print('numero == 1 per il primo synth; numero == 2 per il secondo synth')
+    indirizzo = None
+    istanza_uno = None
+    istanza_due = None
+    print('Inserire numero_synth == 1 per il primo synth; numero_synth == 2 per il secondo synth!')
 
     def __new__(self, numero_synth):
-        indirizzo_uno = 'COM5'
-        indirizzo_due = 'COM26'
-        if self._instance is None:
-            if numero_synth == 1:
-                self._instance = super(Synthesizer, self).__new__(self)
-                self._synth = pyvisa.ResourceManager().open_resource(indirizzo_uno)
-                print('Si è connessi correttamente al sintetizzatore numero 1!\n')
-                return self._instance
-            else if numero_synth == 2:
-                self._instance = super(Synthesizer, self).__new__(self)
-                self._synth = pyvisa.ResourceManager().open_resource(indirizzo_due)
-                printf('Si è connessi correttamente al sintetizzatore numero 2!\n')
-                return self._instance
-    
+        indirizzo_uno = 'ASRL5::INSTR'
+        indirizzo_due = 'ASRL26::INSTR'
+        if numero_synth == 1:
+            try:
+                self.istanza_uno = super(Synthesizer, self).__new__(self)
+                synth_uno = pyvisa.ResourceManager()
+                synth_uno.list_resources()
+                self.indirizzo = synth_uno.open_resource(indirizzo_uno)
+                print("Si è connessi al synth_uno!")
+                return self.istanza_uno
+            except Exception as e:
+                raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_uno sia alimentato!")
+        elif numero_synth == 2:
+            try:
+                self.istanza_due = super(Synthesizer, self).__new__(self)
+                synth_due = pyvisa.ResourceManager()
+                synth_due.list_resources()
+                self.indirizzo = synth_due.open_resource(indirizzo_due)
+                print("Si è connessi al synth_due!")
+                return self.istanza_due
+            except Exception as e:
+                raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_due sia alimentato!")
+
+    '''
+    def __new__(self, number):
+        if self._instance_uno is None and number==1:
+            try: 
+                self._instance_uno = super(Synthesizer, self).__new__(self)
+                self._synth_uno = pyvisa.ResourceManager().open_resource("COM5")
+            except Exception as e:
+                raise ConnectionError("Could not connect to first synth")
+        if self._instance_due is None and number==2:
+            try: 
+                self._instance_due = super(Synthesizer, self).__new__(self)
+                self._synth_uno = pyvisa.ResourceManager().open_resource("COM26")
+            except Exception as e:
+                raise ConnectionError("Could not connect to second synth")
+
+        return self._instance_uno, self._instance_due
+    '''
     def ask_name(self): #metodo che restituisce il nume dello strumento
-        nome_strumento = self._synth.query('*IDN?')
-        return nome_strumento
+        nome = self.indirizzo.query('*IDN?')
+        return nome
 
     def reset(self): #metodo che resetta lo strumento
-        self._synth.write('*RST')
+        self.indirizzo.write('*RST')
         return
 
     def get_frequency(self): #metodo che restituisce la frequenza impostata in uscita
-        frequenza = self._synth.query('FREQ?')
+        frequenza = self.indirizzo.query('FREQ?')
         return frequenza
 
     def set_frequency(self, frequenza): #metodo che imposta la frequenza in uscita dal sintetizzatore
@@ -61,7 +88,7 @@ class Synthesizer:
         status = self._synth.write('OUTP:STAT?')
         if status == 1:
             return 'ON'
-        else if status == 0:
+        elif status == 0:
             return 'OFF'
 
     def frequency_sweep_fast(self, freq_min, freq_max, N, potenza): #metodo che imbastisce uno sweep in frequenza veloce
@@ -101,7 +128,7 @@ class Synthesizer:
         self._synth.write('SWE:FAST:POW:STAR ' + str(N_sweep))
         return
 
-    def power_sweep(self, pow_min, pw_max, intervallo_pow, frequenza):
+    def power_sweep(self, pow_min, pow_max, intervallo_pow, frequenza):
         tempo_attesa = 0.5
         N_sweep = 1
         self._synth.write('SWE:NORM:POW:SETUP ' + str(pow_min) + ',' + str(pow_max) + ',' + str(intervallo_pow) + ',' + str(frequenza) + ',' + str(tempo_attesa) + ',' + str(N_sweep) + ',0,0') 
