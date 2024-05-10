@@ -2,55 +2,39 @@ import pyvisa
 import numpy as np
 
 class Synthesizer:
-    indirizzo = None
-    istanza_uno = None
-    istanza_due = None
-    print('Inserire numero_synth == 1 per il primo synth; numero_synth == 2 per il secondo synth!')
+    def __init__(self, numero_synth):
+        self.numero_synth = numero_synth
+        self.indirizzo = None
+        if self.numero_synth == 1:
+            print("Synth_uno!")
+        elif self.numero_synth == 2:
+            print("Synth_due!")
+        else:
+            print("Devi scrivere 'Synthesizer(1)' per il synth_uno, oppure 'Synthesizer(2) per il synth_due!")
 
-    def __new__(self, numero_synth):
-        indirizzo_uno = 'ASRL5::INSTR'
-        indirizzo_due = 'ASRL26::INSTR'
-        if numero_synth == 1:
+    def connettore(self):
+        indirizzo_synth_uno = 'ASRL5::INSTR'
+        indirizzo_synth_due = 'ASRL26::INSTR'
+        if self.numero_synth == 1:
             try:
-                self.istanza_uno = super(Synthesizer, self).__new__(self)
-                synth_uno = pyvisa.ResourceManager()
-                synth_uno.list_resources()
-                self.indirizzo = synth_uno.open_resource(indirizzo_uno)
+                indirizzi = pyvisa.ResourceManager()
+                indirizzi.list_resources()
+                self.indirizzo = indirizzi.open_resource(indirizzo_synth_uno)
                 print("Si è connessi al synth_uno!")
-                return self.istanza_uno
             except Exception as e:
                 raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_uno sia alimentato!")
-        elif numero_synth == 2:
+        elif self.numero_synth == 2:
             try:
-                self.istanza_due = super(Synthesizer, self).__new__(self)
-                synth_due = pyvisa.ResourceManager()
-                synth_due.list_resources()
-                self.indirizzo = synth_due.open_resource(indirizzo_due)
+                indirizzi = pyvisa.ResourceManager()
+                indirizzi.list_resources()
+                self.indirizzo = indirizzi.open_resource(indirizzo_synth_due)
                 print("Si è connessi al synth_due!")
-                return self.istanza_due
             except Exception as e:
                 raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_due sia alimentato!")
 
-    '''
-    def __new__(self, number):
-        if self._instance_uno is None and number==1:
-            try: 
-                self._instance_uno = super(Synthesizer, self).__new__(self)
-                self._synth_uno = pyvisa.ResourceManager().open_resource("COM5")
-            except Exception as e:
-                raise ConnectionError("Could not connect to first synth")
-        if self._instance_due is None and number==2:
-            try: 
-                self._instance_due = super(Synthesizer, self).__new__(self)
-                self._synth_uno = pyvisa.ResourceManager().open_resource("COM26")
-            except Exception as e:
-                raise ConnectionError("Could not connect to second synth")
-
-        return self._instance_uno, self._instance_due
-    '''
     def ask_name(self): #metodo che restituisce il nume dello strumento
-        nome = self.indirizzo.query('*IDN?')
-        return nome
+        nome_strumento = self.indirizzo.query('*IDN?')
+        return nome_strumento
 
     def reset(self): #metodo che resetta lo strumento
         self.indirizzo.write('*RST')
