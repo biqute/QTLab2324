@@ -14,7 +14,7 @@ class synt(object):
     #Find manual at http://ni-microwavecomponents.com/quicksyn-lite#documentation
     #Find manual in My Drive > manuals and datasheets > "Quicksyn - FSL0010 synthesizer - programming manual"
     
-    def __init__(self,device_address='/dev/ttyACM0'):
+    def __init__(self,device_address='COM31'):
         self.device = serial.Serial(device_address, baudrate=115200, timeout=1.5, stopbits=1, parity='N') 
     
     #general commands (internal use only)
@@ -53,14 +53,14 @@ class synt(object):
             self.write(cmd_string) #send command to set ref source
             return "Ref source set to "+source
     
-    def set_ref_out(self, set):
+    '''def set_ref_out(self, set):
         #set ref out (REF OUT pin) to ON or OFF
         if (not (set == "ON" or set == "OFF")):
             return "Invalid entry. Ref out may only be set to ON or OFF"
         else:
             cmd_string = str.encode('OUTP:ROSC:STAT ' + (source))
             self.write(cmd_string) #send command to turn ref out on or off
-            return "Ref out set to "+set
+            return "Ref out set to "+set'''
     def get_ref_out(self):
          #returns ON or OFF
         return 'Ref out: '+self.ask(b'OUTP:ROSC:STAT?\r')

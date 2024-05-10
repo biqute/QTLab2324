@@ -83,6 +83,7 @@ class DAQ(object):
             self.horizontal_dic = None
             self.acq_conf = None
             self.waveform = []
+            self.channels = []
             self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
             self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
             self.trigger = None
@@ -91,7 +92,6 @@ class DAQ(object):
         return self._instance
 
 
-    @classmethod
     def vertical_conf(cls, vertical):
         try:
             cls._instance.vertical_dic = vertical
@@ -103,7 +103,6 @@ class DAQ(object):
 
         return cls._instance  # Return the instance of the class, not None
 
-    @classmethod
     def chan_conf(cls, char):
         try:
             cls._instance.chanchar = char
@@ -115,7 +114,6 @@ class DAQ(object):
 
         return cls._instance  # Return the instance of the class, not None
 
-    @classmethod
     def horizontal_conf(cls, horizontal):
         try:
             cls._instance.horizontal_dic = horizontal
@@ -127,7 +125,6 @@ class DAQ(object):
 
         return cls._instance  # Return the instance of the class, not None
 
-    @classmethod
     def eq_conf(cls, eq_coeff):
         try:
             cls._instance.vertical_dic = eq_coeff
@@ -142,7 +139,6 @@ class DAQ(object):
 # ==================================================================================================================================
 #__SESSION DEFINITION +...__ 
 #===================================================================================================================================
-    @classmethod    
     def calibrate(cls):            
         try:
             cls._instance._session.self_cal(option=ni.Option.SELF_CALIBRATE_ALL_CHANNELS)
@@ -152,7 +148,6 @@ class DAQ(object):
             cls._instance.logger.warning('Calibration failed!')
             raise ValueError("Self calibration failed")
     
-    @classmethod            
     def test(cls):
             try:
                 cls._instance._session.self_test()
@@ -162,46 +157,41 @@ class DAQ(object):
                 cls._instance.logger.warning("Test failed")
                 raise  ValueError("Test failed") from e      
 
-    @classmethod
     def session_reset(cls):
         try: 
             print('Resetting session')
-            cls._instance._session.reset()     
+            cls._session.reset()     
             cls._instance.logger.debug("Resetting session")
         except Exception as e:
             cls._instance.logger.warning("Session reset didn't work")
             raise ValueError("Session reset didn't work")
 
-    @classmethod
     def device_reset(cls):
 
         try: 
             print("Resetting device")
-            cls._instance._session.reset_device()     
+            cls._session.reset_device()     
             cls._instance.logger.debug("Resetting device")
         except Exception as e:
             cls._instance.logger.warning("Resetting device didn't work")
             raise ValueError("Resetting device didn't work")
         
-    @classmethod
     def reset_with_def(cls):
 
         try: 
             print("Resetting with defaults")
-            cls._instance._session.reset_with_defaults()    
+            cls._session.reset_with_defaults()    
             cls._instance.logger.debug("Resetting with defaults done")
         except Exception as e:
             cls._instance.logger.warning("Resetting with defaults didn't work")
             raise ValueError("Resetting with defaults didn't work")
         
-    @classmethod
     def get_status(cls):
         print(str(cls._instance._session.acquisition_status()))
         cls._instance.logger.warning("Acquisition status: " + str(cls._instance._session.acquisition_status())) 
         return None
 
 
-    @property
     def available(cls):
         try:
             cls.get_status()=="AcquisitionStatus.COMPLETE"
@@ -212,7 +202,6 @@ class DAQ(object):
             raise BufferError("NOT ready to listen!")
 
     
-    @classmethod
     def disable(cls):
         try:
             print('Disabling')
@@ -222,7 +211,6 @@ class DAQ(object):
             cls._instance.logger.critical("Disabling didn't work")
             raise ValueError("Disabling didn't work")
              
-    @classmethod        
     def commit(cls):
         try:
             print('Committing')
@@ -231,8 +219,17 @@ class DAQ(object):
         except Exception as e:
             cls._instance.logger.warning("Committing didn't work")
             raise ValueError("Committing didn't work")
-    
-    @classmethod    
+
+
+    def get_session(cls):
+        try:
+            print('Get current session')
+            cls._instance.logger.debug('Get current session')
+        except Exception as e:
+            cls._instance.logger.warning('Could not get current session')
+            raise ValueError('Could not get current session')
+        return  cls._session
+
     def close(cls):
         try:
             print('Closing session')
@@ -243,12 +240,11 @@ class DAQ(object):
             cls._instance.logger.error('Could not close current session')
             raise RuntimeError('Could not close current session')
             
-    @classmethod    
     def initiate(cls):
 
         try:
             print('Starting acquisition')
-            cls._instance._session.initiate()
+            cls._session.initiate()
             cls._instance.logger.debug("Acquisition started correctly")
         except Exception as e:
             cls._instance.logger.critical("Acquisition didn't start correctly")
@@ -258,18 +254,18 @@ class DAQ(object):
 #__Channels configuration__
 #===================================================================================================================================        
 
-    @classmethod
     def config_vertical(cls):
         try:
             cls._instance.logger.debug("Configuring vertical done")
             print("Configuring vertical done")
-            cls._instance._session.configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
+            for c in cls._session.channels:
+                c.configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
         except Exception as e:
             print("Vertical config went wrong")
             cls._instance.logger.error("Vertical config went wrong")
             raise ValueError("Vertical config went wrong")
             
-    @classmethod
+    
     def config_chan_char(cls):
 
         try:
@@ -281,7 +277,7 @@ class DAQ(object):
             cls._instance.logger.error("Channels characteristics configuration went wrong")
             raise ValueError("Channels characteristics configuration went wrong")
         
-    @classmethod    
+        
     def config_eqfilt_coeff(cls):
 
         try:
@@ -293,7 +289,7 @@ class DAQ(object):
             cls._instance.logger.error("Equalization filter configuration went wrong")
             raise ValueError("Equalization filter configuration went wrong")
 
-    @classmethod    
+        
     def config_hor_timing(cls):
 
         try:
@@ -308,7 +304,7 @@ class DAQ(object):
 #===================================================================================================================================
 #__Waveform processing__
 #===================================================================================================================================
-    @classmethod
+    
     def add_wfm_proc(cls, meas_function):
 
         try:
@@ -320,7 +316,7 @@ class DAQ(object):
             cls._instance.logger.error("Adding Waveform processing went wrong")
             raise ValueError("Adding Waveform processing went wrong")
         
-    @classmethod    
+        
     def clear_wfm_stats(cls,clearable_measurement_function=ni.ClearableMeasurement.ALL_MEASUREMENTS):
 
         try:
@@ -332,7 +328,7 @@ class DAQ(object):
             print("Clearing waveform stats went wrong")
             raise ValueError("Clearing waveform stats went wrong")
         
-    @classmethod
+    
     def clear_wfm_proc(cls):
         
         try:
@@ -348,7 +344,7 @@ class DAQ(object):
 #__Trigger config__ 
 #===================================================================================================================================
 
-    @classmethod
+    
     def set_trigger_dic(cls, trigger):
         try:
             cls._instance.trigger = trigger
@@ -364,7 +360,7 @@ class DAQ(object):
     def get_trigger_type(cls):
         print(cls._instance.trigger['trigger_type'])
 
-    @classmethod
+    
     def config_imm_trigger(cls):
         try:
             cls._instance.trigger['trigger_type'] == "IMM"
@@ -379,7 +375,7 @@ class DAQ(object):
             cls._instance.logger.error("Immediate trigger configuration went wrong")
             raise ValueError("Immediate trigger configuration went wrong")
 
-    @classmethod
+    
     def config_dig_trigger(cls):
         try:
             cls._instance.trigger['trigger_type'] == "DIG"
@@ -394,7 +390,7 @@ class DAQ(object):
             cls._instance.logger.error("Digital trigger configuration went wrong")
             raise ValueError("Digital trigger configuration went wrong")
 
-    @classmethod
+    
     def config_edge_trigger(cls):
 
         try:
@@ -411,7 +407,7 @@ class DAQ(object):
             cls._instance.logger.error("Edge trigger configuration went wrong")
             raise ValueError("Edge trigger configuration went wrong")
 
-    @classmethod
+    
     def config_software_trigger(cls):
 
         try:
