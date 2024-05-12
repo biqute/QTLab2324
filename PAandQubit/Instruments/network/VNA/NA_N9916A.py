@@ -124,13 +124,38 @@ class N9916A:
 
 	def set_freq_range(self, fmin: float, fmax: float):
 		if self._connect_success:
-			# frequenze in GHz
-			self._resource.write(f'FREQ:START {fmin * 1e9}')     # set freq iniziale                    
-			self._resource.write(f'FREQ:STOP {fmax * 1e9}')      # set freq finale
+			self._resource.write(f'FREQ:START {fmin}')     # set freq iniziale                    
+			self._resource.write(f'FREQ:STOP {fmax}')      # set freq finale
 		else:
 			print("Error: No active connection.")
 
-		 
+	def set_num_pts(self, n_pts):
+		if self._connect_success:
+			self._resource.write(f'SWE:POIN {n_pts}')     
+			time.sleep(self._sleep)
+		else:
+			print("Error: No active connection.")
+
+	def set_freq_span(self, f_span):
+		if self._connect_success:
+			self._resource.write(f'FREQ:SPAN {f_span}')     
+			time.sleep(self._sleep)
+		else:
+			print("Error: No active connection.")
+	
+	def set_freq_center(self, f_center):
+		if self._connect_success:
+			self._resource.write(f'FREQ:CENT {f_center}')     
+			time.sleep(self._sleep)
+		else:
+			print("Error: No active connection.")
+	
+	def set_freq_bandwidth(self, f_bwd):
+		if self._connect_success:
+			self._resource.write(f'BWD {f_bwd}')     
+			time.sleep(self._sleep)
+		else:
+			print("Error: No active connection.")
 
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
