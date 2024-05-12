@@ -14,8 +14,8 @@ class AFG310:
             self._instance = super(AFG310, self).__new__(self)
             self._diodo = pyvisa.ResourceManager().open_resource(board)
 
-            self._diodo.write('MODE1;OUTP1:STAT ON;SOUR1')
-            self._diodo.write('SOUR:VOLT:AMPL 1')
+            self._diodo.write('MODE1; :OUTP1 ON; :SOUR1')   #accende la porta 1
+            self._diodo.write('SOUR:VOLT:AMPL 1')           #fissa ampiezza del segnale             
             #self._diodo.write(':AM:STAT OFF;FM:STAT OFF;FSK:STAT OFF') 
             '''ATTENZIONE AGLI SPAZI, SONO IMPORTANTI, quando si inseriscono dei valori di grandezze fisiche si mettono dopo uno spazio, se selezionano ad esempio un canale dell'afg no'''
 
@@ -55,6 +55,7 @@ def pulse(self, freq = 0, tempo = 0):    #freq è la frequenza con cui si ripete
 
 def reset(self):
     self._diodo.write('*RST')
+    self._diodo.write('OUTP1 1')
     self._diodo.write('MODE1;OUTP1:STAT ON;SOUR1;SOUR:VOLT:AMPL 1')
     return
 
