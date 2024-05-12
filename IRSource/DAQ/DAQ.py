@@ -3,100 +3,60 @@
 # =======================================================================================================================================
 
 import niscope as ni
-import hightime
+import sys
+sys.path.append(r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\Qubit\\QTLab2324\\IRSource\\Logger\\')
 import logging
 import numpy as np
 import h5py
 from logging.config import dictConfig
 from datetime import datetime
 date = datetime.now().strftime("%m-%d-%Y")
+from logs.logging_config import LOGGING_CONFIG
 
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': True,
-    'formatters': {
-        'standard': {
-            'format': '%(asctime)s.%(msecs)03d - %(name)s - %(funcName)s - %(levelname)s - %(message)s',
-            'datefmt': '%H:%M:%S'
-        }
-    },
-    'handlers': {
-        'console': {
-            'level': 'INFO',
-            'formatter': 'standard',
-            'class': 'logging.StreamHandler',
-            'stream': 'ext://sys.stdout'
-        },
-        'file': {
-            'level': 'DEBUG',
-            'formatter': 'standard',
-            'class': 'logging.FileHandler',
-            'filename': r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\' + date + '.log',
-            'mode': 'a',
-            'encoding': 'utf-8'
-        }
-    },
-    'loggers': {
-        '__main__': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-        },
-        'PXIe_5170R': {
-            'handlers': ['console', 'file'],
-            'level': 'DEBUG',
-        }
-    }
-}
+
 
 
 class DAQ(object):
     _instance = None
     _session = None
     _device = None
+
     dictConfig(LOGGING_CONFIG)
     logger = logging.getLogger(__name__)  # Initialize logger
     logger.info('START EXECUTION')
 
-    def __new__(self, devicename):
-        if self._instance is None:
+    def __new__(cls, devicename):
+        if cls._instance is None:
             try: 
-                self._instance = super(DAQ, self).__new__(self)
+                cls._instance = super(DAQ, cls).__new__(cls)
+                print('Instance correctly created!')
             except Exception as e:
-                raise ConnectionRefusedError("Could not create object instance")
-            try: 
-                self._device = devicename
-                self._session = ni.Session(devicename)
-                print('Connected to', devicename)
-                #self.logger.info("Connected to PXIe-5170R")
-            except:
-                print("Not working!")
-                #self.logger.critical("Could not connect to PXIe-5170R")
-                raise ConnectionError("Could not create object instance")
-            
-            name = "test.log"
-            path = 'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\logs\\sessions\\'
-            self.coeff = None
-            self.chanchar = None
-            self.vertical_dic = None
-            self.horizontal_dic = None
-            self.acq_conf = None
-            self.waveform = []
-            self.channels = []
-            self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
-            self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
-            self.trigger = None
-            self.triggertype = None
-        
-        return self._instance
+                raise ValueError("Could not create object instance")
+        return cls._instance
 
+    def __init__(self,devicename):
+
+        self._device = devicename
+        self._session = ni.Session(devicename)
+        self.coeff = None
+        self.chanchar = None
+        self.vertical_dic = None
+        self.horizontal_dic = None
+        self.acq_conf = None
+        self.waveform = []
+        self.channels = []
+        self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
+        self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
+        self.trigger = None
+        self.triggertype = None
 
     def vertical_conf(cls, vertical):
         try:
             cls._instance.vertical_dic = vertical
-            cls.logger.info("Vertical config property added")
+            cls._instance.logger.info("Vertical config property added")
             print("Vertical config property added")
         except Exception as e:
-            cls.logger.info("Vertical config property NOT added")
+            cls._instance.logger.info("Vertical config property NOT added")
             print("Vertical config property NOT added")
 
         return cls._instance  # Return the instance of the class, not None
@@ -137,6 +97,7 @@ class DAQ(object):
 # ==================================================================================================================================
 #__SESSION DEFINITION +...__ 
 #===================================================================================================================================
+    
     def calibrate(cls):            
         try:
             cls._instance._session.self_cal(option=ni.Option.SELF_CALIBRATE_ALL_CHANNELS)
@@ -145,6 +106,7 @@ class DAQ(object):
         except Exception as e:
             cls._instance.logger.warning('Calibration failed!')
             raise ValueError("Self calibration failed")
+
     
     def test(cls):
             try:
@@ -189,7 +151,6 @@ class DAQ(object):
         cls._instance.logger.warning("Acquisition status: " + str(cls._instance._session.acquisition_status())) 
         return None
 
-
     def available(cls):
         try:
             cls.get_status()=="AcquisitionStatus.COMPLETE"
@@ -218,15 +179,15 @@ class DAQ(object):
             cls._instance.logger.warning("Committing didn't work")
             raise ValueError("Committing didn't work")
 
-
     def get_session(cls):
         try:
             print('Get current session')
             cls._instance.logger.debug('Get current session')
+            sex = cls._instance._session
         except Exception as e:
             cls._instance.logger.warning('Could not get current session')
             raise ValueError('Could not get current session')
-        return  cls._session
+        return  sex
 
     def close(cls):
         try:
@@ -264,19 +225,15 @@ class DAQ(object):
 
     def config_vertical(cls):
         
-        if (cls._instance._session.channels[0].channel_enabled==True and
-            cls._instance._session.channels[2].channel_enabled==True):
-            try:
-                cls._instance.logger.debug("Configuring vertical done")
-                print("Configuring vertical done")
-                cls._session.channels[0].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
-                cls._session.channels[2].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
-            except Exception as e:
-                print("Vertical config went wrong")
-                cls._instance.logger.error("Vertical config went wrong")
-                raise ValueError("Vertical config went wrong")
-        else:
-            raise TimeoutError("Chosen channels are not enabled!")
+        try:
+            cls._instance.logger.debug("Configuring vertical done")
+            print("Configuring vertical done")
+            cls._session.channels[0].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
+            cls._session.channels[2].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])
+        except Exception as e:
+            print("Vertical config went wrong")
+            cls._instance.logger.error("Vertical config went wrong")
+            raise ValueError("Vertical config went wrong")
                 
     
     def config_chan_char(cls):
@@ -437,6 +394,18 @@ class DAQ(object):
             cls._instance.logger.error("Software trigger configuration went wrong")
             raise ValueError("Software trigger configuration went wrong")
 
+    def enabled(cls):
+        en = []
+        try:
+            for i in range(cls._instance._session.channel_count):
+                if(cls._instance._session.channels[i].channel_enabled):
+                    en.append(cls._instance._session.channels[i])
+            cls._instance.logger.debug("Got Enabled channels correctly")
+        except Exception as e:
+            cls._instance.logger.warning("Unable to catch enabled channels")
+            raise ValueError("Unable to catch enabled channels")
+        return en
+
 #===================================================================================================================================
 #__Fetching+reading+storage__
 #===================================================================================================================================
@@ -444,14 +413,15 @@ class DAQ(object):
     def fetch(cls):
         
         try:
-            cls._instance.waveform.extend([cls._instance.channels[i].fetch(num_samples=cls._instance.acq_conf['length'], timeout=cls._instance.acq_conf['timeout'], relative_to=cls._instance.acq_conf['relative_to'], num_records=cls._instance.acq_conf['num_records']) for i in cls._instance.acq_conf['channels']])
-            cls._instance.logger.debug('Time from the trigger event to the first point in the waveform record: ' + str(cls._instance._session.acquisition_start_time))
-            cls._instance.logger.debug('Actual number of samples acquired in the record: ' + str(cls._instance._session.points_done))
-            cls._instance.logger.debug('Number of records that have been completely acquired: ' + str(cls._instance._session.records_done))
-            print('Time from the trigger event to the first point in the waveform record: ' + str(cls._instance._session.acquisition_start_time))
-            print('Actual number of samples acquired in the record: ' + str(cls._instance._session.points_done))
-            print('Number of records that have been completely acquired: ' + str(cls._instance._session.records_done))
-            cls._instance.get_status()
+            for channel in cls.enabled():
+                cls._instance.waveform.extend([channel.fetch(num_samples=cls._instance.acq_conf['length'], timeout=cls._instance.acq_conf['timeout'], relative_to=cls._instance.acq_conf['relative_to'], num_records=cls._instance.acq_conf['num_records']) for i in cls._instance.acq_conf['channels']])
+                cls._instance.logger.debug('Time from the trigger event to the first point in the waveform record: ' + str(cls._instance._session.acquisition_start_time))
+                cls._instance.logger.debug('Actual number of samples acquired in the record: ' + str(cls._instance._session.points_done))
+                cls._instance.logger.debug('Number of records that have been completely acquired: ' + str(cls._instance._session.records_done))
+                print('Time from the trigger event to the first point in the waveform record: ' + str(cls._instance._session.acquisition_start_time))
+                print('Actual number of samples acquired in the record: ' + str(cls._instance._session.points_done))
+                print('Number of records that have been completely acquired: ' + str(cls._instance._session.records_done))
+                cls._instance.get_status()
         except Exception as e:
             cls._instance.logger.error("Fetching went wrong")
             print("Fetching went wrong")

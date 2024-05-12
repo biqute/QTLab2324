@@ -1,5 +1,5 @@
 from datetime import datetime
-date = datetime.now().strftime("%m-%d-%Y")
+date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -21,7 +21,7 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
-            'filename': r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\' + date + '.log',
+            'filename': r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions\\" + date + ".log",
             'mode': 'a',
             'encoding': 'utf-8'
         }
@@ -31,7 +31,7 @@ LOGGING_CONFIG = {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
         },
-        'PXIe_5170R': {
+        'DAQ': {
             'handlers': ['console', 'file'],
             'level': 'DEBUG',
         }

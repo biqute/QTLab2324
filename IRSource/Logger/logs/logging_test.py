@@ -2,7 +2,8 @@ import logging
 import logging
 import json
 from logging.config import dictConfig
-from DAQ_config import LOGGING_CONFIG
+from logging_config import LOGGING_CONFIG
+from  datetime import datetime
 
 # LOG SYSTEM
 dictConfig(LOGGING_CONFIG)
@@ -10,7 +11,7 @@ dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 logger.info('START EXECUTION')
 name = "test.log"
-path = 'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\PXIe5170R\\logs\\sessions\\'
+path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions\\"
 
 config = {
     'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)
@@ -49,7 +50,7 @@ for key in trigger:
     
 # save config for data analysis
 cfg = json.dumps(config)
-with open(path + 'config_' + str(config['file_name']).replace('.log','') + '.json', 'w') as f:
+with open(path + 'config_' + str(config['file_name']).replace('.log','') + datetime.now().strftime("%m-%d-%Y-%H-%M-%S") + '.json', 'w') as f:
     f.write(cfg)
 
 logger.debug('Saved config for data analysis: config_' + str(config['file_name']).replace('.log','') + '.json')
