@@ -3,7 +3,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 gmail_username = 'kinekids2324'
-gmail_app_password = 'Bab1lonia' 
+gmail_app_password = 'ylry timq pxfu xxmw' 
 sent_from = 'kinekids2324@gmail.com'
 sent_to = ['kinekids2324@gmail.com']
 sent_subject_low_press_1K = "Low Pressure!"
