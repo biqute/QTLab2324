@@ -12,14 +12,26 @@ def read(name: str, name_gp_data: str, nth_data: int):
 			dic[i] = k[()]
 	return dic
 
-def write(name: str, name_gp_data: str, freq_pump, dataset: dict):             
-	with h5py.File(name, 'a') as f:                      # creo file hdf5 di nome tra virgolette e lo apro in modalità a = append
-		if name_gp_data not in f.keys():
-			gp = f.create_group(name_gp_data)
-		else:
-			gp = f[name_gp_data]
-		gp_data = gp.create_group(str(freq_pump))
-		for i, k in dataset.items():
-			gp_data.create_dataset(i, data = k)
+def save_dict_to_hdf5(data, hdf5_file, group_name=''):
+    
+    with h5py.File(hdf5_file, 'a') as f:  # 'a' mode opens the file in append mode
+        if group_name:
+            group = f.require_group(group_name)
+        else:
+            group = f
+            
+        def recursively_save_dict_contents_to_group(h5file, path, dictionary):
+            for key, item in dictionary.items():
+                if isinstance(item, dict):
+                    new_group = h5file.require_group(path + key + '/')
+                    recursively_save_dict_contents_to_group(h5file, path + key + '/', item)
+                else:
+                    # Create or update dataset
+                    if path + key in h5file:
+                        del h5file[path + key]
+                    h5file.create_dataset(path + key, data=item)
+        
+        recursively_save_dict_contents_to_group(group, '/', data)
+        
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
