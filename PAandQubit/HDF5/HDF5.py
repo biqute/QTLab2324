@@ -32,5 +32,6 @@ def save_dict_to_hdf5(data, hdf5_file, group_name=''):
                     h5file.create_dataset(path + key, data=item)
         
         recursively_save_dict_contents_to_group(group, '/', data)
+        
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
