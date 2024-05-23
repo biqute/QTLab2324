@@ -4,13 +4,13 @@ import h5py
 
 # Metodi di scrittura e lettura in un file HDF5
 	
-def read(name: str, name_gp_data: str, nth_data: int):
-	with h5py.File(name, 'r') as f:
-		gp = f[name_gp_data][str(nth_data)]
-		dic = {}
-		for i, k in gp.items():
-			dic[i] = k[()]
-	return dic
+# def read(name: str, name_gp_data: str, nth_data: int):
+# 	with h5py.File(name, 'r') as f:
+# 		gp = f[name_gp_data][str(nth_data)]
+# 		dic = {}
+# 		for i, k in gp.items():
+# 			dic[i] = k[()]
+# 	return dic
 
 
 
