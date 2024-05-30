@@ -57,7 +57,7 @@ def main():
     if (args[1]=='SINGLE'):
         
         with daq.initiate():
-            waveforms = daq._instance._session.channels[0].fetch()
+            waveforms = daq._instance._session.channels[0,1,2,3].fetch()
         for wfm in waveforms:
             print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
         a = wfm[0].samples.tolist()

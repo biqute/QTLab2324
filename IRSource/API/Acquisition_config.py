@@ -12,10 +12,10 @@ ACQUISITION_CONFIG = {
     #====================================Vertical Configuration==================================
 
     'vertical': {
-            'range': 2.0,
+            'range': 0.5,
             'coupling': ni.VerticalCoupling.AC,
             'offset': 0.0,
-            'probe_attenuation': 1,
+            'probe_attenuation': 0,
             'enabled': True
         },
 
@@ -55,6 +55,16 @@ ACQUISITION_CONFIG = {
             'holdoff' : 0.0,
             'delay' : 0.0
         },
+
+    'trigger software': {
+            'trigger_type'    : 'SOFTWARE',
+            'trigger_source': '',
+            'level': '',
+            'trigger_coupling': ni.enums.TriggerCoupling.AC,
+            'slope': ni.TriggerSlope.POSITIVE,
+            'holdoff' : 0.0,
+            'delay' : 0.0
+    },
     #=================================Std. Acq. Configuration==================================
 
     'acq_conf': {
@@ -67,7 +77,7 @@ ACQUISITION_CONFIG = {
         'length'      : 6000                    ,        # record length
         'resonators'  : [0,1]                   ,        # list of resonators used, it's probably a useless variable
         'timeout'     : hightime.timedelta(seconds=5.0),
-        'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
+        'relative_to' : ni.FetchRelativeTo.NOW,
         'source_rate' : 700 #diode rate in hz
     },   
 
