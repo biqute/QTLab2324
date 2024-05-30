@@ -3,7 +3,9 @@
 ##### https://niscope.readthedocs.io/en/latest/class.html#read ######
 
 import niscope as ni
+from niscope.errors import DriverError
 import time
+import sys
 
 class digital_trigger:
     def __init__(self, source = 'VAL_PFI_0'):
@@ -13,12 +15,32 @@ class digital_trigger:
         self._delay         = 0
 
     def configure(self, session: ni.Session):
+        # session.acq_arm_source = 'NISCOPE_VAL_IMMEDIATE'
         session.configure_trigger_digital(
             trigger_source  = self._trig_src, 
             slope           = self._slope, 
             holdoff         = self._holdoff, 
             delay           = self._delay
             )
+
+class edge_trigger:
+    def __init__(self, source = '0'):
+        self._trig_src      = source
+        self._slope         = ni.TriggerSlope.POSITIVE
+        self._holdoff       = 0
+        self._delay         = 0
+        self._level         = 0
+        self._coupling      = ni.TriggerCoupling.DC
+    
+    def configure(self, session: ni.Session):
+        session.configure_trigger_edge(
+            trigger_source      = self._trig_src,
+            trigger_coupling    = self._coupling,
+            level               = self._level,
+            slope               = self._slope,
+            holdoff             = self._holdoff,
+            delay               = self._delay 
+        )
 
 class PXIe5170R:
 
@@ -102,7 +124,7 @@ class PXIe5170R:
         self._ref_pos = value
         
 
-    def open(self):
+    def open(self, trigger_channel = '0'):
         self._session = ni.Session(self._resource_name)
         self._session.channels[0].configure_vertical(range = self._voltage_range, coupling = self._coupling)
         self._session.channels[1].configure_vertical(range = self._voltage_range, coupling = self._coupling)
@@ -115,17 +137,17 @@ class PXIe5170R:
             num_records         = self._num_records, 
             enforce_realtime    = True
             )
-        a = digital_trigger()
+        
+        a = edge_trigger(trigger_channel)
         a.configure(self._session)
         
     def acquisition(self, trig):
         with self._session.initiate():
-            time.sleep(0.1)
             trig()
-            time.sleep(0.1)
-            print(self._session.acquisition_status())
-        return self._session.channels[0,1,2,3].fetch()
+            # print(self._session.acquisition_status())
+            try:
+                return self._session.channels[0,1,2,3].fetch(relative_to = ni.FetchRelativeTo.TRIGGER)
+            except DriverError:
+                print('DriverError in ni.session.channels.fetch()')
+                sys.exit(0)
             
-    
-    # def aliasing(self):
-    #     self._session.flex_fir_antialias_filter_type('FOURTYEIGHT_TAP_STANDARD')
