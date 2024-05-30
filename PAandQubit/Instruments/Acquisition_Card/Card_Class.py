@@ -105,6 +105,9 @@ class PXIe5170R:
     def open(self):
         self._session = ni.Session(self._resource_name)
         self._session.channels[0].configure_vertical(range = self._voltage_range, coupling = self._coupling)
+        self._session.channels[1].configure_vertical(range = self._voltage_range, coupling = self._coupling)
+        self._session.channels[2].configure_vertical(range = self._voltage_range, coupling = self._coupling)
+        self._session.channels[3].configure_vertical(range = self._voltage_range, coupling = self._coupling)
         self._session.configure_horizontal_timing(
             min_sample_rate     = self.sample_rate, 
             min_num_pts         = self._num_pts, 
@@ -121,7 +124,7 @@ class PXIe5170R:
             trig()
             time.sleep(0.1)
             print(self._session.acquisition_status())
-        return self._session.channels[0].fetch()
+        return self._session.channels[0,1,2,3].fetch()
             
     
     # def aliasing(self):
