@@ -2,30 +2,26 @@ import sys
 sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger")
 sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\DAQ")
 sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions')
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Exceptions')
 import json
 from DAQ import DAQ
 from Acquisition_config import ACQUISITION_CONFIG
 import logging
 from logging.config import dictConfig
 from logs.logging_config import LOGGING_CONFIG
+from  Exceptions import replace_non_serializable, trai
+from PAmodules.QuickSyn import FSL_0010
+from PAmodules.network.RS_Signal_Generator import RS_SMA100B
+from niscope.errors import DriverError
+import numpy as np
+import niscope as ni
+import matplotlib.pyplot as plt
 
-def replace_non_serializable(obj):
-    if isinstance(obj, dict):
-        return {k: replace_non_serializable(v) for k, v in obj.items()}
-    elif isinstance(obj, (list, tuple)):
-        return [replace_non_serializable(item) for item in obj]
-    elif isinstance(obj, (int, float, bool, str)):
-        return obj
-    else:
-        # Convert non-serializable value to its string representation
-        return str(obj)
-
-
-args = sys.argv[1:]
 #===============================================================================================
 #Save acquisition configuration parameters for DAQ configuration
 #===============================================================================================
 
+ip   = '192.168.40.15'   # Set IP address of SMA
 devicename = 'PXI1Slot3' 
 
 #===============================================================================================
@@ -55,6 +51,40 @@ try:
 except Exception:
     logger.critical('Could not crate DAQ class object')
     raise SyntaxError('Could not create DAQ class object')
+
+try:
+    fsl = FSL_0010.FSL10_synthesizer(device_address='COM31')
+    logger.info('FSL_0010 class object correctly created')
+except Exception:
+    logger.critical('Could not crate FSL class object')
+    raise SyntaxError('Could not create FSL class object')
+
+try:
+    sGen = RS_SMA100B.SMA100B(ip)
+    logger.info('SMA class object correctly created')
+except Exception:
+    logger.critical('Could not crate SMA class object')
+    raise SyntaxError('Could not create SMA class object')
+
+try:
+    k = 2                                                               # coefficiente per prendere k*1000 punti                                                                     
+    pulse_freq      = 1.010e9
+    amplitude       = -18                                               # Set the amplitude of the signal in dBm
+    sample_rate     = 250e6                                             # Maximum Value: 250.0e6
+    pulse_width     = k * 3e-6                                          # min 5ns                             
+    pulse_delay     = 0
+    pulse_period    = k * 5e-6                                          # min 20ns
+    sGen.reset()
+    sGen.clear()
+    sGen.pul_gen_params(delay = pulse_delay, width = pulse_width, period = pulse_period)   # da capire quale pulse width
+    sGen.pul_gen_mode('SING')
+    sGen.pul_trig_mode('SING')
+    sGen.RF_freq(pulse_freq)
+    sGen.RF_lvl_ampl(amplitude)
+    logger.info('SMA set up correctly')
+except:
+    logger.critical('Could not set up SMA')
+    raise SystemError('Could not create SMA class object')
 
 try:
     stat = daq.get_status
@@ -130,7 +160,20 @@ try:
 except Exception:
     raise SystemError('Could not implement channels configuration')
 
+try:
+    daq.config_chan_char()
+    logger.info('Implementing channels configuration')
+except Exception:
+    raise SystemError('Could not implement channels configuration')
 
+try:
+    daq.config_edge_trigger()
+    logger.info('implementing edge trigger')
+except Exception:
+    logger.warning('Could not implement edge trigger')
+    raise SystemError('Could not implement edge trigger')
+
+    
 #===============================================================================================
 #Test DAQ configuration
 #===============================================================================================
@@ -143,11 +186,69 @@ except Exception:
     logger.critical('DAQ test gone wrong!')
 
 #===============================================================================================
-#FINO A QUI TUTTO BENISSIMO!!!!!!!!!!!!!!!!
+#GET DATA!
 #===============================================================================================
+fsl.set_frequency(1) # GHz
+fsl.set_output('ON')
 
+amplitudes  = np.arange(amplitude, amplitude + 3 , 1)
+frequencies = np.arange(pulse_freq, pulse_freq + 0.003e9, 0.001e9)
+
+amp_freq = {}
+counter  = 1
+
+digits_a = "{:0"+str(len(str(len(amplitudes))))+"d}"
+digits_f = "{:0"+str(len(str(len(frequencies))))+"d}"
+ 
+for a, amp in enumerate(amplitudes):
+    amp_freq[f'p{digits_a.format(a)}'] = {'power_(dBm)': amp, 'freqs': {}}
+    sGen.RF_lvl_ampl(amp)
+
+    for f, fre in enumerate(frequencies):
+        
+        sGen.RF_freq(fre) 
+        sGen.pul_state(1)
+        sGen.RF_state(1)
+        # time.sleep(3)
+        flag = 0
+        waveforms = []
+
+        with daq.get_session as s:
+            s.initiate()
+            while(True):
+                try:
+                    sGen.pul_exe_sing_trig
+                    waveforms = daq._instance._session.channels[0,1,2,3].fetch()
+                except DriverError:
+                    flag += 1
+                    print(flag)
+                if (flag>10 and ni.Session.acquisition_status!='IN_PROGRESS'):
+                    break
+            
+        I = np.array(waveforms[0].samples.tolist())
+        Q = np.array(waveforms[1].samples.tolist())
+        if a == 1 and f == 1:
+          plt.clf()
+          #plt.plot(np.sqrt(I**2 + Q**2))
+          plt.plot(np.arctan(Q/I))
+          plt.show()
+        
+        sGen.pul_state(0)
+        sGen.RF_state(0)
+
+        print(counter*100/(len(amplitudes)*len(frequencies)),'%')
+        counter += 1
+        amp_freq[f'p{digits_a.format(a)}']['freqs'][f'f{digits_f.format(f)}'] = {'freq_(Hz)': fre, 'I': I, 'Q': Q}
+fsl.set_output('OFF')
 
 '''
+# SAVE DATA ON HDF5 FILE
+filename = 'IQMixer'+str(date)+'.hdf5'
+if os.path.exists(filename):
+  os.remove(filename)
+hdf5_write(amplidick, filename)
+
+
 
  
 #===============================================================================================

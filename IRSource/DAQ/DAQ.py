@@ -102,6 +102,10 @@ class DAQ(object):
     def initiate(cls):
         cls._instance._session.initiate()
 
+    @property
+    def get_enabled(cls):
+        return cls._session.enabled_channels
+
     def enable_channels(cls):
         for i in range(cls._instance._session.channel_count):
             cls._instance._session.channels[i].channel_enabled = True
@@ -111,11 +115,14 @@ class DAQ(object):
 #===================================================================================================================================        
 
     def config_vertical(cls):
-        for c in cls._session.channels:
-            c.configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])        
-    
+        for c in cls._session.enabled_channels:
+            if(c!=','):
+                cls._session.channels[c].configure_vertical(cls._instance.vertical_dic['range'], cls._instance.vertical_dic['coupling'], cls._instance.vertical_dic['offset'], cls._instance.vertical_dic['probe_attenuation'], cls._instance.vertical_dic['enabled'])        
+            else:
+                pass
+            
     def config_chan_char(cls):
-        cls._instance._session.configure_chan_characteristics(cls._instance.chanchar['input_impedance'], cls._instance.chanchar['max_input_frequency'])
+        cls._instance._session.configure_chan_characteristics(cls._instance.chanchar['input_impedance'], cls._instance.chanchar['max_frequency'])
         
     def config_eqfilt_coeff(cls):
         cls._instance._session.configure_equalization_filter_coefficients(cls._instance.coeff)

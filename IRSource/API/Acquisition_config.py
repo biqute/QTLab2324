@@ -13,9 +13,9 @@ ACQUISITION_CONFIG = {
 
     'vertical': {
             'range': 0.5,
-            'coupling': 'AC',
+            'coupling': ni.VerticalCoupling.AC,
             'offset': 0.0,
-            'probe_attenuation': 0,
+            'probe_attenuation': 1,
             'enabled': True
         },
 
@@ -41,27 +41,27 @@ ACQUISITION_CONFIG = {
     'trigger_dig': {
             'trigger_type'  : 'DIG',
             'trigger_source': 'VAL_PFI_0', 
-            'slope'         : 'POSITIVE', 
+            'slope'         : ni.TriggerSlope.POSITIVE, 
             'holdoff'       : 0, 
             'delay'         : 0
     },
 
     'trigger_edge': {
             'trigger_type'    : 'EDGE',
-            'trigger_source': '1',
-            'level': 2,
-            'trigger_coupling': 'AC',
-            'slope': 'POSITIVE',
+            'trigger_source': '0',
+            'level': 0,
+            'trigger_coupling': ni.TriggerCoupling.DC,
+            'slope': ni.TriggerSlope.POSITIVE,
             'holdoff' : 0.0,
             'delay' : 0.0
         },
 
     'trigger software': {
             'trigger_type'    : 'SOFTWARE',
-            'trigger_source': '1',
+            'trigger_source': '',
             'level': '',
-            'trigger_coupling': 'AC',
-            'slope': 'POSITIVE',
+            'trigger_coupling': ni.TriggerCoupling.AC,
+            'slope': ni.TriggerSlope.POSITIVE,
             'holdoff' : 0.0,
             'delay' : 0.0
     },
@@ -76,8 +76,8 @@ ACQUISITION_CONFIG = {
         'sample_rate' : 250e6                   ,        # rate of points sampling of PXIe-5170R
         'length'      : 6000                    ,        # record length
         'resonators'  : [0,1]                   ,        # list of resonators used, it's probably a useless variable
-        'timeout'     : float(hightime.timedelta(seconds=5.0).total_seconds()),
-        'relative_to' : 'PRETRIGGER',
+        'timeout'     : hightime.timedelta(seconds=5.0),
+        'relative_to' : ni.FetchRelativeTo.NOW,
         'source_rate' : 700 #diode rate in hz
     },   
 
@@ -90,7 +90,7 @@ ACQUISITION_CONFIG = {
         'total_acq_time'    : 0.1 ,  # total acquisition time in seconds
         'total_samples'     : 0.1 * 1e7,  # total number of points sampled
         'samples_per_fetch' : 1000 ,  # number of points sampled at a time during the acquisition
-        'relative_to'       : 'PRETRIGGER',
+        'relative_to'       : ni.FetchRelativeTo.READ_POINTER,
         'offset'            : 0 ,
         'record_number'     : 0 ,
         'num_records'       : 1
