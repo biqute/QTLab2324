@@ -3,7 +3,7 @@ from datetime import datetime
 date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 import hightime
 
-path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions\\" 
+path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\" 
 name = date + ".log",
 
 
@@ -13,7 +13,7 @@ ACQUISITION_CONFIG = {
 
     'vertical': {
             'range': 0.5,
-            'coupling': ni.VerticalCoupling.AC,
+            'coupling': 'AC',
             'offset': 0.0,
             'probe_attenuation': 0,
             'enabled': True
@@ -41,27 +41,27 @@ ACQUISITION_CONFIG = {
     'trigger_dig': {
             'trigger_type'  : 'DIG',
             'trigger_source': 'VAL_PFI_0', 
-            'slope'         : ni.TriggerSlope.POSITIVE, 
+            'slope'         : 'POSITIVE', 
             'holdoff'       : 0, 
             'delay'         : 0
     },
 
     'trigger_edge': {
             'trigger_type'    : 'EDGE',
-            'trigger_source': '',
+            'trigger_source': '1',
             'level': 2,
-            'trigger_coupling': ni.enums.TriggerCoupling.AC,
-            'slope': ni.TriggerSlope.POSITIVE,
+            'trigger_coupling': 'AC',
+            'slope': 'POSITIVE',
             'holdoff' : 0.0,
             'delay' : 0.0
         },
 
     'trigger software': {
             'trigger_type'    : 'SOFTWARE',
-            'trigger_source': '',
+            'trigger_source': '1',
             'level': '',
-            'trigger_coupling': ni.enums.TriggerCoupling.AC,
-            'slope': ni.TriggerSlope.POSITIVE,
+            'trigger_coupling': 'AC',
+            'slope': 'POSITIVE',
             'holdoff' : 0.0,
             'delay' : 0.0
     },
@@ -76,8 +76,8 @@ ACQUISITION_CONFIG = {
         'sample_rate' : 250e6                   ,        # rate of points sampling of PXIe-5170R
         'length'      : 6000                    ,        # record length
         'resonators'  : [0,1]                   ,        # list of resonators used, it's probably a useless variable
-        'timeout'     : hightime.timedelta(seconds=5.0),
-        'relative_to' : ni.FetchRelativeTo.NOW,
+        'timeout'     : float(hightime.timedelta(seconds=5.0).total_seconds()),
+        'relative_to' : 'PRETRIGGER',
         'source_rate' : 700 #diode rate in hz
     },   
 
@@ -90,7 +90,7 @@ ACQUISITION_CONFIG = {
         'total_acq_time'    : 0.1 ,  # total acquisition time in seconds
         'total_samples'     : 0.1 * 1e7,  # total number of points sampled
         'samples_per_fetch' : 1000 ,  # number of points sampled at a time during the acquisition
-        'relative_to'       : ni.FetchRelativeTo.READ_POINTER,
+        'relative_to'       : 'PRETRIGGER',
         'offset'            : 0 ,
         'record_number'     : 0 ,
         'num_records'       : 1

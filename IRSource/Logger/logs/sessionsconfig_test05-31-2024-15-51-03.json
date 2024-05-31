@@ -1,0 +1,1 @@
+{"freq": [5.86512, 5.63622], "file_name": "test.log", "records": 10000, "channels": [0, 1, 2, 3], "sample_rate": 50000000.0, "length": 6000, "resonators": [0, 1], "source_rate": 700, "trigger": {"trigger_type": "EDGE", "trigger_source": "1", "trigger_slope": "POSITIVE", "trigger_level": "-0.031", "trigger_delay": "0.0"}, "ADCmax": 5, "ADCmin": -5, "ADCnbit": 14}
