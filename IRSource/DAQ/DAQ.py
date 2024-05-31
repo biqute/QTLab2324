@@ -14,16 +14,18 @@ date = datetime.now().strftime("%m-%d-%Y")
 from logs.logging_config import LOGGING_CONFIG
 
 
-
-
 class DAQ(object):
     _instance = None
     _session = None
     _device = None
 
-    dictConfig(LOGGING_CONFIG)
-    logger = logging.getLogger(__name__)  # Initialize logger
-    logger.info('START EXECUTION')
+    @staticmethod
+    def setup_logging():
+        dictConfig(LOGGING_CONFIG)
+        logger = logging.getLogger("DAQ")
+        logger.info('START EXECUTION')
+        return logger
+    
 
     def __new__(cls, devicename):
         if cls._instance is None:
@@ -35,25 +37,27 @@ class DAQ(object):
         return cls._instance
 
     def __init__(self,devicename):
-
-        self._device = devicename
-        self._session = ni.Session(devicename)
-        self.coeff = None
-        self.chanchar = None
-        self.vertical_dic = None
-        self.horizontal_dic = None
-        self.acq_conf = None
-        self.waveform = []
-        self.channels = []
-        self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
-        self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
-        self.trigger = None
-        self.triggertype = None
+        
+        if not self._device:  # Avoid re-initialization
+            self.logger = self.setup_logging()
+            self._device = devicename
+            self._session = ni.Session(devicename)
+            self.coeff = None
+            self.chanchar = None
+            self.vertical_dic = None
+            self.horizontal_dic = None
+            self.acq_conf = None
+            self.waveform = []
+            self.channels = []
+            self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
+            self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
+            self.trigger = None
+            self.triggertype = None
 
     def vertical_conf(cls, vertical):
         try:
             cls._instance.vertical_dic = vertical
-            cls._instance.logger.info("Vertical config property added")
+            self. logger.info("Vertical config property added")
             print("Vertical config property added")
         except Exception as e:
             cls._instance.logger.info("Vertical config property NOT added")

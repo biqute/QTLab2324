@@ -1,7 +1,7 @@
 import sys
 import niscope as ni
 import json
-sys.path.append(r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\Qubit\\QTLab2324\\IRSource\\DAQ\\')
+sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\DAQ")
 from DAQ import DAQ
 from Acquisition_config import ACQUISITION_CONFIG
 import matplotlib.pyplot as plt
@@ -16,9 +16,12 @@ def main():
 
     devicename = 'PXI1Slot3' 
     
-    cfg1 = json.dumps(ACQUISITION_CONFIG)
-    with open(ACQUISITION_CONFIG['cont_acq_conf'['path']] + 'config_' + ACQUISITION_CONFIG['cont_acq_conf'['file_name']] + '.json','w') as f:
-        f.write(cfg1)
+    try:
+        cfg1 = json.dumps(ACQUISITION_CONFIG)
+        with open(ACQUISITION_CONFIG['cont_acq_conf']['path'] + 'config_' + ACQUISITION_CONFIG['cont_acq_conf']['file_name'] + '.json','w') as f:
+            f.write(cfg1)
+    except Exception:
+        raise SystemError("Cannot Dump Config!")
 
     #===============================================================================================
     #Acquire DAQ configuration dictionaries
@@ -26,12 +29,12 @@ def main():
 
     daq = DAQ.DAQ(devicename)
     daq.get_status()
-    daq.reset_with_def()
-    daq.vertical_conf(ACQUISITION_CONFIG['vertical'])
-    daq.vertical_conf(ACQUISITION_CONFIG['horizontal'])
-    daq.vertical_conf(ACQUISITION_CONFIG['chan_char'])
-    daq.set_trigger_dic(ACQUISITION_CONFIG['trigger_dig'])
-
+    #daq.reset_with_def()
+    #daq.vertical_conf(ACQUISITION_CONFIG['vertical'])
+    #daq.vertical_conf(ACQUISITION_CONFIG['horizontal'])
+    #daq.vertical_conf(ACQUISITION_CONFIG['chan_char'])
+    #daq.set_trigger_dic(ACQUISITION_CONFIG['trigger_dig'])
+'''
     #===============================================================================================
     #Apply DAQ configuration dictionaries
     #===============================================================================================
@@ -65,6 +68,7 @@ def main():
         plt.plot(np.arange(len(a))/250e6, a)
         plt.savefig('test'+datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
 
+'''
 '''
         daq._instance.logger.info('END EXECUTION\n\n')
         
