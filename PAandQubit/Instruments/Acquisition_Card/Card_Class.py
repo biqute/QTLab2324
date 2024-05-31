@@ -146,7 +146,7 @@ class PXIe5170R:
             trig()
             # print(self._session.acquisition_status())
             try:
-                return self._session.channels[0,1,2,3].fetch(relative_to = ni.FetchRelativeTo.TRIGGER)
+                return self._session.channels[0,1,2,3].fetch()#relative_to = ni.FetchRelativeTo.TRIGGER)
             except DriverError:
                 print('DriverError in ni.session.channels.fetch()')
                 sys.exit(0)
