@@ -104,13 +104,13 @@ class SMA100B:
 		min_value = 20e-9
 		max_value = 100
 
-		# Check if any of the parameters are out of range
-		if not (min_value <= period <= max_value) or not (min_value <= delay <= max_value) or not (min_value <= width <= max_value):
-			print(f"Error: One or more parameters are out of range ({min_value} to {max_value})")
-		else:
-			self._resource.write(f'SOUR:PULM:PER {period}') # sec
-			self._resource.write(f'SOUR:PULM:DEL {delay}')  # sec                # passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
-			self._resource.write(f'SOUR:PULM:WIDT {width}') # sec
+		# # Check if any of the parameters are out of range
+		# if not (min_value <= period <= max_value) or not (min_value <= delay <= max_value) or not (min_value <= width <= max_value):
+		# 	print(f"Error: One or more parameters are out of range ({min_value} to {max_value})")
+		# else:
+		self._resource.write(f'SOUR:PULM:PER {period}') # sec
+		self._resource.write(f'SOUR:PULM:DEL {delay}')  # sec                # passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
+		self._resource.write(f'SOUR:PULM:WIDT {width}') # sec
 
 # 2.3 ---------------------------- #
 
