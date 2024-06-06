@@ -54,145 +54,113 @@ import time
 
 class SMA100B:
 
-# 1.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 1.1 ---------------------------- #
 
-    def __init__(self, ip: str):
+	def __init__(self, ip: str):
 
-        self._resource = None
-        self._connect_success = False
-        self._sleep = 1
+		self._resource = None
+		self._connect_success = False
+		self._sleep = 1
 
-        try:
-            rm = pyvisa.ResourceManager()
-            self._resource = rm.open_resource(f"tcpip0::{ip}::inst0::INSTR")
-            self._connect_success = True
-            print("SMA100B: Connection successful!")
-        except pyvisa.Error as e:
-            print(f"Unable to establish a connection: {e}")
-        
-# 1.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+		try:
+			rm = pyvisa.ResourceManager()
+			self._resource = rm.open_resource(f"tcpip0::{ip}::inst0::INSTR")
+			self._connect_success = True
+			print("SMA100B: Connection successful!")
+		except pyvisa.Error as e:
+			print(f"Unable to establish a connection: {e}")
+		
+# 1.2 ---------------------------- #
 
-    def get_name(self):
-        if self._connect_success:
-            print(self._resource.query('*IDN?'))
-        else:
-            print("Error: No active connection.")
-        
-# 1.3 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+	def get_name(self):
+		print(self._resource.query('*IDN?'))
+		
+# 1.3 ---------------------------- #
 
-    def reset(self):
-        if self._connect_success:
-            self._resource.write('*RST')
-            time.sleep(self._sleep)
-        else:
-            print("Error: No active connection.")
+	def reset(self):
+		self._resource.write('*RST')
+		time.sleep(self._sleep)
 
-# 1.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 1.4 ---------------------------- #
 
-    def clear(self):
-        if self._connect_success:
-            self._resource.write('*CLS')     
-            time.sleep(self._sleep)
-        else:
-            print("Error: No active connection.")
+	def clear(self):
+		self._resource.write('*CLS')     
+		time.sleep(self._sleep)
 
 
-# [2. Modulation] ----------------------------------------------------------------------------------------------------------------------------------- #
+# [2. Modulation] ---------------- #
 
-# 2.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 2.1 ---------------------------- #
 
-    def transition_type(self, trans_type: str):                                      #così fa solo da fast a smoothed
-        if self._connect_success:            
-            if trans_type in {'FAST', 'SMO'}:
-                self._resource.write(f'SOUR1:PULM:TTYP {trans_type}')  
-            else:
-                print("Error. Invalid string mode. Write 'FAST' or 'SMO'")    
-        else:
-            print("Error: No active connection.")
+	def transition_type(self, trans_type: str):                                        
+		if trans_type in {'FAST', 'SMO'}:
+			self._resource.write(f'SOUR1:PULM:TTYP {trans_type}')  
+		else:
+			print("Error. Invalid string mode. Write 'FAST' or 'SMO'")    
 
-# 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 2.2 ---------------------------- #
 
-    def pul_gen_params(self, period: float, delay: float = 0, width: float = 0):                        # magari aggiungere confronto con valori dei range operativi, altrimenti errore.        
-        '''
-        Values must be in μs
-        '''   
-        if self._connect_success:
-            
-            self._resource.write(f'SOUR:PULM:PER {period}') # sec
-            self._resource.write(f'SOUR:PULM:DEL {delay}')  # sec                # passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
-            self._resource.write(f'SOUR:PULM:WIDT {width}') # sec
+	def pul_gen_params(self, period: float, delay: float = 0, width: float = 0):                     
+		min_value = 20e-9
+		max_value = 100
 
-            #print(self._resource.query('SOUR:PULM:DEL?'))
-        else:
-            print("Error: No active connection.")
+		# Check if any of the parameters are out of range
+		if not (min_value <= period <= max_value) or not (min_value <= delay <= max_value) or not (min_value <= width <= max_value):
+			print(f"Error: One or more parameters are out of range ({min_value} to {max_value})")
+		else:
+			self._resource.write(f'SOUR:PULM:PER {period}') # sec
+			self._resource.write(f'SOUR:PULM:DEL {delay}')  # sec                # passo di 5 ns. 1-4 approx a 0, 6-9 approx a 5
+			self._resource.write(f'SOUR:PULM:WIDT {width}') # sec
 
-# 2.3 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 2.3 ---------------------------- #
 
-    def pul_gen_mode(self, mode: str):
-        if self._connect_success:
-            if mode in {'SING', 'DOUB', 'PTR'}:
-                self._resource.write(f'SOUR:PULM:MODE {mode}')
+	def pul_gen_mode(self, mode: str):
+		if mode in {'SING', 'DOUB', 'PTR'}:
+			self._resource.write(f'SOUR:PULM:MODE {mode}')
 
-            else:
-                print("Error. Invalid string mode. Write 'SING', 'DOUB' or 'PTR'")
-        else:
-            print("Error: No active connection.")
+		else:
+			print("Error. Invalid string mode. Write 'SING', 'DOUB' or 'PTR'")
 
-# 2.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 2.4 ---------------------------- #
 
-    def pul_trig_mode(self, mode: str):
-        if self._connect_success:
-            if mode in {'AUTO', 'EXT', 'EGAT', 'SING', 'ESIN'}:
-                self._resource.write(f'SOUR:PULM:TRIG:MODE {mode}')
+	def pul_trig_mode(self, mode: str):
+		if mode in {'AUTO', 'EXT', 'EGAT', 'SING', 'ESIN'}:
+			self._resource.write(f'SOUR:PULM:TRIG:MODE {mode}')
 
-            else:
-                print("Error. Invalid string mode. Write 'AUTO', 'EXT', 'EGAT', 'SING' or 'ESIN'")
-        else:
-            print("Error: No active connection.")
+		else:
+			print("Error. Invalid string mode. Write 'AUTO', 'EXT', 'EGAT', 'SING' or 'ESIN'")
 
-# 2.5 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 2.5 ---------------------------- #
 
-    def pul_state(self, state: int):
-        if self._connect_success:
-            self._resource.write(f'SOUR:PULM:STAT {state}')
-        else:
-            print("Error: No active connection.")            
+	def pul_state(self, state: int):
+		self._resource.write(f'SOUR:PULM:STAT {state}')            
 
-# 2.6 ----------------------------------------------------------------------------------------------------------------------------------------------- #
-            
-    def pul_exe_sing_trig(self):
-        self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
-        
-        
+# 2.6 ---------------------------- #
+			
+	def pul_exe_sing_trig(self):
+		self._resource.write('SOUR:PULM:INT:TRA:TRIG:IMM')
+		
+		
 
-# [3. Frequency] ------------------------------------------------------------------------------------------------------------------------------------#
+# [3. Frequency] ----------------- #
 
-#3.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 3.1 ---------------------------- #
 
-    def RF_freq(self, freq: float):
-        if self._connect_success:
-            self._resource.write(f'SOUR:FREQ:CW {freq}')
-        else:
-            print("Error: No active connection.")
+	def RF_freq(self, freq: float):
+		self._resource.write(f'SOUR:FREQ:CW {freq}')
 
 
-# [4. Level] ---------------------------------------------------------------------------------------------------------------------------------------- #
+# [4. Level] --------------------- #
 
-# 4.1 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 4.1 ---------------------------- #
 
-    def RF_state(self, switch: int):                                            # Turn ON or OFF the signal
-        if self._connect_success:
-            self._resource.write(f'OUTP:STAT {switch}')
-        else:
-            print("Error: No active connection.")
+	def RF_state(self, switch: int):                                            # Turn ON or OFF the signal
+		self._resource.write(f'OUTP:STAT {switch}')
 
-# 4.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
+# 4.2 ---------------------------- #
 
-    def RF_lvl_ampl(self, amplitude: float):
-        if self._connect_success:
-            self._resource.write(f'SOUR:POW:LEV:IMM:AMPL {amplitude}')
-        else:
-            print("Error: No active connection.")
+	def RF_lvl_ampl(self, amplitude: float):
+		self._resource.write(f'SOUR:POW:LEV:IMM:AMPL {amplitude}')
 
 ##### FUNZIONI DA IMPLEMENTARE????? #####
 
