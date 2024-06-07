@@ -48,7 +48,7 @@ ACQUISITION_CONFIG = {
 
     'trigger_edge': {
             'trigger_type'    : 'EDGE',
-            'trigger_source': '',
+            'trigger_source': '0',
             'level': 2,
             'trigger_coupling': ni.enums.TriggerCoupling.AC,
             'slope': ni.TriggerSlope.POSITIVE,

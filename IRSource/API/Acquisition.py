@@ -54,7 +54,7 @@ def main():
     #Initiate Acquisition
     #===============================================================================================
     
-    if (args[1]=='SINGLE'):
+    if (args[1]==0 or args[1]==None):
         
         with daq.initiate():
             waveforms = daq._instance._session.channels[0,1,2,3].fetch()
