@@ -81,6 +81,10 @@ class DAQ(object):
         print(str(cls._instance._session.acquisition_status()))
         return cls._instance._session.acquisition_status()
 
+    @property
+    def get_session(cls):
+        return cls._instance._session
+
     def available(cls):
         if(cls.get_status()=="AcquisitionStatus.COMPLETE"):
               return True
@@ -183,18 +187,21 @@ class DAQ(object):
 #__Fetching+reading+storage__
 #===================================================================================================================================
 
-    def fetch(cls):
+    #def fetch(cls):
         
-        for channel in cls.enabled():
-            cls._instance.waveform.extend([channel.fetch(num_samples=cls._instance.acq_conf['length'], timeout=cls._instance.acq_conf['timeout'], relative_to=cls._instance.acq_conf['relative_to'], num_records=cls._instance.acq_conf['num_records']) for i in cls._instance.acq_conf['channels']])
-            print('Time from the trigger event to the first point in the waveform record: ' + str(cls._instance._session.acquisition_start_time))
-            print('Actual number of samples acquired in the record: ' + str(cls._instance._session.points_done))
-            print('Number of records that have been completely acquired: ' + str(cls._instance._session.records_done))
-            cls._instance.get_status()
+    #    for channel in cls.enabled():
+    #        cls._instance.waveform.extend([channel.fetch(num_samples=cls._instance.acq_conf['length'], timeout=cls._instance.acq_conf['timeout'], relative_to=cls._instance.acq_conf['relative_to'], num_records=cls._instance.acq_conf['num_records']) for i in cls._instance.acq_conf['channels']])
+    #        print('Time from the trigger event to the first point in the waveform record: ' + str(cls._instance._session.acquisition_start_time))
+    #        print('Actual number of samples acquired in the record: ' + str(cls._instance._session.points_done))
+    #        print('Number of records that have been completely acquired: ' + str(cls._instance._session.records_done))
+
+    def fetch(cls, timeout=10):
+        cls._session.initiate()
+        cls.waveform.extend([cls.channels[i].fetch(num_samples=cls.acq_conf['lenght'], timeout=timeout, relative_to=cls.acq_conf['relative_to'], num_records=cls.acq_conf['num_records']) for i in cls.channels])
         
     
     def fill_matrix(cls, return_data=False):
-        for i in range(cls._instance.records):
+        for i in range(cls._instance.acq_conf['num_records']):
             cls._instance.i_matrix_ch0.append(np.array(cls._instance.waveform[0][i].samples))
             cls._instance.q_matrix_ch0.append(np.array(cls._instance.waveform[1][i].samples))
             cls._instance.timestamp_ch0.append(cls._instance.waveform[0][i].absolute_initial_x)

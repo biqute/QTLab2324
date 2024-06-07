@@ -53,7 +53,7 @@ except Exception:
     raise SyntaxError('Could not create DAQ class object')
 
 try:
-    fsl = FSL_0010.FSL10_synthesizer(device_address='COM31')
+    fsl = FSL_0010.FSL10_synthesizer(device_address='COM37')
     logger.info('FSL_0010 class object correctly created')
 except Exception:
     logger.critical('Could not crate FSL class object')
@@ -191,34 +191,43 @@ except Exception:
 fsl.set_frequency(1) # GHz
 fsl.set_output('ON')
 
-amplitudes  = np.arange(amplitude, amplitude + 3 , 1)
+amplitudes  = np.arange(amplitude, amplitude + 3 , 1) #emitted powers from synths [-18 -17 -16]
 frequencies = np.arange(pulse_freq, pulse_freq + 0.003e9, 0.001e9)
 
 amp_freq = {}
 counter  = 1
+digits_a = "{:0"+str(len(str(len(amplitudes))))+"d}" #number of digits for amplitudes
+digits_f = "{:0"+str(len(str(len(frequencies))))+"d}"#number of digits for frequencies
 
-digits_a = "{:0"+str(len(str(len(amplitudes))))+"d}"
-digits_f = "{:0"+str(len(str(len(frequencies))))+"d}"
- 
+
 for a, amp in enumerate(amplitudes):
     amp_freq[f'p{digits_a.format(a)}'] = {'power_(dBm)': amp, 'freqs': {}}
     sGen.RF_lvl_ampl(amp)
+    logger.info('Setting sGen amplitude'+digits_a.format(amp))
 
     for f, fre in enumerate(frequencies):
         
         sGen.RF_freq(fre) 
         sGen.pul_state(1)
         sGen.RF_state(1)
-        # time.sleep(3)
         flag = 0
         waveforms = []
 
-        with daq.get_session as s:
-            s.initiate()
+        #with self._session.initiate():
+        #    trig()
+        #    # print(self._session.acquisition_status())
+        #    try:
+        #        return self._session.channels[0,1,2,3].fetch()#relative_to = ni.FetchRelativeTo.TRIGGER)
+        #    except DriverError:
+        #        print('DriverError in ni.session.channels.fetch()')
+        #        sys.exit(0)
+            
+
+        with daq._session.initiate():
             while(True):
                 try:
-                    sGen.pul_exe_sing_trig
-                    waveforms = daq._instance._session.channels[0,1,2,3].fetch()
+                    sGen.pul_exe_sing_trig #If "Trigger Mode = Single", initiates a single pulse sequence manually.
+                    waveforms = daq.channels[0,1,2,3].fetch()
                 except DriverError:
                     flag += 1
                     print(flag)

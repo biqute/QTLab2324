@@ -15,13 +15,13 @@ LOGGING_CONFIG = {
     },
     'handlers': {
         'console': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'standard',
             'class': 'logging.StreamHandler',
             'stream': 'ext://sys.stdout'
         },
         'file': {
-            'level': 'INFO',
+            'level': 'DEBUG',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
             'filename': r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\" + date + ".log",

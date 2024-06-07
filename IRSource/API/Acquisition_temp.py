@@ -53,7 +53,7 @@ except Exception:
     raise SyntaxError('Could not create DAQ class object')
 
 try:
-    fsl = FSL_0010.FSL10_synthesizer(device_address='COM31')
+    fsl = FSL_0010.FSL10_synthesizer(device_address='COM37')
     logger.info('FSL_0010 class object correctly created')
 except Exception:
     logger.critical('Could not crate FSL class object')
@@ -191,117 +191,29 @@ except Exception:
 fsl.set_frequency(1) # GHz
 fsl.set_output('ON')
 
-amplitudes  = np.arange(amplitude, amplitude + 3 , 1)
-frequencies = np.arange(pulse_freq, pulse_freq + 0.003e9, 0.001e9)
+Q_CH = 1
+I_CH = 2
+trig_CH = 3
 
-amp_freq = {}
-counter  = 1
+waveform = []
 
-digits_a = "{:0"+str(len(str(len(amplitudes))))+"d}"
-digits_f = "{:0"+str(len(str(len(frequencies))))+"d}"
- 
-for a, amp in enumerate(amplitudes):
-    amp_freq[f'p{digits_a.format(a)}'] = {'power_(dBm)': amp, 'freqs': {}}
-    sGen.RF_lvl_ampl(amp)
-
-    for f, fre in enumerate(frequencies):
-        
-        sGen.RF_freq(fre) 
-        sGen.pul_state(1)
-        sGen.RF_state(1)
-        # time.sleep(3)
-        flag = 0
-        waveforms = []
-
-        with daq.get_session as s:
-            s.initiate()
-            while(True):
-                try:
-                    sGen.pul_exe_sing_trig
-                    waveforms = daq._instance._session.channels[0,1,2,3].fetch()
-                except DriverError:
-                    flag += 1
-                    print(flag)
-                if (flag>10 and ni.Session.acquisition_status!='IN_PROGRESS'):
-                    break
-            
-        I = np.array(waveforms[0].samples.tolist())
-        Q = np.array(waveforms[1].samples.tolist())
-        if a == 1 and f == 1:
-          plt.clf()
-          #plt.plot(np.sqrt(I**2 + Q**2))
-          plt.plot(np.arctan(Q/I))
-          plt.show()
-        
-        sGen.pul_state(0)
-        sGen.RF_state(0)
-
-        print(counter*100/(len(amplitudes)*len(frequencies)),'%')
-        counter += 1
-        amp_freq[f'p{digits_a.format(a)}']['freqs'][f'f{digits_f.format(f)}'] = {'freq_(Hz)': fre, 'I': I, 'Q': Q}
-fsl.set_output('OFF')
-
-'''
-# SAVE DATA ON HDF5 FILE
-filename = 'IQMixer'+str(date)+'.hdf5'
-if os.path.exists(filename):
-  os.remove(filename)
-hdf5_write(amplidick, filename)
-
-
-
- 
-#===============================================================================================
-#Initiate Acquisition
-#===============================================================================================
-
-if (args[1]=='SINGLE'):
-    
-    with daq.initiate():
-        waveforms = daq._instance._session.channels[0,1,2,3].fetch()
-    for wfm in waveforms:
-        print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
-    a = wfm[0].samples.tolist()
-    plt.figure()
-    plt.plot(np.arange(len(a))/250e6, a)
-    plt.savefig('test'+datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
-
-'''
-'''
-    daq._instance.logger.info('END EXECUTION\n\n')
-    
-elif  (args[1]=='CONTINUOUS'):
-    if handler.trigger["trigger_type"] == 'CONTINUOS':
-        handler.config_software_trigger()
-    else:
-        handler._session.trigger_type       = getattr(ni.TriggerType, handler.trigger["trigger_type"])
-        handler._session.trigger_source     = handler.trigger["trigger_source"]
-        handler._session.trigger_slope      = getattr(ni.TriggerSlope, handler.trigger["trigger_slope"])
-        handler._session.trigger_level      = float(handler.trigger["trigger_level"])
-        handler._session.trigger_delay_time = float(handler.trigger["trigger_delay"])
-    
-    handler.initiate()
-    handler.continuous_acq()        
-    handler.close()
-    
-    #save config for data analysis
-    cfg = json.dumps(cont_acq_conf)
-    with open(cont_acq_conf['path'] + 'config_' + cont_acq_conf['file_name'] + '.json','w') as f:
-        f.write(cfg)
-
-    handler.logger.info('END EXECUTION\n\n')
-
+with ni.Session('PXI1Slot3') as s:
     try:
-        handler.initiate()
-        handler.waveform.extend([handler._session.channels[i].fetch(num_samples=handler.acq_conf['length'], timeout=acq_conf['timeout'], relative_to=acq_conf['relative_to'], num_records=acq_conf['num_records']) for i in handler.channels])
-        handler.logger.debug('Time from the trigger event to the first point in the waveform record: ' + str(handler._session.acquisition_start_time))
-        handler.logger.debug('Actual number of samples acquired in the record: ' + str(handler._session.points_done))
-        handler.logger.debug('Number of records that have been completely acquired: ' + str(handler._session.records_done))
-    except Exception as e:
-        handler.logger.debug("Extending waveform went wrong")
-        raise MemoryError("Extending waveform went wrong")
-
-    handler.acq()        
-    handler.fill_matrix(return_data=True)
-    handler.storage_hdf5()
-'''       
+        s.initiate()
+        logger.info('Niscope session initiated successfully')
+        logger.info('Filling I-Q matrix')
+        print(s.channels[0])
+        waveform.extend([s.channels[i].fetch(num_samples=daq.acq_conf['lenght'], timeout=daq.acq_conf['timeout'], relative_to=daq.acq_conf['relative_to'], num_records=daq.acq_conf['num_records']) for i in daq.acq_conf['channels']])
+        '''
+            daq.i_matrix_ch0.append(np.array(daq.waveform[0][i].samples))
+            daq.q_matrix_ch0.append(np.array(daq.waveform[1][i].samples))
+            daq.timestamp_ch0.append(daq.waveform[0][i].absolute_initial_x)
+            try:
+                daq.i_matrix_ch1.append(np.array(daq.waveform[2][i].samples))
+                daq.q_matrix_ch1.append(np.array(daq.waveform[3][i].samples))
+                daq.timestamp_ch1.append(daq.waveform[2][i].absolute_initial_x)
+            except:
+                pass
+        '''
+    except Exception:
+        logger.error('Filling I-Q matrix ended badly')
