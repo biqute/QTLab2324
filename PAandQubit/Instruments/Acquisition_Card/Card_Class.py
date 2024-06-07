@@ -55,11 +55,12 @@ class PXIe5170R:
         self._ref_pos           = 50.0
         self._sleep = 1
 
+        self._device_name = "PXIe_5170R"
         try:
             with ni.Session(self._resource_name) as _:
-                print("5170R: Available communication!")
-        except:
-            print(f"Unable to establish a connection.")
+                print(f"{self._device_name}:    Connection successful!")
+        except ni.Error as e:
+            print(f"{self._device_name}:    Unable to establish a connection: {e}")
 
 
     @property
@@ -70,6 +71,10 @@ class PXIe5170R:
         except:
             print(f"Unable to establish a connection.")
 
+    def close(self):
+        ni.Session(self._resource_name).close()
+        print(f"{self._device_name}: Session closed")
+        
     @property
     def voltage_range(self):
         return self._voltage_range

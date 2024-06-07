@@ -29,14 +29,14 @@ class N9916A:
 		self._resource = None
 		self._connect_success = False
 		self._sleep = 1
-
+		self._device_name = "N9916A"
 		try:
 			rm = pyvisa.ResourceManager()
 			self._resource = rm.open_resource(f"tcpip0::{ip}::inst0::INSTR")
 			self._connect_success = True
-			print("Connection successful!")
+			print(f"{self._device_name}:	Connection successful!")
 		except pyvisa.Error as e:
-			print(f"Unable to establish a connection: {e}")
+			print(f"{self._device_name}:	Unable to establish a connection: {e}")
 
 # 02 ---------------------------------- #
 
