@@ -146,6 +146,24 @@ except Exception:
 #FINO A QUI TUTTO BENISSIMO!!!!!!!!!!!!!!!!
 #===============================================================================================
 
+<<<<<<< HEAD
+        
+    #===============================================================================================
+    #Initiate Acquisition
+    #===============================================================================================
+    
+    if (args[1]==0 or args[1]==None):
+        
+        with daq.initiate():
+            waveforms = daq._instance._session.channels[0,1,2,3].fetch()
+        for wfm in waveforms:
+            print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
+        a = wfm[0].samples.tolist()
+        plt.figure()
+        plt.plot(np.arange(len(a))/250e6, a)
+        plt.savefig('test'+datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
+=======
+>>>>>>> 7bc4fb616b87fc678ce5a577aae7ea950abcbcd5
 
 '''
 
