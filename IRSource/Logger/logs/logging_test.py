@@ -4,6 +4,8 @@ import json
 from logging.config import dictConfig
 from logging_config import LOGGING_CONFIG
 from  datetime import datetime
+import sys
+sys.path.insert(0,r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions")
 
 # LOG SYSTEM
 dictConfig(LOGGING_CONFIG)
@@ -11,7 +13,7 @@ dictConfig(LOGGING_CONFIG)
 logger = logging.getLogger(__name__)
 logger.info('START EXECUTION')
 name = "test.log"
-path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions\\"
+path = r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions'
 
 config = {
     'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)

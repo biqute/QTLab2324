@@ -1,11 +1,12 @@
 from datetime import datetime
 date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
-path = r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions'
 import sys
-sys.path.append(path)
+from logging.config import dictConfig
+sys.path.insert(0,r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\")
+
 LOGGING_CONFIG = {
     'version': 1,
-    'disable_existing_loggers': True,
+    'disable_existing_loggers': False,
     'formatters': {
         'standard': {
             'format': '%(asctime)s.%(msecs)03d - %(name)s - %(funcName)s - %(levelname)s - %(message)s',
@@ -23,7 +24,7 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
-            'filename': str(path) + str(date) + ".log",
+            'filename': r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\" + date + ".log",
             'mode': 'a',
             'encoding': 'utf-8'
         }
@@ -51,3 +52,7 @@ LOGGING_CONFIG = {
         }
     }
 }
+
+
+def setup_logging():
+    dictConfig(LOGGING_CONFIG)

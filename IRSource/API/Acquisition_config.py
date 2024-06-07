@@ -3,7 +3,7 @@ from datetime import datetime
 date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 import hightime
 
-path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions\\" 
+path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\" 
 name = date + ".log",
 
 
@@ -15,7 +15,7 @@ ACQUISITION_CONFIG = {
             'range': 0.5,
             'coupling': ni.VerticalCoupling.AC,
             'offset': 0.0,
-            'probe_attenuation': 0,
+            'probe_attenuation': 1,
             'enabled': True
         },
 
@@ -49,8 +49,13 @@ ACQUISITION_CONFIG = {
     'trigger_edge': {
             'trigger_type'    : 'EDGE',
             'trigger_source': '0',
+<<<<<<< HEAD
             'level': 2,
             'trigger_coupling': ni.enums.TriggerCoupling.AC,
+=======
+            'level': 0,
+            'trigger_coupling': ni.TriggerCoupling.DC,
+>>>>>>> 7bc4fb616b87fc678ce5a577aae7ea950abcbcd5
             'slope': ni.TriggerSlope.POSITIVE,
             'holdoff' : 0.0,
             'delay' : 0.0
@@ -60,7 +65,7 @@ ACQUISITION_CONFIG = {
             'trigger_type'    : 'SOFTWARE',
             'trigger_source': '',
             'level': '',
-            'trigger_coupling': ni.enums.TriggerCoupling.AC,
+            'trigger_coupling': ni.TriggerCoupling.AC,
             'slope': ni.TriggerSlope.POSITIVE,
             'holdoff' : 0.0,
             'delay' : 0.0

@@ -65,3 +65,15 @@ waveforms = session.channels[0,1].fetch(num_records=5)
 - Fetches acquired waveforms from channels 0 and 1, collecting 5 records for each channel.
 - [`fetch`](https://niscope.readthedocs.io/en/latest/class.html#fetch): Returns the waveform from a previously initiated acquisition that the digitizer acquires for the specified channel. This method returns scaled voltage waveforms. This method may return multiple waveforms depending on the number of channels, the acquisition type, and the number of records you specify.
 - **NOTE:** If you need faster fetch performance, or to directly interface with [SciPy](https://www.scipy.org/), you can use the [`fetch_into()`](https://niscope.readthedocs.io/en/latest/class.html#fetch-into) method instead of `fetch()`.
+
+---
+
+## DRAFT
+
+- La scheda di acquisizione accetta diversi tipi di trigger:
+    - Edge: Per i trigger con segnale analogico. In questo caso il segnale di trigger va mandato attraverso uno dei canali CH_(0-3)
+    - Window
+    - Hysteresis
+    - Digital
+    - Immediate
+    - Software
