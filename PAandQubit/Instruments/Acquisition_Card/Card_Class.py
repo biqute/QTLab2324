@@ -143,7 +143,7 @@ class PXIe5170R:
             enforce_realtime    = True
             )
         
-        a = edge_trigger(trigger_channel)
+        a = edge_trigger(str(trigger_channel))
         a.configure(self._session)
         
     def acquisition(self, trig):
