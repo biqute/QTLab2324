@@ -8,6 +8,7 @@ from Acquisition_config import ACQUISITION_CONFIG
 import logging
 from logging.config import dictConfig
 from logs.logging_config import LOGGING_CONFIG
+from synth import synth
 
 def replace_non_serializable(obj):
     if isinstance(obj, dict):
@@ -57,15 +58,15 @@ except Exception:
     raise SyntaxError('Could not create DAQ class object')
 
 try:
-    stat = daq.get_status
+    stat = daq.sh.session.get_status()
     logger.info('DAQ status: '+str(stat))
 except Exception:
     logger.critical('Could not get DAQ status!')
     raise SystemError('Could not get DAQ status')
 
 try:
-    daq.reset_with_def()
-    daq.get_status
+    daq.sh.session.reset_with_def()
+    daq.sh.session.get_status
     logger.info('Resetting DAQ with defaults')
 except Exception:
     logger.error('Could not reset DAQ with defaults')
@@ -93,42 +94,12 @@ except Exception:
     raise SystemError('Could not insert chan char dic')
 
 try:
-    daq.set_trigger_dic(ACQUISITION_CONFIG['trigger_dig'])
+    daq.trigger_dic = ACQUISITION_CONFIG['trigger']
+    daq.config_trigger()
     logger.info('Inserting trigger dic')
 except Exception:
     logger.warning('Could not insert trigger dic')
     raise SystemError('Could not insert trigger dic')
-
-#===============================================================================================
-#Apply DAQ configuration dictionaries
-#===============================================================================================
-
-try:
-    daq.config_hor_timing()
-    logger.info('Implementing horizontal configuration')
-except Exception:
-    logger.warning('Could not implement horizontal configuration')
-    raise SystemError('Could not implement horizontal configuration')
-
-try:
-    daq.enable_channels()
-    logger.info('Enabling all channels')
-except Exception:
-    logger.warning('Could not enable channels!')
-    raise SystemError('Could not enable channels!')
-
-try:
-    daq.config_vertical()
-    logger.info('Implementing vertical configuration')
-except Exception:
-    logger.warning('Could not implement vertical configuration')
-    raise SystemError('Could not implement vertical configuration')
-
-try:
-    daq.config_chan_char()
-    logger.info('Implementing channels configuration')
-except Exception:
-    raise SystemError('Could not implement channels configuration')
 
 
 #===============================================================================================
@@ -137,88 +108,45 @@ except Exception:
 
 
 try:
-    daq.test()
+    daq.sh.session.test()
     logger.info('Testing DAQ actual configuration')
 except Exception:
     logger.critical('DAQ test gone wrong!')
 
 #===============================================================================================
-#FINO A QUI TUTTO BENISSIMO!!!!!!!!!!!!!!!!
+#Set-up Synthesizers
 #===============================================================================================
 
-<<<<<<< HEAD
-        
-    #===============================================================================================
-    #Initiate Acquisition
-    #===============================================================================================
-    
-    if (args[1]==0 or args[1]==None):
-        
-        with daq.initiate():
-            waveforms = daq._instance._session.channels[0,1,2,3].fetch()
-        for wfm in waveforms:
-            print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
-        a = wfm[0].samples.tolist()
-        plt.figure()
-        plt.plot(np.arange(len(a))/250e6, a)
-        plt.savefig('test'+datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
-=======
->>>>>>> 7bc4fb616b87fc678ce5a577aae7ea950abcbcd5
+s1 = synth('ASRL26::INSTR')
+logger.info(f'Connecting synth 1|Name : {s1.name}, Board: {s1.board}')
+s2 = synth('ASRL5::INSTR')
+logger.info(f'Connecting synth 2|Name : {s2.name}, Board: {s2.board}')
 
-'''
+s1.set_frequency('1GHz')
+logger.info('Setting 1st freq to 1GHz')
+s2.set_frequency('1.005GHz')
+logger.info('Setting 2nd freq to 1.005GHz')
 
- 
+s1.set_power('15')
+logger.info('Setting 1st pwoer to 15 dBm')
+s2.set_power('1.005GHz')
+logger.info('Setting 2nd power to 15 dBm')
+
+
 #===============================================================================================
-#Initiate Acquisition
+#Output signal
 #===============================================================================================
-
-if (args[1]=='SINGLE'):
+try:
+    s1.set_outpt_stat('ON')
+    logger.info('1st synth is outputting signal')
+except Exception:
+    logger.error('1st synth is NOT outputting signal')
+try:
+    s2.set_outpt_stat('ON')
+    logger.info('1st synth is outputting signal')
+except Exception:
+    logger.error('2nd synth is NOT outputting signal')
     
-    with daq.initiate():
-        waveforms = daq._instance._session.channels[0,1,2,3].fetch()
-    for wfm in waveforms:
-        print('Channel {0}, record {1} samples acquired: {2:,}\n'.format(wfm.channel, wfm.record, len(wfm.samples)))
-    a = wfm[0].samples.tolist()
-    plt.figure()
-    plt.plot(np.arange(len(a))/250e6, a)
-    plt.savefig('test'+datetime.now().strftime("%m-%d-%Y-%H-%M-%S"))
-
-'''
-'''
-    daq._instance.logger.info('END EXECUTION\n\n')
-    
-elif  (args[1]=='CONTINUOUS'):
-    if handler.trigger["trigger_type"] == 'CONTINUOS':
-        handler.config_software_trigger()
-    else:
-        handler._session.trigger_type       = getattr(ni.TriggerType, handler.trigger["trigger_type"])
-        handler._session.trigger_source     = handler.trigger["trigger_source"]
-        handler._session.trigger_slope      = getattr(ni.TriggerSlope, handler.trigger["trigger_slope"])
-        handler._session.trigger_level      = float(handler.trigger["trigger_level"])
-        handler._session.trigger_delay_time = float(handler.trigger["trigger_delay"])
-    
-    handler.initiate()
-    handler.continuous_acq()        
-    handler.close()
-    
-    #save config for data analysis
-    cfg = json.dumps(cont_acq_conf)
-    with open(cont_acq_conf['path'] + 'config_' + cont_acq_conf['file_name'] + '.json','w') as f:
-        f.write(cfg)
-
-    handler.logger.info('END EXECUTION\n\n')
-
-    try:
-        handler.initiate()
-        handler.waveform.extend([handler._session.channels[i].fetch(num_samples=handler.acq_conf['length'], timeout=acq_conf['timeout'], relative_to=acq_conf['relative_to'], num_records=acq_conf['num_records']) for i in handler.channels])
-        handler.logger.debug('Time from the trigger event to the first point in the waveform record: ' + str(handler._session.acquisition_start_time))
-        handler.logger.debug('Actual number of samples acquired in the record: ' + str(handler._session.points_done))
-        handler.logger.debug('Number of records that have been completely acquired: ' + str(handler._session.records_done))
-    except Exception as e:
-        handler.logger.debug("Extending waveform went wrong")
-        raise MemoryError("Extending waveform went wrong")
-
-    handler.acq()        
-    handler.fill_matrix(return_data=True)
-    handler.storage_hdf5()
-'''       
+#===============================================================================================
+#Acquire data
+#===============================================================================================

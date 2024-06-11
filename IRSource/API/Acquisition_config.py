@@ -38,38 +38,15 @@ ACQUISITION_CONFIG = {
 
     #====================================Triggers Configuration==================================
 
-    'trigger_dig': {
-            'trigger_type'  : 'DIG',
-            'trigger_source': 'VAL_PFI_0', 
-            'slope'         : ni.TriggerSlope.POSITIVE, 
-            'holdoff'       : 0, 
-            'delay'         : 0
-    },
-
-    'trigger_edge': {
+    'trigger': {
             'trigger_type'    : 'EDGE',
             'trigger_source': '0',
-<<<<<<< HEAD
             'level': 2,
             'trigger_coupling': ni.enums.TriggerCoupling.AC,
-=======
-            'level': 0,
-            'trigger_coupling': ni.TriggerCoupling.DC,
->>>>>>> 7bc4fb616b87fc678ce5a577aae7ea950abcbcd5
             'slope': ni.TriggerSlope.POSITIVE,
             'holdoff' : 0.0,
             'delay' : 0.0
         },
-
-    'trigger software': {
-            'trigger_type'    : 'SOFTWARE',
-            'trigger_source': '',
-            'level': '',
-            'trigger_coupling': ni.TriggerCoupling.AC,
-            'slope': ni.TriggerSlope.POSITIVE,
-            'holdoff' : 0.0,
-            'delay' : 0.0
-    },
     #=================================Std. Acq. Configuration==================================
 
     'acq_conf': {
