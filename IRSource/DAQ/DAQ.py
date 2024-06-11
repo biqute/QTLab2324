@@ -4,6 +4,7 @@
 
 from datetime import datetime
 import niscope as ni
+from niscope.errors import DriverError
 import numpy as np
 import h5py
 
@@ -21,11 +22,13 @@ class DAQ():
         self._acq_conf = {}
         self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
         self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
-        self._devicename   = None
-        self._acq_conf     = None
-        self._eq_conf      = None
-        self._trigger_dic  = None
-        self._trigger_type = None
+        self._devicename      = None
+        self._acq_conf        = None
+        self._eq_conf         = None
+        self._trigger_dic     = None
+        self._trigger_type    = None
+        self._vertical_conf   = {}
+        self._horizontal_conf = {}
 
     def __new__(cls):
         if cls._instance is None:
@@ -34,26 +37,38 @@ class DAQ():
                 cls = super(DAQ,cls).__new__(cls)
             except Exception:
                 raise TimeoutError('Could not create new class instance')
+            
+    @property
+    def devicename(self):
+        print(f'Actual device name | {self._devicename}')
+        return self._devicename
+    
+    @devicename.setter
+    def devicename(self, dv):
+        self._devicename = dv
+
+    @devicename.deleter
+    def devicename(self):
+        self._devicename = None
 #===================================================================================================================================
 #__Card__ configuration__ 
 #===================================================================================================================================            
     @property
     def vertical_conf(self):
-        return self.vertical_conf
+        return self._vertical_conf
     
     @vertical_conf.setter
     def vertical_conf(self, vc):
         self.vertical_conf = vc
-        
             
     @property
     def horizontal_conf(self):
-        return self.horizontal_conf
+        return self._horizontal_conf
     
     @horizontal_conf.setter
     def horizontal_conf(self,hc):
         self.horizontal_conf = hc
-        self._session.configure_horizontal_timing(self.horizontal_dic['min_sample_rate'], self.horizontal_dic['min_num_pts'], self.horizontal_dic['ref_position'], self.horizontal_dic['num_records'], self.horizontal_dic['enforce_realtime'])
+        
             
     @property
     def chan_conf(self):
@@ -111,11 +126,6 @@ class DAQ():
 #===================================================================================================================================
 #__Session__ configuration__ 
 #===================================================================================================================================
-
-    @property
-    def devicename(self):
-        print(f'Actual device name | {self._devicename}')
-        return self._devicename
      
     @property              
     def session(self):  
@@ -136,8 +146,8 @@ class DAQ():
         return self._session.acquisition_status()
     
     @session.setter                  
-    def _session(self):            
-        self._session = ni._session(self.devicename)
+    def session(self):            
+        self._session = ni.Session(self._devicename)
     
     @session.deleter 
     def session(self):
@@ -176,6 +186,7 @@ class DAQ():
     def enable_channels(self):
         for i in range(self._session.channel_count):
             self._channels[i].channel_enabled = True
+
                 
 #===================================================================================================================================
 #__Waveform processing__
@@ -206,21 +217,23 @@ class DAQ():
 
 
 #===================================================================================================================================
-#__Fetching+reading+storage__
+#__Acquiring data__
 #===================================================================================================================================
+    
+    def configure_channels(self):
+        self._session.channels[0].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[1].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[2].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[3].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
+        self._session.configure_horizontal_timing(self.horizontal_conf['min_sample_rate'], self.horizontal_conf['min_num_pts'], self.horizontal_conf['ref_position'], self.horizontal_conf['num_records'], self.horizontal_conf['enforce_realtime'])        
 
-    #def fetch(self):
-        
-    #    for channel in self.enabled():
-    #        self.waveform.extend([channel.fetch(num_samples=self.acq_conf['length'], timeout=self.acq_conf['timeout'], relative_to=self.acq_conf['relative_to'], num_records=self.acq_conf['num_records']) for i in self.acq_conf['channels']])
-    #        print('Time from the trigger event to the first point in the waveform record: ' + str(self._session.acquisition_start_time))
-    #        print('Actual number of samples acquired in the record: ' + str(self._session.points_done))
-    #        print('Number of records that have been completely acquired: ' + str(self._session.records_done))
-
-    def fetch(self, timeout=10):
-        self._session.initiate()
-        self.waveform.extend([self._channels[i].fetch(num_samples=self._acq_conf['lenght'], timeout=timeout, relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']) for i in self._channels])
-        
+    def acquire(self, trig):
+        with self._session.initiate():
+            trig()
+            try:
+                return self._session.channels[0,1,2,3].fetch()
+            except DriverError:
+                print(f'DriverError in {ni.session.channels.fetch()}')
     
     def fill_matrix(self, return_data=False):
         for i in range(self.acq_conf['num_records']):

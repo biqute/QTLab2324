@@ -1,7 +1,5 @@
-from typing import Any
 from pyvisa import ResourceManager as rm
 import pyvisa
-import functools
 from Decorators import utils
 
 class synth:
@@ -21,7 +19,7 @@ class synth:
             print('Creating new synth class instance')
             instance = super().__new__(cls)
             return instance
-        except Exception as e:
+        except Exception:
             print('Could not create new synth class instance')
             
     def __name__(self):

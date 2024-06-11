@@ -51,22 +51,28 @@ except Exception:
 #===============================================================================================
 
 try:
-    daq = DAQ(devicename)
+    daq = DAQ()
     logger.info('DAQ class object correctly created')
 except Exception:
     logger.critical('Could not crate DAQ class object')
     raise SyntaxError('Could not create DAQ class object')
 
 try:
-    stat = daq.sh.session.get_status()
+    daq.devicename = 'PXI1Slot3'
+    logger.info("SEtting device name")
+except Exception:
+    logger.warning("Could not set device name!")
+
+try:
+    stat = daq.get_status()
     logger.info('DAQ status: '+str(stat))
 except Exception:
     logger.critical('Could not get DAQ status!')
     raise SystemError('Could not get DAQ status')
 
 try:
-    daq.sh.session.reset_with_def()
-    daq.sh.session.get_status
+    daq.reset_with_def()
+    daq.get_status()
     logger.info('Resetting DAQ with defaults')
 except Exception:
     logger.error('Could not reset DAQ with defaults')
@@ -106,9 +112,8 @@ except Exception:
 #Test DAQ configuration
 #===============================================================================================
 
-
 try:
-    daq.sh.session.test()
+    daq.test()
     logger.info('Testing DAQ actual configuration')
 except Exception:
     logger.critical('DAQ test gone wrong!')
@@ -150,3 +155,24 @@ except Exception:
 #===============================================================================================
 #Acquire data
 #===============================================================================================
+
+def external_trigger():
+    pass
+
+try:
+    daq.acquire(external_trigger())
+    logger.info('Acquiring data')
+except Exception:
+    logger.critical('Not acquiring data!')
+    raise SystemError('Not acquiring data!')
+
+try:
+    s1.set_outpt_stat('OFF')
+    logger.info('1st synth is not outputting signal')
+except Exception:
+    logger.error('1st synth has NOT stopped outputting signal')
+try:
+    s2.set_outpt_stat('OFF')
+    logger.info('1st synth is not outputting signal')
+except Exception:
+    logger.error('2nd synth has NOT stopped outputting signal')
