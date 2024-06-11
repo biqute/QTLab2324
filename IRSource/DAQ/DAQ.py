@@ -2,51 +2,41 @@
 # This class  is used to represent a NI-Scope device. It contains methods for DAQ set-up, acquiring data from the scope and plotting it.
 # =======================================================================================================================================
 
+from datetime import datetime
 import niscope as ni
 import numpy as np
 import h5py
-from datetime import datetime
-from Session_handler import Session_handler
+
 date = datetime.now().strftime("%m-%d-%Y")
 
-
 class DAQ():
+
     _instance = None
-    _device = None
     
+    def __init__(self):
+        self._session = None
+        self._status = None
+        self._channels = []
+        self._waveform = []
+        self._acq_conf = {}
+        self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
+        self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
+        self._devicename   = None
+        self._acq_conf     = None
+        self._eq_conf      = None
+        self._trigger_dic  = None
+        self._trigger_type = None
 
-    def __new__(cls, devicename):
+    def __new__(cls):
         if cls._instance is None:
-            try: 
-                cls = super(DAQ, cls).__new__(cls)
-                print('Instance correctly created!')
+            try:
+                print(f"Calling {cls.__new__} method")
+                cls = super(DAQ,cls).__new__(cls)
             except Exception:
-                raise ValueError("Could not create object instance")
-        return cls
-    
-    
-
-    def __init__(self,devicename):
-                
-        if not self._device:
-            self._device = devicename
-            self.eq_coeff = None
-            self.chan_conf = None
-            self.vertical_conf = None
-            self.horizontal_conf = None
-            self.acq_conf = None
-            self.waveform = []
-            self.channels = []
-            self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
-            self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
-            self.trigger_dic = None
-            self.trigger_type = None
-            
+                raise TimeoutError('Could not create new class instance')
 #===================================================================================================================================
-#__Channels configuration__
+#__Card__ configuration__ 
 #===================================================================================================================================            
-
-
     @property
     def vertical_conf(self):
         return self.vertical_conf
@@ -63,7 +53,7 @@ class DAQ():
     @horizontal_conf.setter
     def horizontal_conf(self,hc):
         self.horizontal_conf = hc
-        self.sh.session.configure_horizontal_timing(self.horizontal_dic['min_sample_rate'], self.horizontal_dic['min_num_pts'], self.horizontal_dic['ref_position'], self.horizontal_dic['num_records'], self.horizontal_dic['enforce_realtime'])
+        self._session.configure_horizontal_timing(self.horizontal_dic['min_sample_rate'], self.horizontal_dic['min_num_pts'], self.horizontal_dic['ref_position'], self.horizontal_dic['num_records'], self.horizontal_dic['enforce_realtime'])
             
     @property
     def chan_conf(self):
@@ -72,19 +62,19 @@ class DAQ():
     @chan_conf.setter
     def chan_conf(self, cc):
         self.chan_conf =  cc
-        self.sh.session.configure_chan_characteristics(self.chan_conf['input_impedance'], self.chan_conf['max_frequency'])
+        self._session.configure_chan_characteristics(self.chan_conf['input_impedance'], self.chan_conf['max_frequency'])
         
     @property
     def eq_conf(self):
-        return self.eq_conf
+        return self._eq_conf
     
     @eq_conf.setter
     def eq_coeff(self):
-        self.sh.session.configure_equalization_filter_coefficients(self.coeff)
+        self._session.configure_equalization_filter_coefficients(self.coeff)
 
     def get_status(self):
         print(f'Current acquisition status : {self.session.acquisition_status()}')
-        return self.sh.session.acquisition_status()      
+        return self._session.acquisition_status()      
 
         
 #===================================================================================================================================
@@ -93,7 +83,8 @@ class DAQ():
 
     @property
     def trigger_type(self):
-        return self.trigger_type
+        print(f'Actual trigger type | {self.trigger_type}')
+        return self._trigger_type
     
     @trigger_type.setter
     def trigger_type(self):
@@ -109,14 +100,111 @@ class DAQ():
     
     def config_trigger(self):
         if(self.trigger_type == "IMM"):
-            self.sh.session.configure_trigger_immediate()
+            self._session.configure_trigger_immediate()
         elif (self.trigger_type == "DIG"):
-            self.sh.session.configure_trigger_digital(self.trigger['trigger_source'], self.trigger['slope'], self.trigger['holdoff'], self.trigger['delay'])
+            self._session.configure_trigger_digital(self._trigger_dic['trigger_source'], self._trigger_dic['slope'], self._trigger_dic['holdoff'], self._trigger_dic['delay'])
         elif (self.trigger_type == "EDGE"):
-            self.sh.session.configure_trigger_edge(self.trigger['trigger_source'], self.trigger['level'], self.trigger['trigger_coupling'], self.trigger['slope'], self.trigger['holdoff'], self.trigger['delay'])
+            self._session.configure_trigger_edge(self._trigger_dic['trigger_source'], self._trigger_dic['level'], self._trigger_dic['trigger_coupling'], self._trigger_dic['slope'], self._trigger_dic['holdoff'], self._trigger_dic['delay'])
         elif (self.trigger_type == 'SOF'):
-            self.sh.session.configure_trigger_software(self.trigger['holdoff'], self.trigger['delay'])
+            self._session.configure_trigger_software(self._trigger_dic['holdoff'], self._trigger_dic['delay'])
+
+#===================================================================================================================================
+#__Session__ configuration__ 
+#===================================================================================================================================
+
+    @property
+    def devicename(self):
+        print(f'Actual device name | {self._devicename}')
+        return self._devicename
+     
+    @property              
+    def session(self):  
+        print(f'Actual _session | {self._session}')   
+        return self._session
     
+    @property              
+    def status(self):     
+        print(f'Actual status | {self._status} ')
+        return self._status
+    
+    @status.setter
+    def status(self):
+        self._status = self._session.acquisition_status()
+    
+    @status.getter
+    def status(self):
+        return self._session.acquisition_status()
+    
+    @session.setter                  
+    def _session(self):            
+        self._session = ni._session(self.devicename)
+    
+    @session.deleter 
+    def session(self):
+        self._session.close()
+    
+    def reset(self):
+        self._session.reset()
+    
+    def calibrate(self):            
+        self._session.self_cal(option=ni.Option.SELF_CALIBRATE_ALL_CHANNELS)
+    
+    def test(self):
+        self._session.self_test()    
+
+    def device_reset(self):
+        self._session.reset_device()     
+        
+    def reset_with_def(self):
+        self._session.reset_with_defaults()    
+    
+    def commit(self):
+        self._session.commit()
+
+    @property 
+    def channels(self):
+        print(f'Actual channels list | {self._channels}')
+        return self._channels
+    
+    @channels.setter 
+    def channels(self):
+        self._channels = self._session.channels
+        
+    def get_enabled(self):
+        return self._session.enabled_channels
+
+    def enable_channels(self):
+        for i in range(self._session.channel_count):
+            self._channels[i].channel_enabled = True
+                
+#===================================================================================================================================
+#__Waveform processing__
+#===================================================================================================================================
+
+    @property
+    def waveform(self):
+        print(f'Actual waveforms | {self._waveform}')
+        return self._waveform
+    
+    @waveform.deleter
+    def waveform(self):
+        print('Deleting waveforms...')
+        self._waveform = []
+
+    @waveform.setter
+    def waveform(self, wf):
+        self._waveform = wf   
+    
+    def add_wfm_proc(self, meas_function):
+        self._session.add_waveform_processing(meas_function)
+        
+    def clear_wfm_stats(self,clearable_measurement_function=ni.ClearableMeasurement.ALL_MEASUREMENTS):
+        self._session.clear_waveform_measurement_stats(clearable_measurement_function)
+    
+    def clear_wfm_proc(self):
+        self._session.clear_waveform_processing()
+
+
 #===================================================================================================================================
 #__Fetching+reading+storage__
 #===================================================================================================================================
@@ -131,25 +219,22 @@ class DAQ():
 
     def fetch(self, timeout=10):
         self._session.initiate()
-        self.waveform.extend([self.channels[i].fetch(num_samples=self.acq_conf['lenght'], timeout=timeout, relative_to=self.acq_conf['relative_to'], num_records=self.acq_conf['num_records']) for i in self.channels])
+        self.waveform.extend([self._channels[i].fetch(num_samples=self._acq_conf['lenght'], timeout=timeout, relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']) for i in self._channels])
         
     
     def fill_matrix(self, return_data=False):
         for i in range(self.acq_conf['num_records']):
-            self.i_matrix_ch0.append(np.array(self.waveform[0][i].samples))
-            self.q_matrix_ch0.append(np.array(self.waveform[1][i].samples))
-            self.timestamp_ch0.append(self.waveform[0][i].absolute_initial_x)
+            self.i_matrix_ch0.append(np.array(self._waveform[0][i].samples))
+            self.q_matrix_ch0.append(np.array(self._waveform[1][i].samples))
+            self.timestamp_ch0.append(self._waveform[0][i].absolute_initial_x)
             try:
-                self.i_matrix_ch1.append(np.array(self.waveform[2][i].samples))
-                self.q_matrix_ch1.append(np.array(self.waveform[3][i].samples))
-                self.timestamp_ch1.append(self.waveform[2][i].absolute_initial_x)
-            except:
+                self.i_matrix_ch1.append(np.array(self._waveform[2][i].samples))
+                self.q_matrix_ch1.append(np.array(self._waveform[3][i].samples))
+                self.timestamp_ch1.append(self._waveform[2][i].absolute_initial_x)
+            except Exception:
                 pass
-            
-        #self.logger.debug("Raw data I and Q were collected for trigger acquisition")
-
         if return_data:
-            return self.i_matrix, self.q_matrix, self.timestamp
+            return self._i_matrix, self._q_matrix, self._timestamp
         else:
             return None
 
@@ -164,36 +249,5 @@ class DAQ():
             try:
                 hdf.create_dataset('timestamp_ch0', data=self.timestamp_ch0, compression='gzip', compression_opts=9)
                 hdf.create_dataset('timestamp_ch1', data=self.timestamp_ch1, compression='gzip', compression_opts=9)
-            except:
+            except Exception:
                 pass
-
-        #self.logger.debug("Raw data I and Q were stored in an HDF5 file: " + name)
-        
-#===================================================================================================================================
-# CONTINUOUS ACQUISITION
-#===================================================================================================================================
-
-    def continuous_acq(self):
-            
-        current_pos = 0
-        self.waveform = [np.ndarray(self.acq_conf['total_samples'], dtype=np.float64) for c in self.channels]
-
-        self.get_status()
-
-        while current_pos < self.acq_conf['total_samples']:
-            for channel, wfm in zip(self.acq_conf['channels'], self.waveform):
-                try:
-                    self._session.channels[channel].fetch_into(wfm[current_pos:current_pos + self.acq_conf['samples_per_fetch']], relative_to=self.acq_conf['relative_to'], offset=self.acq_conf['offset'], record_number=self.acq_conf['record_number'], num_records=self.acq_conf['num_records'])
-                    #self.logger.debug("Fetching into...")
-                except Exception as e:
-                    #self.logger.error("Fetching did not work")
-                    raise ImportWarning("Fetching did not work")
-
-            current_pos += self.acq_conf['samples_per_fetch']
-
-        self.i_matrix_ch0 = np.array(self.waveform[0])
-        self.q_matrix_ch0 = np.array(self.waveform[1])
-        self.i_matrix_ch1 = np.array(self.waveform[2])
-        self.q_matrix_ch1 = np.array(self.waveform[3])
-
-        #self.logger.debug('Raw data I and Q were collected for continuous acquisition')
