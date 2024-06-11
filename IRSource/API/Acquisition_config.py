@@ -1,7 +1,7 @@
 import niscope as ni
 from datetime import datetime
-date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 import hightime
+date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 
 path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\" 
 name = date + ".log",
@@ -61,7 +61,6 @@ ACQUISITION_CONFIG = {
         'timeout'     : hightime.timedelta(seconds=5.0),
         'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
         'source_rate' : 700, #diode rate in hz
-        'timeout'     : 10
     },   
 
     #=================================Cont. Acq. Configuration==================================
