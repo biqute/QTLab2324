@@ -49,7 +49,7 @@ class DAQ():
 
     @devicename.deleter
     def devicename(self):
-        self._devicename = None
+        del self._devicename
 #===================================================================================================================================
 #__Card__ configuration__ 
 #===================================================================================================================================            
@@ -84,8 +84,12 @@ class DAQ():
         return self._eq_conf
     
     @eq_conf.setter
-    def eq_coeff(self):
-        self._session.configure_equalization_filter_coefficients(self.coeff)
+    def eq_coeff(self, value):
+        self._eq_conf = value
+
+    def set_eq_coeff(self):
+        self._session.configure_equalization_filter_coefficients(self._eq_coeff)
+        
 
     def get_status(self):
         print(f'Current acquisition status : {self.session.acquisition_status()}')
@@ -146,12 +150,13 @@ class DAQ():
         return self._session.acquisition_status()
     
     @session.setter                  
-    def session(self):            
-        self._session = ni.Session(self._devicename)
+    def session(self, devicename):            
+        self._session = ni.Session(devicename)
     
     @session.deleter 
     def session(self):
         self._session.close()
+        del self._session
     
     def reset(self):
         self._session.reset()
@@ -200,7 +205,7 @@ class DAQ():
     @waveform.deleter
     def waveform(self):
         print('Deleting waveforms...')
-        self._waveform = []
+        del self._waveform 
 
     @waveform.setter
     def waveform(self, wf):
@@ -227,14 +232,22 @@ class DAQ():
         self._session.channels[3].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
         self._session.configure_horizontal_timing(self.horizontal_conf['min_sample_rate'], self.horizontal_conf['min_num_pts'], self.horizontal_conf['ref_position'], self.horizontal_conf['num_records'], self.horizontal_conf['enforce_realtime'])        
 
-    def acquire(self, trig):
-        with self._session.initiate():
-            trig()
-            try:
-                return self._session.channels[0,1,2,3].fetch()
-            except DriverError:
-                print(f'DriverError in {ni.session.channels.fetch()}')
-    
+    def fetch(self, trig):
+        self._session.initiate()
+        trig()
+        try:
+            result = self._session.channels[0,1,2,3].fetch()
+            return result
+        except DriverError:
+            print(f'DriverError in {ni.session.channels.fetch()}')
+
+    def acquire(self):
+        self._session.initiate()
+        try:
+            self._waveform.extend([self._session.channels[i].fetch(num_samples=self._acq_conf['lenght'], timeout=self._acq_conf['timeout'], relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']) for i in self._channels])
+        except DriverError:
+            print(f'DriverError in {ni.session.channels.fetch()}')
+
     def fill_matrix(self, return_data=False):
         for i in range(self.acq_conf['num_records']):
             self.i_matrix_ch0.append(np.array(self._waveform[0][i].samples))
