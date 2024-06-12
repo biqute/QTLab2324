@@ -44,10 +44,13 @@ def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6):
 	idx = idx[offset:-offset]
 	
 	if toggle_plot:
-		fig, axs = plt.subplots(2, 2, figsize=(10, 8))
-		axs.clf()
-		axs.grid()
-		axs.plot(x, y)
-		axs.scatter(x[idx],y[idx], color = 'orange')
-		plt.show()
+							plt.figure(figsize=(10, 6)) 
+							plt.plot(x, y, label='Signal')
+							plt.scatter(x[idx], y[idx], color='orange', label='Peaks')
+							plt.xlabel('Time (s)')
+							plt.ylabel('Amplitude')
+							plt.title('Signal with Peaks')
+							plt.legend()
+							plt.grid(True)
+							plt.show()
 	return {'mean': np.mean(y[idx]), 'std' : np.std(y[idx]), 'x': x, 'y': y,'idx': idx}
