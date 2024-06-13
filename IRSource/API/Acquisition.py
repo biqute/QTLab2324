@@ -160,7 +160,7 @@ def external_trigger():
     pass
 
 try:
-    daq.acquire(external_trigger())
+    daq.acquire()
     logger.info('Acquiring data')
 except Exception:
     logger.critical('Not acquiring data!')
