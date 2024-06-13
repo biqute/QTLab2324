@@ -6,11 +6,15 @@ date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\logs\\" 
 name = date + ".log",
 
+k = 4
+sample_rate = 250e6
+pulse_period = k * 1e-6
+min_num_pts = int(sample_rate * pulse_period)
 
 ACQUISITION_CONFIG = { 
 
     #====================================Vertical Configuration==================================
-
+    
     'vertical': {
             'range': 0.5,
             'coupling': ni.VerticalCoupling.AC,
@@ -22,8 +26,8 @@ ACQUISITION_CONFIG = {
     #====================================Horizontal Configuration==================================
 
     'horizontal': {
-            'min_sample_rate': 250e6,
-            'min_num_pts': 1000,
+            'sample_rate': sample_rate,
+            'min_num_pts': int(sample_rate * pulse_period),
             'ref_position': 0,
             'num_records': 1,
             'enforce_realtime': True
@@ -40,12 +44,12 @@ ACQUISITION_CONFIG = {
 
     'trigger': {
             'trigger_type'    : 'EDGE',
-            'trigger_source': '0',
-            'level': 2,
-            'trigger_coupling': ni.enums.TriggerCoupling.AC,
+            'trigger_source': '3',
+            'level': 0,
+            'trigger_coupling': ni.TriggerCoupling.DC,
             'slope': ni.TriggerSlope.POSITIVE,
-            'holdoff' : 0.0,
-            'delay' : 0.0
+            'holdoff' : 0,
+            'delay' : 0
         },
     #=================================Std. Acq. Configuration==================================
 
@@ -54,13 +58,14 @@ ACQUISITION_CONFIG = {
         'path'        : path                    ,        # path to directory for saving files (default is current)
         'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)
         'num_records' : 1                       ,        # number of records to store
-        'channels'    : [0,1,2,3]               ,        # list of enabled channels
+        'channels'    : [0,1]                   ,        # list of enabled channels
         'sample_rate' : 250e6                   ,        # rate of points sampling of PXIe-5170R
         'length'      : 1000                    ,        # record length
         'timeout'     : hightime.timedelta(seconds=5.0),
         'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
         'source_rate' : 700,                             #diode rate in hz
-        'acq_time'    : 5                                #acquisition time in seconds
+        'acq_time'    : 5,                               #acquisition time in seconds
+        'offset'      : 0
     },   
 
     #=================================Cont. Acq. Configuration==================================
