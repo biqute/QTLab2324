@@ -47,12 +47,12 @@ class PXIe5170R:
     def __init__(self, resource_name: str):                         # Initialize a default set up
         
         self._resource_name     = resource_name
-        self._voltage_range     = 1
-        self._coupling          = ni.VerticalCoupling.DC
+        self._voltage_range     = 4
+        self._coupling          = ni.VerticalCoupling.AC
         self._sample_rate       = int(250e6)
         self._num_pts           = 500
         self._num_records       = 1
-        self._ref_pos           = 50.0
+        self._ref_pos           = 0
         self._sleep = 1
 
         self._device_name = "PXIe_5170R"

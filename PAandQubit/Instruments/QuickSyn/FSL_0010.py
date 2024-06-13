@@ -39,7 +39,8 @@ class FSL10_synthesizer:
 		#print(self.ask(b'FREQ?\r'))
 		f = self.ask(b'FREQ?\r') #hard coded encoded command string
 		return f
-	def set_frequency(self,freq):  # default units in GHz
+	def set_frequency(self,freq):  # default units in Hz
+		freq = round(freq* 1e-9, 1)
 		cmd_string = 'FREQ ' + str(freq) + 'GHz\r'
 		self.write(str.encode(cmd_string))    # this converts a string to bytes
 		return f"{self._device_name}: Frequency set to "+str(freq)+" GHz."

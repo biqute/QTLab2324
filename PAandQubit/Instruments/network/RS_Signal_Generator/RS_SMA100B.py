@@ -45,7 +45,7 @@
 #                                    :
 #########################################################################################################à
 
-
+# Uscita trigger dal signal generator: Pulse Sync
 
 import pyvisa
 import time
