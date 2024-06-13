@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
+import LsqEllipse as Lsq
+from matplotlib.patches import Ellipse
 
 def dBm_to_mVrms(dbm, R = 50):                            # R = 50 Ohm
 
@@ -66,3 +68,57 @@ def find_key(dictionary, key_to_find):
             if result is not None:
                 return result
     return None
+
+
+def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
+
+	X = np.array(list(zip(x, y)))
+	reg = Lsq.LsqEllipse().fit(X)
+	center, width, height, phi = reg.as_parameters()
+	a, b, c, d, f, g = reg.coefficients
+
+	if toggle_print:
+		print(f'center	: ({center[0]:.3f}, {center[1]:.3f})')
+		print(f'width	: {width:.3f}')
+		print(f'height	: {height:.3f}')
+		print(f'phi	: {phi:.3f}')
+		print('-----------------------------')
+		print(f'a	: {a}')
+		print(f'b	: {b}')
+		print(f'c	: {c}')
+		print(f'd	: {d}')
+		print(f'f	: {f}')
+		print(f'g	: {g}')
+		print('-----------------------------')
+
+	if toggle_plot:
+		fig = plt.figure(figsize=(6, 6))
+		ax = plt.subplot()
+		ax.axis('equal')
+		ax.scatter(x, y, zorder=1, label = 'Data points')
+		ellipse = Ellipse(
+			xy=center, width=2*width, height=2*height, angle=np.rad2deg(phi),
+			edgecolor='r', fc='None', lw=2, label='Fit', zorder=2
+		)
+		ax.add_patch(ellipse)
+
+		plt.xlabel('Q')
+		plt.ylabel('I')
+		plt.grid()
+		plt.legend()
+		plt.show()
+	
+	return {
+		'center': center,
+		'width': width,
+		'height': height,
+		'phi': phi,
+		'coefficients': {
+			'a': a,
+			'b': b,
+			'c': c,
+			'd': d,
+			'f': f,
+			'g': g
+		}
+	}
