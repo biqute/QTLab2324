@@ -44,15 +44,6 @@
   <li> Offline data analysis <b> (MISSING) </b>
 </ol>
 
-## Project top-level directory layout
-    
-    QTLab2223
-    │  
-    ├── IRdetection  # Single IR photon detection - MKIDs first part - characterization
-    ├── IRSource     # Single IR photon detection - MKIDs final part - counting
-    ├── PAandQubit   # Qubit and Parametric amplifier characterization   
-    ├── LICENSE      # License file
-    └── README.md    # README file
 
 ## Contributors
 <table>
