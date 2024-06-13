@@ -68,27 +68,28 @@ except Exception:
     logger.critical('Could not crate SMA class object')
     raise SyntaxError('Could not create SMA class object')
 
-try:
-    LO =  8.5e9 
-    pulse_f_min     = LO + 10e6
-    amplitude       = 0  
-    sample_rate     = 250e6
-    k               = 4
-    pulse_period    = k * 1e-6
-    num_points      = int(sample_rate * pulse_period)
-    percent         = 5
-    pulse_width     = pulse_period * (1-percent/100)
-    pulse_delay     = 0
-    
+LO =  8.5e9 
+pulse_f_min     = LO + 10e6
+amplitude       = 0  
+sample_rate     = 250e6
+k               = 4
+pulse_period    = k * 1e-6
+num_points      = int(sample_rate * pulse_period)
+percent         = 5
+pulse_width     = pulse_period * (1-percent/100)
+pulse_delay     = 0
+
+channels = {'I'			: 0, 
+            'Q'			: 1,
+            'trigger'	: 3}
+
+try:    
     sGen.reset()
     sGen.clear()
     sGen.pul_gen_params(delay = pulse_delay, width = pulse_width, period = pulse_period)  
     sGen.pul_gen_mode('SING')
     sGen.pul_trig_mode('SING')
 
-    channels = {'I'			: 0, 
-			    'Q'			: 1,
-			    'trigger'	: 3}
     logger.info('SMA set up correctly')
 except Exception:
     logger.critical('Could not set up SMA')
@@ -112,7 +113,7 @@ except Exception:
 
 try:
     daq.acq_conf = ACQUISITION_CONFIG['acq_conf']
-    logger.info(f'Inserting acquisition configuration from ACQUISITION_CONFIG dictionary')
+    logger.info('Inserting acquisition configuration from ACQUISITION_CONFIG dictionary')
 except Exception:
     logger.warning('Coulkd not insert acquisition configuration')
     raise SystemError('Coulkd not insert acquisition configuration')
@@ -156,7 +157,6 @@ except Exception:
     logger.critical('Could not create new Niscope sesison')
     raise SystemError('Could not create new Niscope session')
 
-
 #===============================================================================================
 #Configure trigger
 #===============================================================================================
@@ -170,22 +170,27 @@ try:
 except Exception:
     logger.warning('Could not implement trigger')
     raise SystemError('Could not implement trigger')
-    
-
 
 #===============================================================================================
 #GET DATA!
 #===============================================================================================
-fsl.set_frequency(LO) # GHz
-fsl.set_output('ON')
+
+try:
+    logger.info(f'FSL is now outputting signal at {LO} GHz')
+    fsl.set_frequency(LO) # GHz
+    fsl.set_output('ON')
+except Exception:
+    logger.critical('FSL is not outputting signal!')
+
 pula = np.arange(pulse_f_min, pulse_f_min + 0.010e9, 0.010e9)
 data_dict   = {'power_(dBm)': amplitude, 'power_(mV peak)': round(Tools.dBm_to_mVpk(amplitude),3), 'freqs': {}}
-counter     = 1
-
 digits_f = "{:0"+str(len(str(len(pula))))+"d}"
+logger.info('Setting SMA amplitude')
 sGen.RF_lvl_ampl(amplitude)
+counter = 1
 
 with daq._session as session:
+    logger.info('Configuring channels')
     daq.configure_channels()
     logger.info('Executing trigger')
 
@@ -198,11 +203,12 @@ with daq._session as session:
         wf_info = []
         logger.info('Initiating fetching...')
         try:
-            waveforms = session.channels[0,1].fetch()#num_samples=total_samples, relative_to=daq._acq_conf['relative_to'], offset=daq._acq_conf['offset'], record_number=daq._acq_conf['num_records'], timeout=daq._acq_conf['timeout'])
+            waveforms = session.channels[0,1,2,3].fetch()#num_samples=total_samples, relative_to=daq._acq_conf['relative_to'], offset=daq._acq_conf['offset'], record_number=daq._acq_conf['num_records'], timeout=daq._acq_conf['timeout'])
         except Exception:
             logger.error('Could not fetch!!')
-            raise SystemError('BASTARDO!')
+            sys.exit()
         dict = {'input_freq_(Hz)'	: pul}
+        logger.info('Cleaning data via FFT')
         for key, value in channels.items():
             logger.info('Looping on channel ' + str(value))
             if key == 'trigger' or value is None:
@@ -214,6 +220,7 @@ with daq._session as session:
             freqs = np.fft.fftfreq(N,T) 
             dict[key+'_freq'] = round(freqs[np.argmax(FT[:N // 2])], 3)
             dict[key+'_power'] = round(Tools.get_avg_power(y = dict[key], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3, 3)
+        logger.info('Synth stopped outputting signal')
         sGen.pul_state(0)
         sGen.RF_state(0)
 
