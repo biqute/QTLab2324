@@ -54,3 +54,15 @@ def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6):
 							plt.grid(True)
 							plt.show()
 	return {'mean': np.mean(y[idx]), 'std' : np.std(y[idx]), 'x': x, 'y': y,'idx': idx}
+
+
+def find_key(dictionary, key_to_find):
+    if key_to_find in dictionary:
+        return dictionary[key_to_find]
+    
+    for key, value in dictionary.items():
+        if isinstance(value, dict):
+            result = find_key(value, key_to_find)
+            if result is not None:
+                return result
+    return None
