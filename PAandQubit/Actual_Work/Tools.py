@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
-import LsqEllipse as Lsq
+from ellipse import LsqEllipse
 from matplotlib.patches import Ellipse
 
 def dBm_to_mVrms(dbm, R = 50):                            # R = 50 Ohm
@@ -73,7 +73,7 @@ def find_key(dictionary, key_to_find):
 def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 
 	X = np.array(list(zip(x, y)))
-	reg = Lsq.LsqEllipse().fit(X)
+	reg = LsqEllipse().fit(X)
 	center, width, height, phi = reg.as_parameters()
 	a, b, c, d, f, g = reg.coefficients
 
