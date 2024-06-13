@@ -220,30 +220,25 @@ with daq._session as session:
             freqs = np.fft.fftfreq(N,T) 
             dict[key+'_freq'] = round(freqs[np.argmax(FT[:N // 2])], 3)
             dict[key+'_power'] = round(Tools.get_avg_power(y = dict[key], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3, 3)
-        logger.info('Synth stopped outputting signal')
         sGen.pul_state(0)
         sGen.RF_state(0)
+        logger.info('Synth stopped outputting signal')
+
+        try:
+            logger.info('Creating new acquisition hdf5 file!!')
+            cam = 'C:\\Users\\oper\\SynologyDrive\\Lab2023\\Qubit\\QTLab2324\\IRSource\\API\\hdf5_temp_files\\'
+            filename = f'Mixer_1135_{round(LO*1e-9,1)}GHz.h5'
+            if os.path.exists(filename+cam):
+                os.remove(filename+cam)
+            Tools.save_dict_to_hdf5(data_dict, filename+cam)
+        except Exception:
+            logger.critical('Could not create file!')
 
         print(f'\rf{digits_f.format(i)}	: {int(counter*100/len(pula))} %\n', end='')
         sys.stdout.flush()
         counter += 1
         data_dict['freqs'][f'f{digits_f.format(i)}'] = dict
     print(fsl.set_output('OFF'))
-
-try:
-    logger.info('Creating new acquisition hdf5 file!!')
-    cam = 'C:\\Users\\oper\\SynologyDrive\\Lab2023\\Qubit\\QTLab2324\\IRSource\\API\\hdf5_temp_files\\'
-    filename = f'Mixer_1135_{round(LO*1e-9,1)}GHz.h5'
-    if os.path.exists(filename+cam):
-        os.remove(filename+cam)
-    Tools.save_dict_to_hdf5(data_dict, filename+cam)
-except Exception:
-    logger.critical('Could not create file!')
-
-
-
-
-
 
 
 '''
