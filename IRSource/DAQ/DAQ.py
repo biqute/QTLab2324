@@ -3,11 +3,12 @@
 # =======================================================================================================================================
 
 from datetime import datetime
+import wave
 import niscope as ni
 from niscope.errors import DriverError
 import numpy as np
 import h5py
-
+from Decorators import utils
 date = datetime.now().strftime("%m-%d-%Y")
 
 class DAQ():
@@ -20,8 +21,8 @@ class DAQ():
         self._channels = []
         self._waveform = []
         self._acq_conf = {}
-        self.i_matrix_ch0, self.q_matrix_ch0, self.timestamp_ch0 = [], [], []
-        self.i_matrix_ch1, self.q_matrix_ch1, self.timestamp_ch1 = [], [], []
+        self._i_matrix_ch0, self._q_matrix_ch0, self._timestamp_ch0 = [], [], []
+        self._i_matrix_ch1, self._q_matrix_ch1, self._timestamp_ch1 = [], [], []
         self._devicename      = None
         self._acq_conf        = None
         self._eq_conf         = None
@@ -178,12 +179,19 @@ class DAQ():
 
     @property 
     def channels(self):
-        print(f'Actual channels list | {self._channels}')
+        print(f'Channels list in class member| {self._channels}')
         return self._channels
     
     @channels.setter 
     def channels(self):
         self._channels = self._session.channels
+
+    @channels.getter
+    def channels(self, retrieve=True):
+        if retrieve:
+            print(f'Actual channels in session | {self._session.channels}')
+            return self._session.channels
+
         
     def get_enabled(self):
         return self._session.enabled_channels
@@ -210,6 +218,25 @@ class DAQ():
     @waveform.setter
     def waveform(self, wf):
         self._waveform = wf   
+
+    @property
+    def record_lenght(self):
+        return self._acq_conf['min_num_points']
+    
+    @record_lenght.getter
+    def record_lenght(self, retrieve_info):
+        if retrieve_info:
+            return self._session.horz_min_num_pts
+        
+    @property
+    def num_records(self):
+        return self._acq_conf['num_records']
+    
+    @num_records.getter
+    def num_records(self, retrieve_info):
+        if retrieve_info:
+            return self._session.horz_record_length
+
     
     def add_wfm_proc(self, meas_function):
         self._session.add_waveform_processing(meas_function)
@@ -230,37 +257,71 @@ class DAQ():
         self._session.channels[1].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
         self._session.channels[2].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
         self._session.channels[3].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
-        self._session.configure_horizontal_timing(self.horizontal_conf['min_sample_rate'], self.horizontal_conf['min_num_pts'], self.horizontal_conf['ref_position'], self.horizontal_conf['num_records'], self.horizontal_conf['enforce_realtime'])        
+        self._session.configure_horizontal_timing(self.horizontal_conf['sample_rate'], self.horizontal_conf['min_num_pts'], self.horizontal_conf['ref_position'], self.horizontal_conf['num_records'], self.horizontal_conf['enforce_realtime'])        
 
+    @utils.exec_time
     def fetch(self, trig):
-        self._session.initiate()
-        trig()
-        try:
-            result = self._session.channels[0,1,2,3].fetch()
-            return result
-        except DriverError:
-            print(f'DriverError in {ni.session.channels.fetch()}')
+        with self._session.initiate():
+            trig()
+            try:
+                return self._session.channels[0,1,2,3].fetch()
+            except DriverError:
+                print(f'DriverError in {ni.Session}')
 
+    @utils.exec_time
     def acquire(self):
         self._session.initiate()
         try:
             self._waveform.extend([self._session.channels[i].fetch(num_samples=self._acq_conf['lenght'], timeout=self._acq_conf['timeout'], relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']) for i in self._channels])
         except DriverError:
-            print(f'DriverError in {ni.session.channels.fetch()}')
+            print(f'DriverError in {ni.Session.channels}')
 
+    @utils.exec_time
+    def single_acquisition(self, trigger):
+        total_samples = int(self._acq_conf['acq_time'] * self._acq_conf['sample_rate'])
+        with self._session as session:
+            trigger()
+            self.configure_channels()
+            with session.initiate():
+                wf_info = []
+                waveforms = session.channels[0,1,2,3].fetch(num_samples=total_samples, relative_to=self._acq_conf['relative_to'], offset=self._acq_conf['offset'], record_number=self._acq_conf['num_records'], timeout=self._acq_conf['timeout'])
+                for (k,wfm) in enumerate(waveforms):
+                    wf_info.append({'Waveform number'   : k,
+                                    'Samples'           : wfm.samples,
+                                    'Relative_initial_x': wfm.relative_initial_x,
+                                    'Absolute_initial_x': wfm.absolute_initial_x,
+                                    'x_increment'       : wfm.x_increment,
+                                    'Channel'           : wfm.channel,
+                                    'Record'            : wfm.record,
+                                    'Gain'              : wfm.gain,
+                                    'Offset'            : wfm.offset })
+        self.waveform(waveforms)
+        return waveforms, wf_info
+                    
+
+    @utils.exec_time
+    def acquisition(self):
+        self._i_matrix_ch0.append(np.array(self.session.channels[self.channels[0]].read(num_samples=self._acq_conf['length'], timeout=5)[0].samples).mean())
+        self._q_matrix_ch0.append(np.array(self.session.channels[self.channels[1]].read(num_samples=self._acq_conf['length'], timeout=5)[0].samples).mean())
+        self._i_matrix_ch1.append(np.array(self.session.channels[self.channels[2]].read(num_samples=self._acq_conf['length'], timeout=5)[0].samples).mean())
+        self._q_matrix_ch1.append(np.array(self.session.channels[self.channels[3]].read(num_samples=self._acq_conf['length'], timeout=5)[0].samples).mean())
+
+        return None
+
+    @utils.exec_time
     def fill_matrix(self, return_data=False):
         for i in range(self.acq_conf['num_records']):
-            self.i_matrix_ch0.append(np.array(self._waveform[0][i].samples))
-            self.q_matrix_ch0.append(np.array(self._waveform[1][i].samples))
-            self.timestamp_ch0.append(self._waveform[0][i].absolute_initial_x)
+            self._i_matrix_ch0.append(np.array(self._waveform[0][i].samples))
+            self._q_matrix_ch0.append(np.array(self._waveform[1][i].samples))
+            self._timestamp_ch0.append(self._waveform[0][i].absolute_initial_x)
             try:
-                self.i_matrix_ch1.append(np.array(self._waveform[2][i].samples))
-                self.q_matrix_ch1.append(np.array(self._waveform[3][i].samples))
-                self.timestamp_ch1.append(self._waveform[2][i].absolute_initial_x)
+                self._i_matrix_ch1.append(np.array(self._waveform[2][i].samples))
+                self._q_matrix_ch1.append(np.array(self._waveform[3][i].samples))
+                self._timestamp_ch1.append(self._waveform[2][i].absolute_initial_x)
             except Exception:
                 pass
         if return_data:
-            return self._i_matrix, self._q_matrix, self._timestamp
+            return self._i_matrix_ch0, self._q_matrix_ch0, self._timestamp_ch0
         else:
             return None
 

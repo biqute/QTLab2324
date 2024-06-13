@@ -9,6 +9,7 @@ import logging
 from logging.config import dictConfig
 from logs.logging_config import LOGGING_CONFIG
 from synth import synth
+import numpy as np
 
 def replace_non_serializable(obj):
     if isinstance(obj, dict):
@@ -156,6 +157,13 @@ except Exception:
 #Acquire data
 #===============================================================================================
 
+
+
+
+
+
+
+'''
 def external_trigger():
     pass
 
@@ -165,6 +173,7 @@ try:
 except Exception:
     logger.critical('Not acquiring data!')
     raise SystemError('Not acquiring data!')
+
 
 try:
     s1.set_outpt_stat('OFF')
@@ -176,3 +185,4 @@ try:
     logger.info('1st synth is not outputting signal')
 except Exception:
     logger.error('2nd synth has NOT stopped outputting signal')
+'''

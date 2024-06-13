@@ -1,4 +1,6 @@
 import sys
+
+from IRSource.diodo.diodo import trigger
 sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger")
 sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\DAQ")
 sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions')
@@ -82,7 +84,7 @@ try:
     sGen.RF_freq(pulse_freq)
     sGen.RF_lvl_ampl(amplitude)
     logger.info('SMA set up correctly')
-except:
+except Exception:
     logger.critical('Could not set up SMA')
     raise SystemError('Could not create SMA class object')
 
@@ -172,12 +174,10 @@ try:
 except Exception:
     logger.warning('Could not implement edge trigger')
     raise SystemError('Could not implement edge trigger')
-
     
 #===============================================================================================
 #Test DAQ configuration
 #===============================================================================================
-
 
 try:
     daq.test()
@@ -190,30 +190,15 @@ except Exception:
 #===============================================================================================
 fsl.set_frequency(1) # GHz
 fsl.set_output('ON')
+sGen.RF_freq(pulse_freq) 
+sGen.pul_state(1)
+sGen.RF_state(1)
 
-Q_CH = 1
-I_CH = 2
-trig_CH = 3
+try:
+    waveforms, infos = daq.singleac(sGen.pul_exe_sing_trig)
+    logger.info('Retrieving data...')
+except Exception:
+    logger.error('Could not retrieve data!')
+    raise SystemError ('Could not retrieve data!')
 
-waveform = []
-
-with ni.Session('PXI1Slot3') as s:
-    try:
-        s.initiate()
-        logger.info('Niscope session initiated successfully')
-        logger.info('Filling I-Q matrix')
-        print(s.channels[0])
-        waveform.extend([s.channels[i].fetch(num_samples=daq.acq_conf['lenght'], timeout=daq.acq_conf['timeout'], relative_to=daq.acq_conf['relative_to'], num_records=daq.acq_conf['num_records']) for i in daq.acq_conf['channels']])
-        '''
-            daq.i_matrix_ch0.append(np.array(daq.waveform[0][i].samples))
-            daq.q_matrix_ch0.append(np.array(daq.waveform[1][i].samples))
-            daq.timestamp_ch0.append(daq.waveform[0][i].absolute_initial_x)
-            try:
-                daq.i_matrix_ch1.append(np.array(daq.waveform[2][i].samples))
-                daq.q_matrix_ch1.append(np.array(daq.waveform[3][i].samples))
-                daq.timestamp_ch1.append(daq.waveform[2][i].absolute_initial_x)
-            except:
-                pass
-        '''
-    except Exception:
-        logger.error('Filling I-Q matrix ended badly')
+daq._session.close()
