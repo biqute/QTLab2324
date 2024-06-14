@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from ellipse import LsqEllipse
 from matplotlib.patches import Ellipse
 import h5py
+import Config as par
 
 
 # //////////////////////////////////////////////////////// [dBm - mV Converter] ///////////////////////////////////////////////////////////////// #
@@ -43,27 +44,6 @@ def mVpp_to_dBm(mv, R = 50):
 
 
 # /////////////////////////////////////////////////////////// [Other functions] ///////////////////////////////////////////////////////////////// #
-
-
-def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6):
-	x = np.arange(len(y))/sample_rate
-	std = np.std(y)
-	indices = find_peaks(y, prominence=2*(np.max(y) - std))
-	idx = indices[0]
-	offset = 5
-	idx = idx[offset:-offset]
-	
-	if toggle_plot:
-							plt.figure(figsize=(10, 6)) 
-							plt.plot(x, y, label='Signal')
-							plt.scatter(x[idx], y[idx], color='orange', label='Peaks')
-							plt.xlabel('Time (s)')
-							plt.ylabel('Amplitude')
-							plt.title('Signal with Peaks')
-							plt.legend()
-							plt.grid(True)
-							plt.show()
-	return {'mean': np.mean(y[idx]), 'std' : np.std(y[idx]), 'x': x, 'y': y,'idx': idx}
 
 
 def find_key(dictionary, key_to_find):
@@ -179,7 +159,29 @@ def load_hdf5_to_dict(hdf5_file, group_name=''):
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
 
-def fetch_freq_range(f_range, CHs, SG_Class, pxie_Class):
+def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6):
+	x = np.arange(len(y))/sample_rate
+	std = np.std(y)
+	indices = find_peaks(y, prominence=2*(np.max(y) - std))
+	idx = indices[0]
+	offset = 5
+	idx = idx[offset:-offset]
+	
+	if toggle_plot:
+							plt.figure(figsize=(10, 6)) 
+							plt.plot(x, y, label='Signal')
+							plt.scatter(x[idx], y[idx], color='orange', label='Peaks')
+							plt.xlabel('Time (s)')
+							plt.ylabel('Amplitude')
+							plt.title('Signal with Peaks')
+							plt.legend()
+							plt.grid(True)
+							plt.show()
+	print(np.mean(y[idx]))
+	return {'mean': np.mean(y[idx]), 'std' : np.std(y[idx]), 'x': x, 'y': y,'idx': idx}
+
+
+def fetch_freq_range(f_range, CHs, LO, SG_Class, pxie_Class, sample_rate = 250e6):
 	counter = 1
 	digits_f = "{:0"+str(len(str(len(f_range))))+"d}"
 	f_dict = {  'RF_input_Hz':  {},
@@ -203,7 +205,10 @@ def fetch_freq_range(f_range, CHs, SG_Class, pxie_Class):
 				N = len(dict[value])
 				freqs = np.fft.fftfreq(N,1/sample_rate) 
 				dict['f_'+value+'_Hz'] = freqs[np.argmax(FT[:N // 2])]
-				dict['p_'+value+'_mV'] = Tools.get_avg_power(y = dict[value], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
+				# dict['p_'+value+'_mV'] = get_avg_power(y = dict[value], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
 		f_dict['RF_input_Hz'][f'f{digits_f.format(i)}'] = dict
 		
 	return f_dict
+
+
+	

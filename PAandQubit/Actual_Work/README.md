@@ -1,6 +1,7 @@
 ## Useful links
 >- IQ-Mixer (IQ0318): https://www.mwstore.com/static/download/catalog/0/IQ-0318.pdf
 >- Cable (SUCOFLEX 104): https://www.limpulsion.fr/upload/docs/SUCOFLEX104.PDF
+>- QuickSyn FSL001: http://ni-microwavecomponents.com/datasheets/QuickSyn_Brochure_Datasheet.pdf
 >- https://arxiv.org/pdf/2310.05238
 >- https://arxiv.org/pdf/1904.06560
 
@@ -11,3 +12,20 @@
 
 - cilindro di rame: utile perché...
 - cilindro di schermo magnetico: per evitare che i campi magnetici interferiscano col sistema
+
+
+
+
+---
+
+offset: mi regola il leakedge della     LO
+ampiezza:
+
+guardare l'on off ratio
+
+
+AWG:
+- QSyn_freq = 8 GHz
+- BEST OFFSET: 500 mV
+- BEST AMPLITUDE: 990 mVpp
+- IQMixer: 0318L
