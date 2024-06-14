@@ -146,9 +146,10 @@ class PXIe5170R:
         a = edge_trigger(str(trigger_channel))
         a.configure(self._session)
         
-    def acquisition(self, trig):
+    def acquisition(self, trig = None):
         with self._session.initiate():
-            trig()
+            if trig != None:
+                trig()
             # print(self._session.acquisition_status())
             try:
                 return self._session.channels[0,1,2,3].fetch()#relative_to = ni.FetchRelativeTo.TRIGGER)

@@ -1,7 +1,8 @@
 # =======================================================================================================================================
 # This class  is used to represent a NI-Scope device. It contains methods for DAQ set-up, acquiring data from the scope and plotting it.
 # =======================================================================================================================================
-
+import sys
+sys.path.insert(1,r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324')
 from datetime import datetime
 import wave
 import niscope as ni
@@ -31,13 +32,6 @@ class DAQ():
         self._vertical_conf   = {}
         self._horizontal_conf = {}
 
-    def __new__(cls):
-        if cls._instance is None:
-            try:
-                print(f"Calling {cls.__new__} method")
-                cls = super(DAQ,cls).__new__(cls)
-            except Exception:
-                raise TimeoutError('Could not create new class instance')
             
     @property
     def devicename(self):
@@ -54,13 +48,23 @@ class DAQ():
 #===================================================================================================================================
 #__Card__ configuration__ 
 #===================================================================================================================================            
+    
+    @property
+    def acq_conf(self):
+        return self._acq_conf
+
+    @acq_conf.setter
+    def acq_conf(self, config):
+        self._acq_conf = config
+    
+    
     @property
     def vertical_conf(self):
         return self._vertical_conf
     
     @vertical_conf.setter
     def vertical_conf(self, vc):
-        self.vertical_conf = vc
+        self._vertical_conf = vc
             
     @property
     def horizontal_conf(self):
@@ -68,7 +72,7 @@ class DAQ():
     
     @horizontal_conf.setter
     def horizontal_conf(self,hc):
-        self.horizontal_conf = hc
+        self._horizontal_conf = hc
         
             
     @property
@@ -77,8 +81,7 @@ class DAQ():
     
     @chan_conf.setter
     def chan_conf(self, cc):
-        self.chan_conf =  cc
-        self._session.configure_chan_characteristics(self.chan_conf['input_impedance'], self.chan_conf['max_frequency'])
+        self._chan_conf =  cc
         
     @property
     def eq_conf(self):
@@ -103,29 +106,30 @@ class DAQ():
 
     @property
     def trigger_type(self):
-        print(f'Actual trigger type | {self.trigger_type}')
+        print(f'Actual trigger type | {self._trigger_type}')
         return self._trigger_type
     
     @trigger_type.setter
     def trigger_type(self):
-        self.trigger_type = self.trigger_dic['trigger_type']
+        self._trigger_type = self._trigger_dic['trigger_type']
         
     @property
     def trigger_dic(self):
-        return self.trigger_dic
+        return self._trigger_dic
     
     @trigger_dic.setter
     def trigger_dic(self, dic):
-        self.trigger_dic = dic
+        self._trigger_dic = dic
+        self._trigger_type = dic['trigger_type']
     
     def config_trigger(self):
-        if(self.trigger_type == "IMM"):
+        if(self._trigger_type == "IMM"):
             self._session.configure_trigger_immediate()
-        elif (self.trigger_type == "DIG"):
+        elif (self._trigger_type == "DIG"):
             self._session.configure_trigger_digital(self._trigger_dic['trigger_source'], self._trigger_dic['slope'], self._trigger_dic['holdoff'], self._trigger_dic['delay'])
-        elif (self.trigger_type == "EDGE"):
+        elif (self._trigger_type == "EDGE"):
             self._session.configure_trigger_edge(self._trigger_dic['trigger_source'], self._trigger_dic['level'], self._trigger_dic['trigger_coupling'], self._trigger_dic['slope'], self._trigger_dic['holdoff'], self._trigger_dic['delay'])
-        elif (self.trigger_type == 'SOF'):
+        elif (self._trigger_type == 'SOF'):
             self._session.configure_trigger_software(self._trigger_dic['holdoff'], self._trigger_dic['delay'])
 
 #===================================================================================================================================
@@ -172,7 +176,7 @@ class DAQ():
         self._session.reset_device()     
         
     def reset_with_def(self):
-        self._session.reset_with_defaults()    
+        self._session.reset_with_defaults()
     
     def commit(self):
         self._session.commit()
@@ -197,8 +201,12 @@ class DAQ():
         return self._session.enabled_channels
 
     def enable_channels(self):
-        for i in range(self._session.channel_count):
-            self._channels[i].channel_enabled = True
+        if self._session is not None:
+            for i in range(self._session.channel_count):
+                try:
+                    self._channels[i].channel_enabled = True
+                except Exception:
+                    print(f'Not working on channel n°{i}')
 
                 
 #===================================================================================================================================
@@ -253,10 +261,10 @@ class DAQ():
 #===================================================================================================================================
     
     def configure_channels(self):
-        self._session.channels[0].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
-        self._session.channels[1].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
-        self._session.channels[2].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
-        self._session.channels[3].configure_vertical(range = self._vertical_conf['voltage_range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[0].configure_vertical(range = self._vertical_conf['range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[1].configure_vertical(range = self._vertical_conf['range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[2].configure_vertical(range = self._vertical_conf['range'], coupling = self._vertical_conf['coupling'])
+        self._session.channels[3].configure_vertical(range = self._vertical_conf['range'], coupling = self._vertical_conf['coupling'])
         self._session.configure_horizontal_timing(self.horizontal_conf['sample_rate'], self.horizontal_conf['min_num_pts'], self.horizontal_conf['ref_position'], self.horizontal_conf['num_records'], self.horizontal_conf['enforce_realtime'])        
 
     @utils.exec_time
