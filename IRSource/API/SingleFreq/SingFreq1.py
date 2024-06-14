@@ -4,20 +4,22 @@ sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\L
 sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\DAQ")
 sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Logger\logs\sessions')
 sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\Exceptions')
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API')
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\SingleFreq')
+
 import json
 from DAQ import DAQ
 from Acquisition_config import ACQUISITION_CONFIG
 import logging
 from logging.config import dictConfig
-from logs.logging_config import LOGGING_CONFIG
-from  Exceptions import replace_non_serializable, trai
+from SingleFreq.logs.logging_config import LOGGING_CONFIG 
+from Exceptions import replace_non_serializable
 from PAmodules.QuickSyn import FSL_0010
 from PAmodules.network.RS_Signal_Generator import RS_SMA100B
-from niscope.errors import DriverError
 import numpy as np
 import niscope as ni
 from PAmodules import Tools
-import pandas as pd
+import matplotlib.pyplot as plt
 
 #===============================================================================================
 #Save acquisition configuration parameters for DAQ configuration
@@ -25,8 +27,7 @@ import pandas as pd
 
 ip   = '192.168.40.15'   # Set IP address of SMA
 devicename = 'PXI1Slot3' 
-ACQUISITION_CONFIG['acq_conf']['path'] = r'C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\SingleFreq\\logs\\'
-filepath = r'C:\\Users\\kid\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\SingleFreq\\files\\'
+filepath = r'C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\SingleFreq\files\png'
 
 #===============================================================================================
 #Import logger configuration
@@ -38,7 +39,7 @@ logger.info('START EXECUTION')
 try:
     cfg1 = json.dumps(replace_non_serializable(ACQUISITION_CONFIG))
     logger.info('Dumping acquisition configuration')
-    with open(ACQUISITION_CONFIG['acq_conf']['path'] + '.json','w') as f:
+    with open(ACQUISITION_CONFIG['acq_conf']['path'] + 'config.json','w') as f:
         f.write(cfg1)
 except Exception:
     logger.critical('Dumping acquisition configuration')
@@ -183,37 +184,34 @@ except Exception:
     logger.critical('FSL is not outputting signal!')
 
 power = round(Tools.dBm_to_mVpk(amplitude))
-logger.info('Setting SMA amploitude')
+logger.info('Setting SMA amplitude')
 sGen.RF_lvl_ampl(amplitude)
 
 with daq._session as session:
+    print(daq._session)
     logger.info('Configuring channels')
     daq.configure_channels()
     logger.info('Executing trigger')
     sGen.RF_freq(pulse_f_min) 
     sGen.pul_state(1)
     sGen.RF_state(1)
-    logger.info('Initiating session')
     data = {'CH0': [],
             'CH1': [],
             'CH2': [],
             'CH3': []}
     wf_info = []
     try:
+        daq._session.initiate()
+        logger.info('Session initiated')
+    except Exception:
+        logger.critical('Could not initiate session')
+    try:
         logger.info('Initiating fetching...')
-        waveforms = session.channels[0,1,2,3].fetch()#num_samples=total_samples, relative_to=daq._acq_conf['relative_to'], offset=daq._acq_conf['offset'], record_number=daq._acq_conf['num_records'], timeout=daq._acq_conf['timeout'])
+        waveforms = session.channels[0,1].fetch()
         logger.info('Converting wfm[0] into dictionary')
         data['CH0'] = np.array(waveforms[0].samples.tolist())
         logger.info('Converting wfm[1] into dictionary')
-        data['CH1'] = np.array(waveforms[1].samples.tolist())
-        logger.info('Converting wfm[2] into dictionary')
-        data['CH2'] = np.array(waveforms[2].samples.tolist())
-        logger.info('Converting wfm[3] into dictionary')
-        data['CH3'] = np.array(waveforms[3].samples.tolist())
-        logger.info('Creating Pandas Dataframe')
-        df = pd.DataFrame(data)
-        logger.info('Converting Pandas DataFrame to new file...')
-        df.to_hdf(filepath+'_1')
+        data['CH1'] = np.array(waveforms[1].samples.tolist()) 
     except Exception:
         logger.error('Could not fetch!!')
         sys.exit()
@@ -227,7 +225,13 @@ with daq._session as session:
         logger.critical("Synth hasn't stopped outputting signal!")
 
     try:
-        logger.info('Saving data plot')
-        Tools.rough_plotter(data,sample_rate,name=filepath+'png\\run_1')
+        for key, item in data.items():
+            if key not in ['CH2','CH3']:
+                logger.info('Saving data plot for'+str(key))
+                fig = Tools.channel_plotter(data, str(key), sample_rate)
+                fig.savefig(str(filepath)+'_TEST_'+str(key)+'.png')
+        S21 = np.sqrt(data['CH0']**2+data['CH1']**2)
+        fig = Tools.plotS21(S21, sample_rate)
+        fig.savefig(str(filepath)+'_TEST_S21.png')
     except Exception:
-        logger.warning('Could not save fig!')
+        logger.warning('Could not save Plots!')
