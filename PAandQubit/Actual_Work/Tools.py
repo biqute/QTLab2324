@@ -5,6 +5,10 @@ from ellipse import LsqEllipse
 from matplotlib.patches import Ellipse
 import h5py
 
+
+# //////////////////////////////////////////////////////// [dBm - mV Converter] ///////////////////////////////////////////////////////////////// #
+
+
 def dBm_to_mVrms(dbm, R = 50):                            # R = 50 Ohm
 
 	return (np.sqrt(R * 10**((dbm - 30)/10)))* 1e3
@@ -36,6 +40,9 @@ def dBm_to_mVpp(dbm, R = 50):                            # R = 50 Ohm
 def mVpp_to_dBm(mv, R = 50):
 
 	return 10 * np.log10((mv * 1e-3)**2 * 125 / R)
+
+
+# /////////////////////////////////////////////////////////// [Other functions] ///////////////////////////////////////////////////////////////// #
 
 
 def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6):
@@ -125,7 +132,7 @@ def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 	}
 
 
-
+# //////////////////////////////////////////////////////////// [HDF5 functions] ///////////////////////////////////////////////////////////////// #
 
 def save_dict_to_hdf5(data, hdf5_file, group_name=''):
     
@@ -150,7 +157,6 @@ def save_dict_to_hdf5(data, hdf5_file, group_name=''):
 
 
 
-
 def load_hdf5_to_dict(hdf5_file, group_name=''):
 
     def recursively_load(h5group):
@@ -172,3 +178,32 @@ def load_hdf5_to_dict(hdf5_file, group_name=''):
     return data_dict
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
+
+def fetch_freq_range(f_range, CHs, SG_Class, pxie_Class):
+	counter = 1
+	digits_f = "{:0"+str(len(str(len(f_range))))+"d}"
+	f_dict = {  'RF_input_Hz':  {},
+				'LO_input_Hz':  LO}
+	for i, f in enumerate(f_range):
+		print(f'\rf{digits_f.format(i)}	: {int(counter*100/len(f_range))} %', end='', flush = True)
+		counter += 1
+
+		SG_Class.RF_freq(f_range) 
+		SG_Class.pul_state(1)
+		SG_Class.RF_state(1)
+		waveforms = pxie_Class.acquisition(SG_Class.pul_exe_sing_trig)
+		SG_Class.pul_state(0)
+		SG_Class.RF_state(0)
+
+		dict = {}
+		for key, value in CHs.items():
+			if value == 'I' or value == 'Q':
+				dict[value] = np.array(waveforms[int(key)].samples.tolist())
+				FT = np.abs(np.fft.fft(dict[value]))
+				N = len(dict[value])
+				freqs = np.fft.fftfreq(N,1/sample_rate) 
+				dict['f_'+value+'_Hz'] = freqs[np.argmax(FT[:N // 2])]
+				dict['p_'+value+'_mV'] = Tools.get_avg_power(y = dict[value], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
+		f_dict['RF_input_Hz'][f'f{digits_f.format(i)}'] = dict
+		
+	return f_dict

@@ -162,14 +162,3 @@ class SMA100B:
 
 	def RF_lvl_ampl(self, amplitude: float):
 		self._resource.write(f'SOUR:POW:LEV:IMM:AMPL {amplitude}')
-
-##### FUNZIONI DA IMPLEMENTARE????? #####
-
-
-
-####### MODULATION ######
-#pulse_mod_sour? (pulse generator or external)
-#pulse external connector: impedance, polarity, threshold
-
-
-####### FREQUENCY ######à
