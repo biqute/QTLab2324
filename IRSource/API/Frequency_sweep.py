@@ -89,7 +89,6 @@ try:
     sGen.pul_gen_params(delay = pulse_delay, width = pulse_width, period = pulse_period)  
     sGen.pul_gen_mode('SING')
     sGen.pul_trig_mode('SING')
-
     logger.info('SMA set up correctly')
 except Exception:
     logger.critical('Could not set up SMA')

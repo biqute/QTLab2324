@@ -70,6 +70,25 @@ def find_key(dictionary, key_to_find):
                 return result
     return None
 
+def rough_plotter(data, sample_rate,name):
+	x = np.arange(len(data['CH0']))/sample_rate
+	fig, axs = plt.subplots(2,2)
+	axs[0][0].scatter(x, data['CH0'], color='black', marker='.', label='CH0')
+	axs[0][0].set_xlabel('Timestamp')
+	axs[0][0].set_ylabel('Signal')
+	axs[0][1].scatter(x, data['CH1'], color='black', marker='.', label='CH1')
+	axs[0][1].set_xlabel('Timestamp')
+	axs[0][1].set_ylabel('Signal')
+	axs[1][0].scatter(x, data['CH2'], color='black', marker='.', label='CH2')
+	axs[1][0].set_xlabel('Timestamp')
+	axs[1][0].set_ylabel('Signal')
+	axs[1][1].scatter(x, data['CH3'], color='black', marker='.', label='CH3')
+	axs[1][1].set_xlabel('Timestamp')
+	axs[1][1].set_ylabel('Signal')
+	fig.set_facecolor('bisque')
+	plt.savefig(str(name)+'.png','.png')
+	
+
 '''
 def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 
