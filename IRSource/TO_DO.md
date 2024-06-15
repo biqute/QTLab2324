@@ -16,7 +16,7 @@
       <li>  Triangulate with resonances fit
         <p> Now we know which detector we should listen to </p>
   <li> Anomalies?
-    <li> Are esonators behaving themselves???
+    <li> Are resonators behaving themselves???
     <li> Chryostat problems?...
     <li> VNA?...
 </ol>
@@ -30,11 +30,13 @@
   <li> Acquisition Card Class <b> (WIP) </b>
     <ul> Actual problems:
       <li>
-      <li> Dunno how to properly get data
+      <li> Dunno how to properly get data 
       <li> Dunno how to properly save data
   <li> Synthesizers Class <b> DONE </b>
   <li> Diode class <b> DONE </b>
-  <li> HDF5 class - to save data <b> (MISSING) </b>
+  <ul> Tools class <b> (MISSING) </b>:
+    <li> Save data as compressed hdf5
+    <li> Load data from compressed hdf5
   <li> Trigger <b> (MISSING) </b>
     <ul> How should we do the trigger?
       <li> Threshold?
