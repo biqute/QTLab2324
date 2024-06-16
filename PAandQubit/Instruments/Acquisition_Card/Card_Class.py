@@ -6,6 +6,7 @@ import niscope as ni
 from niscope.errors import DriverError
 import time
 import sys
+import numpy as np
 
 class digital_trigger:
     def __init__(self, source = 'VAL_PFI_0'):
@@ -152,7 +153,11 @@ class PXIe5170R:
                 trig()
             # print(self._session.acquisition_status())
             try:
-                return self._session.channels[0,1,2,3].fetch()#relative_to = ni.FetchRelativeTo.TRIGGER)
+                waveforms = self._session.channels[0,1,2,3].fetch()
+                dict = {}
+                for i in range(4):
+                    dict['CH'+str(i)] = np.array([np.array(wfm.samples.tolist()) for wfm in waveforms if wfm.channel == str(i)])
+                return dict
             except DriverError:
                 print('DriverError in ni.session.channels.fetch()')
                 sys.exit(0)

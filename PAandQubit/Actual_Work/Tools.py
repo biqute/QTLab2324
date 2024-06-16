@@ -47,15 +47,15 @@ def mVpp_to_dBm(mv, R = 50):
 
 
 def find_key(dictionary, key_to_find):
-    if key_to_find in dictionary:
-        return dictionary[key_to_find]
-    
-    for key, value in dictionary.items():
-        if isinstance(value, dict):
-            result = find_key(value, key_to_find)
-            if result is not None:
-                return result
-    return None
+	if key_to_find in dictionary:
+		return dictionary[key_to_find]
+	
+	for key, value in dictionary.items():
+		if isinstance(value, dict):
+			result = find_key(value, key_to_find)
+			if result is not None:
+				return result
+	return None
 
 
 def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
@@ -78,6 +78,11 @@ def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 		print(f'f	: {f}')
 		print(f'g	: {g}')
 		print('-----------------------------')
+		print(Tools.find_key(dictionary, 'power_(mV peak)'))
+		maxes = max(width, height)                                      # maxes è il semiasse più grande dell'ellisse. Sarà giusto?
+		Attenuation = (maxes*1e3/Tools.find_key(dictionary, 'power_(mV peak)'))
+		print('Attenuation is:   ', Attenuation)
+		print('Delta dBm is :   ', Tools.find_key(dictionary, 'power_(dBm)') - Tools.mVpk_to_dBm(maxes*1e3))
 
 	if toggle_plot:
 		fig = plt.figure(figsize=(6, 6))
@@ -115,70 +120,74 @@ def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 # //////////////////////////////////////////////////////////// [HDF5 functions] ///////////////////////////////////////////////////////////////// #
 
 def save_dict_to_hdf5(data, hdf5_file, group_name=''):
-    
-    def recursively_save(h5file, path, dictionary):
-        for key, item in dictionary.items():
-            if isinstance(item, dict):
-                new_group = h5file.require_group(path + key + '/')
-                recursively_save(h5file, path + key + '/', item)
-            else:
-                # Create or update dataset
-                if path + key in h5file:
-                    del h5file[path + key]
-                h5file.create_dataset(path + key, data=item)    
-    
-    with h5py.File(hdf5_file, 'a') as f:  # 'a' mode opens the file in append mode
-        if group_name:
-            group = f.require_group(group_name)
-        else:
-            group = f
-        
-        recursively_save(group, '/', data)
+	
+	def recursively_save(h5file, path, dictionary):
+		for key, item in dictionary.items():
+			if isinstance(item, dict):
+				new_group = h5file.require_group(path + key + '/')
+				recursively_save(h5file, path + key + '/', item)
+			else:
+				# Create or update dataset
+				if path + key in h5file:
+					del h5file[path + key]
+				h5file.create_dataset(path + key, data=item)    
+	
+	with h5py.File(hdf5_file, 'a') as f:  # 'a' mode opens the file in append mode
+		if group_name:
+			group = f.require_group(group_name)
+		else:
+			group = f
+		
+		recursively_save(group, '/', data)
 
 
 
 def load_hdf5_to_dict(hdf5_file, group_name=''):
 
-    def recursively_load(h5group):
-        dictionary = {}
-        for key, item in h5group.items():
-            if isinstance(item, h5py.Dataset):
-                dictionary[key] = item[()]
-            elif isinstance(item, h5py.Group):
-                dictionary[key] = recursively_load(item)
-        return dictionary
+	def recursively_load(h5group):
+		dictionary = {}
+		for key, item in h5group.items():
+			if isinstance(item, h5py.Dataset):
+				dictionary[key] = item[()]
+			elif isinstance(item, h5py.Group):
+				dictionary[key] = recursively_load(item)
+		return dictionary
 
-    with h5py.File(hdf5_file, 'r') as f:
-        if group_name:
-            group = f[group_name]
-        else:
-            group = f
-        data_dict = recursively_load(group)
-    
-    return data_dict
+	with h5py.File(hdf5_file, 'r') as f:
+		if group_name:
+			group = f[group_name]
+		else:
+			group = f
+		data_dict = recursively_load(group)
+	
+	return data_dict
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
 
-def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6):
+def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6, offset = 5):
 	x = np.arange(len(y))/sample_rate
 	std = np.std(y)
-	indices = find_peaks(y, prominence=2*(np.max(y) - std))
-	idx = indices[0]
-	offset = 5
-	idx = idx[offset:-offset]
+	idcs = find_peaks(y, prominence=2*(np.max(y) - std))[0]
+	idcs = idcs[offset:len(idcs)-max(offset, 0)]
 	
 	if toggle_plot:
 							plt.figure(figsize=(10, 6)) 
 							plt.plot(x, y, label='Signal')
-							plt.scatter(x[idx], y[idx], color='orange', label='Peaks')
+							plt.scatter(x[idcs], y[idcs], color='orange', label='Peaks')
 							plt.xlabel('Time (s)')
 							plt.ylabel('Amplitude')
 							plt.title('Signal with Peaks')
 							plt.legend()
 							plt.grid(True)
 							plt.show()
-	print(np.mean(y[idx]))
-	return {'mean': np.mean(y[idx]), 'std' : np.std(y[idx]), 'x': x, 'y': y,'idx': idx}
+	if len(idcs) == 0:
+		print("No peaks found.")
+		return {'mean': None, 'std': None, 'x': x, 'y': y, 'idx': idcs}
+	
+	mean_value = np.mean(y[idcs])
+	std_value = np.std(y[idcs])
+	print(mean_value)
+	return {'mean': mean_value, 'std': std_value, 'x': x, 'y': y, 'idx': idcs}
 
 
 def fetch_freq_range(f_range, CHs, LO, SG_Class, pxie_Class, sample_rate = 250e6):
@@ -205,7 +214,7 @@ def fetch_freq_range(f_range, CHs, LO, SG_Class, pxie_Class, sample_rate = 250e6
 				N = len(dict[value])
 				freqs = np.fft.fftfreq(N,1/sample_rate) 
 				dict['f_'+value+'_Hz'] = freqs[np.argmax(FT[:N // 2])]
-				# dict['p_'+value+'_mV'] = get_avg_power(y = dict[value], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
+				dict['p_'+value+'_mV'] = get_avg_power(y = dict[value], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
 		f_dict['RF_input_Hz'][f'f{digits_f.format(i)}'] = dict
 		
 	return f_dict
