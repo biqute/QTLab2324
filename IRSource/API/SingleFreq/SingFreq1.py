@@ -19,7 +19,7 @@ from PAmodules.network.RS_Signal_Generator import RS_SMA100B
 import numpy as np
 import niscope as ni
 from PAmodules import Tools
-import matplotlib.pyplot as plt
+from HDF5 import HDF5 as h5
 
 #===============================================================================================
 #Save acquisition configuration parameters for DAQ configuration
@@ -223,6 +223,17 @@ with daq._session as session:
         logger.info('Synth stopped outputting signal')
     except Exception:
         logger.critical("Synth hasn't stopped outputting signal!")
+
+    try:
+        hdf5 = h5()
+        path = r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRSource\API\SingleFreq\files'
+        hdf5.name = '\Test.hdf5'
+        hdf5.dic = data
+        hdf5.to_hdf5()
+        logger.info('Transfering data from python dic to '+str(path+hdf5.name))
+    except Exception:
+        logger.warning('Could not transfer data into '+str(path+hdf5.name))
+
 
     try:
         for key, item in data.items():

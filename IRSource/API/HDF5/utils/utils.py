@@ -18,7 +18,7 @@ def exec_time(func):
         t0 = time.time()
         res = func(*args, **kwargs)
         tf = time.time()
-        print("Execution time: %2d" % tf-t0)
+        print("Execution time: " + str(round(tf - t0, 3)))
         return res
     return wrapper
 
