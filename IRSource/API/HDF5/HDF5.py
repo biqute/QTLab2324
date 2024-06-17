@@ -42,6 +42,7 @@ class HDF5():
                 else:
                     file.create_dataset(gkey, data=gvalue)
         return file 
+                
     
     @utils.exec_time
     def load_hdf5(self):
@@ -55,4 +56,4 @@ class HDF5():
             return result
 
         with h5.File(self._filename, 'r') as file:
-            self._dic = recursively_load_group(file)
+            return recursively_load_group(file)
