@@ -236,13 +236,12 @@ with daq._session as session:
 
 
     try:
-        for key, item in data.items():
-            if key not in ['CH2','CH3']:
-                logger.info('Saving data plot for'+str(key))
-                fig = Tools.channel_plotter(data, str(key), sample_rate)
-                fig.savefig(str(filepath)+'_TEST_'+str(key)+'.png')
-        S21 = np.sqrt(data['CH0']**2+data['CH1']**2)
-        fig = Tools.plotS21(S21, sample_rate)
-        fig.savefig(str(filepath)+'_TEST_S21.png')
+        logger.info('Saving plots...')
+        fig1 = Tools.S21_plotter(data, sample_rate)
+        fig2 = Tools.channel_plotter(data,sample_rate)
+        fig3 = Tools.IQ_plotter(data, sample_rate)
+        fig1.savefig(str(filepath)+'_TEST_S21.png')
+        fig2.savefig(str(filepath)+'_TEST_CHANNELS.png')
+        fig3.savefig(str(filepath)+'_TEST_IQ.png')
     except Exception:
         logger.warning('Could not save Plots!')
