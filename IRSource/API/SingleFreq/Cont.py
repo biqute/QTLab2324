@@ -70,9 +70,9 @@ except Exception:
     logger.critical('Could not crate SMA class object')
     raise SyntaxError('Could not create SMA class object')
 
-LO =  8e9 
-pulse_f_min     = LO + 2e6
-amplitude       = 17  
+LO =  8.5e9 
+pulse_f_min     = LO + 10e6
+amplitude       = 0  
 sample_rate     = 250e6
 k               = 4
 pulse_period    = k * 1e-6
@@ -88,10 +88,9 @@ channels = {'I'			: 0,
 try:    
     sGen.reset()
     sGen.clear()
-    sGen.RF_lvl_ampl(17)
-    #sGen.pul_gen_params(delay = pulse_delay, width = pulse_width, period = pulse_period)  
-    #sGen.pul_gen_mode('SING')
-    #sGen.pul_trig_mode('SING')
+    sGen.pul_gen_params(delay = pulse_delay, width = pulse_width, period = pulse_period)  
+    sGen.pul_gen_mode('SING')
+    sGen.pul_trig_mode('SING')
     logger.info('SMA set up correctly')
 except Exception:
     logger.critical('Could not set up SMA')
@@ -186,13 +185,13 @@ except Exception:
 
 power = round(Tools.dBm_to_mVpk(amplitude))
 logger.info('Setting SMA amplitude')
+sGen.RF_lvl_ampl(amplitude)
 
 with daq._session as session:
     print(daq._session)
     logger.info('Configuring channels')
     daq.configure_channels()
     logger.info('Executing trigger')
-    sGen.RF_lvl_ampl(17)
     sGen.RF_freq(pulse_f_min) 
     sGen.pul_state(1)
     sGen.RF_state(1)
@@ -218,9 +217,9 @@ with daq._session as session:
         sys.exit()
 
     try:
-        #sGen.pul_state(0)
-        #sGen.RF_state(0)
-        #fsl.set_output('OFF')
+        sGen.pul_state(0)
+        sGen.RF_state(0)
+        fsl.set_output('OFF')
         logger.info('Synth stopped outputting signal')
     except Exception:
         logger.critical("Synth hasn't stopped outputting signal!")

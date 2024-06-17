@@ -3,7 +3,7 @@ from datetime import datetime
 import hightime
 date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 
-path = r"C:\Users\oper\SynologyDrive\Lab2023\Qubit\QTLab2324\IRSource\API\SingleFreq\logs\\" 
+path = r"C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\SingleFreq\\logs\\" 
 name = date + ".log",
 
 k = 4
@@ -29,7 +29,7 @@ ACQUISITION_CONFIG = {
             'sample_rate'     : sample_rate,
             'min_num_pts'     : int(sample_rate * pulse_period),
             'ref_position'    : 0,
-            'num_records'     : 1,
+            'num_records'     : 100,
             'enforce_realtime': True
         },
 
@@ -56,7 +56,7 @@ ACQUISITION_CONFIG = {
     'acq_conf': {
         'file_name'   : name                    ,        # name of the file where data will be saved
         'path'        : path                    ,        # path to directory for saving files (default is current)        'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)
-        'num_records' : 2                       ,        # number of records to store
+        'num_records' : 100                     ,        # number of records to store
         'channels'    : [0,1]                   ,        # list of enabled channels
         'sample_rate' : 250e6                   ,        # rate of points sampling of PXIe-5170R
         'length'      : 1000                    ,        # record length

@@ -1,5 +1,5 @@
 import h5py as h5
-from utils import utils
+from HDF5.utils import utils
 
 class HDF5():
     _filename = None

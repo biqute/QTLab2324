@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.signal import find_peaks
 import matplotlib.pyplot as plt
-#from ellipse import LsqEllipse
-from matplotlib.patches import Ellipse
 import h5py
-
+from PIL import Image
+import os
+from scipy.signal import find_peaks
 def dBm_to_mVrms(dbm, R = 50):                            # R = 50 Ohm
 
 	return (np.sqrt(R * 10**((dbm - 30)/10)))* 1e3
@@ -70,9 +70,15 @@ def find_key(dictionary, key_to_find):
                 return result
     return None
 
+#============================================================================================
+# Functions for plotting...
+#============================================================================================
+
 def rough_plotter(data, sample_rate,name):
 	x = np.arange(len(data['CH0']))/sample_rate
 	fig, axs = plt.subplots(2,2)
+	fig.set_figheight(5)
+	fig.set_figwidth(20)
 	axs[0][0].scatter(x, data['CH0'], color='black', marker='.', label='CH0')
 	axs[0][0].set_xlabel('Timestamp')
 	axs[0][0].set_ylabel('Signal')
@@ -87,65 +93,87 @@ def rough_plotter(data, sample_rate,name):
 	axs[1][1].set_ylabel('Signal')
 	fig.set_facecolor('bisque')
 	plt.savefig(str(name)+'.png','.png')
+
+
+def channel_plotter(data, sample_rate):
+	x = np.arange(len(data['CH0']))/sample_rate
+	fig, axs = plt.subplots(1,2)
+	fig.set_figheight(5)
+	fig.set_figwidth(20)
+	axs[0].plot(x, data['CH0'], color='black', label='CH0 - Q')
+	axs[0].set_xlabel('Timestamp')
+	axs[0].set_ylabel('Signal')
+	axs[0].set_title('Q vs time_stamp')
+	axs[0].set_facecolor('bisque')
+	axs[0].legend()
+	axs[0].grid()
+	axs[1].plot(x, data['CH1'], color='black', label='CH1 - I')
+	axs[1].set_xlabel('Timestamp')
+	axs[1].set_ylabel('Signal')
+	axs[1].set_title('I vs time_stamp')
+	axs[1].set_facecolor('bisque')
+	axs[1].grid()
+	return fig
+
+def S21_plotter(data, sample_rate):
+	x = np.arange(len(data['CH0']))/sample_rate
+	S21 = np.array(data['CH0'])**2+np.array(data['CH1'])**2
+	PHASE = np.arctan(np.array(data['CH1'])/np.array(data['CH0']))
+	fig, axs = plt.subplots(1,2)
+	fig.set_figheight(5)
+	fig.set_figwidth(20)
+	axs[0].plot(x, S21, color='black', label='$|S_{21}(t)|$')
+	axs[0].set_xlabel('Timestamp')
+	axs[0].set_ylabel('$|S_{21}|$')
+	axs[0].set_title('Modulus vs time_stamp')
+	axs[0].set_facecolor('bisque')
+	axs[0].legend()
+	axs[0].grid()
+	axs[1].plot(x, PHASE, color='black', label='$tan^{-1}\frac{I}{Q}(t)$')
+	axs[1].set_xlabel('Timestamp')
+	axs[1].set_ylabel('Phase')
+	axs[1].set_title('Phase vs time_stamp')
+	axs[1].set_facecolor('bisque')
+	axs[1].grid()
+	return fig
 	
+def IQ_plotter(data):
+	fig, axs = plt.subplots(1,1)
+	fig.set_figheight(5)
+	fig.set_figwidth(20)
+	axs.scatter(data['CH1'], data['CH0'], marker='.', color='black', label='I vs Q')
+	axs.set_xlabel('Q')
+	axs.set_ylabel('I')
+	axs.set_title('I vs Q')
+	axs.set_facecolor('bisque')
+	axs.grid()
+	return fig
 
-'''
-def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
+def compressimages(image_file):
+    # accessing the image file
+    filepath = os.path.join(os.getcwd(), image_file)
+    # maximum pixel size
+    maxwidth = 1200
+    # opening the file
+    image = Image.open(filepath)
+    # Calculating the width and height of the original photo
+    width, height = image.size
+    # calculating the aspect ratio of the image
+    aspectratio = width / height
+ 
+    # Calculating the new height of the compressed image
+    newheight = maxwidth / aspectratio
+ 
+    # Resizing the original image
+    image = image.resize((maxwidth, round(newheight)))
+ 
+    # Saving the image
+    image.save(image_file, optimize=True, quality=85)
+    return
 
-	X = np.array(list(zip(x, y)))
-	reg = LsqEllipse().fit(X)
-	center, width, height, phi = reg.as_parameters()
-	a, b, c, d, f, g = reg.coefficients
-
-	if toggle_print:
-		print(f'center	: ({center[0]:.3f}, {center[1]:.3f})')
-		print(f'width	: {width:.3f}')
-		print(f'height	: {height:.3f}')
-		print(f'phi	: {phi:.3f}')
-		print('-----------------------------')
-		print(f'a	: {a}')
-		print(f'b	: {b}')
-		print(f'c	: {c}')
-		print(f'd	: {d}')
-		print(f'f	: {f}')
-		print(f'g	: {g}')
-		print('-----------------------------')
-
-	if toggle_plot:
-		fig = plt.figure(figsize=(6, 6))
-		ax = plt.subplot()
-		ax.axis('equal')
-		ax.scatter(x, y, zorder=1, label = 'Data points')
-		ellipse = Ellipse(
-			xy=center, width=2*width, height=2*height, angle=np.rad2deg(phi),
-			edgecolor='r', fc='None', lw=2, label='Fit', zorder=2
-		)
-		ax.add_patch(ellipse)
-
-		plt.xlabel('Q')
-		plt.ylabel('I')
-		plt.grid()
-		plt.legend()
-		plt.show()
-	
-	return {
-		'center': center,
-		'width': width,
-		'height': height,
-		'phi': phi,
-		'coefficients': {
-			'a': a,
-			'b': b,
-			'c': c,
-			'd': d,
-			'f': f,
-			'g': g
-		}
-	}
-'''
-
-
-
+#=======================================================================================
+#Saveing data
+#=======================================================================================
 def save_dict_to_hdf5(data, hdf5_file, group_name=''):
     
     def recursively_save(h5file, path, dictionary):
@@ -189,5 +217,6 @@ def load_hdf5_to_dict(hdf5_file, group_name=''):
         data_dict = recursively_load(group)
     
     return data_dict
+
 
 # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
