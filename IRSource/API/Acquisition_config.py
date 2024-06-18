@@ -61,7 +61,7 @@ ACQUISITION_CONFIG = {
         'channels'    : [0,1]                   ,        # list of enabled channels
         'sample_rate' : 250e6                   ,        # rate of points sampling of PXIe-5170R
         'length'      : 1000                    ,        # record length
-        'timeout'     : hightime.timedelta(seconds=5.0),
+        'timeout'     : hightime.timedelta(seconds=1.0),
         'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
         'source_rate' : 700,                             #diode rate in hz
         'acq_time'    : 5,                               #acquisition time in seconds

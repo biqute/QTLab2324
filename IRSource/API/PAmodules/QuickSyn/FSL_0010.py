@@ -58,7 +58,7 @@ class FSL10_synthesizer:
         if (not (set == "ON" or set == "OFF")):
             return "Invalid entry. Ref out may only be set to ON or OFF"
         else:
-            cmd_string = str.encode('OUTP:ROSC:STAT ' + (source))
+            cmd_string = str.encode('OUTP:ROSC:STAT ' + ('EXT'))
             self.write(cmd_string) #send command to turn ref out on or off
             return "Ref out set to "+set
     def get_ref_out(self):
