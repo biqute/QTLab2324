@@ -9,7 +9,7 @@ from Acquisition_config import ACQUISITION_CONFIG
 import logging
 from logging.config import dictConfig
 from logs.logging_config import LOGGING_CONFIG
-from  Exceptions import replace_non_serializable, trai
+from  Exceptions import replace_non_serializable
 from PAmodules.QuickSyn import FSL_0010
 from PAmodules.network.RS_Signal_Generator import RS_SMA100B
 from niscope.errors import DriverError
