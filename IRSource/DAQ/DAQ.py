@@ -276,11 +276,9 @@ class DAQ():
             except DriverError:
                 print(f'DriverError in {ni.Session}')
 
-    @utils.exec_time
     def acquire(self):
-        self._session.initiate()
         try:
-            self._waveform.extend([self._session.channels[i].fetch(num_samples=self._acq_conf['lenght'], timeout=self._acq_conf['timeout'], relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']) for i in self._channels])
+            self._waveform = (self._session.channels[0,1].fetch(num_samples=self._acq_conf['length'], timeout=self._acq_conf['timeout'], relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']))
         except DriverError:
             print(f'DriverError in {ni.Session.channels}')
 
@@ -316,7 +314,6 @@ class DAQ():
 
         return None
 
-    @utils.exec_time
     def fill_matrix(self, return_data=False):
         for i in range(self.acq_conf['num_records']):
             self._i_matrix_ch0.append(np.array(self._waveform[0][i].samples))

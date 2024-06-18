@@ -29,7 +29,7 @@ ACQUISITION_CONFIG = {
             'sample_rate'     : sample_rate,
             'min_num_pts'     : int(sample_rate * pulse_period),
             'ref_position'    : 0,
-            'num_records'     : 100,
+            'num_records'     : 5,
             'enforce_realtime': True
         },
 
@@ -56,10 +56,10 @@ ACQUISITION_CONFIG = {
     'acq_conf': {
         'file_name'   : name                    ,        # name of the file where data will be saved
         'path'        : path                    ,        # path to directory for saving files (default is current)        'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)
-        'num_records' : 100                     ,        # number of records to store
+        'num_records' : 5                       ,        # number of records to store
         'channels'    : [0,1]                   ,        # list of enabled channels
         'sample_rate' : 250e6                   ,        # rate of points sampling of PXIe-5170R
-        'length'      : 1000                    ,        # record length
+        'length'      : 100                     ,        # record length
         'timeout'     : hightime.timedelta(seconds=1.0),
         'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
         'source_rate' : 700,                             #diode rate in hz
