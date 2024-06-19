@@ -2,7 +2,7 @@ from datetime import datetime
 date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 import sys
 from logging.config import dictConfig
-sys.path.insert(0,r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\SingleFreq\logs\\")
+sys.path.insert(0,r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\logs\\")
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -24,7 +24,7 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
-            'filename': r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\SingleFreq\logs\\" + date + ".log",
+            'filename': r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\logs\\" + date + ".log",
             'mode': 'a',
             'encoding': 'utf-8'
         }

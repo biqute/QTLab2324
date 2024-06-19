@@ -1,15 +1,17 @@
 import sys
+import os
 
-sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Logger")
-sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\DAQ")
-sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\diodo")
-sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Logger\logs\sessions')
-sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Exceptions')
-sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API')
-sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\SingleFreq')
+base_path = r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource"
+sys.path.append(os.path.join(base_path, "DAQ"))
+sys.path.append(os.path.join(base_path, "AFG310"))
+sys.path.append(os.path.join(base_path, "Logger", "logs", "sessions"))
+sys.path.append(os.path.join(base_path, "Exceptions"))
+sys.path.append(base_path)
+
 
 import json
 from DAQ import DAQ
+from AFG310 import diode
 from Acquisition_config import ACQUISITION_CONFIG
 import logging
 from logging.config import dictConfig
@@ -17,13 +19,7 @@ from SingleFreq.logs.logging_config import LOGGING_CONFIG
 from Exceptions import replace_non_serializable
 from PAmodules.QuickSyn import FSL_0010
 from PAmodules.network.RS_Signal_Generator import RS_SMA100B
-import numpy as np
 import niscope as ni
-from PAmodules import Tools
-from HDF5 import HDF5 as h5
-import matplotlib.pyplot as plt
-from scipy.signal import find_peaks
-from diodo.diodo_v2 import AFG310
 
 
 ip   = '192.168.40.15'   # Set IP address of SMA
@@ -126,11 +122,26 @@ except Exception:
 #===============================================================================================
 
 try:
-    diode = AFG310()
-    diode.board = porta_diodo
+    logger.info('Connecting to diode...')
+    diodo = diode()
+    diodo.board         = porta_diodo
+    diodo.connect()
 except Exception:
-    pass
+    logger.critical('Could not connect to diode!')
+    raise SystemError('Could not connect to diode!')
 
+try:
+    logger.info('Setting diode settings')
+    diodo.reset()
+    diodo.amplitude     = 1
+    diodo.func          = 'SQU'
+    diodo.mode          = 'TRIG'
+    diodo.freq          = 16e6
+    diodo._diode.write(f'SOUR:PULS:DCYC {1}')
+
+except Exception:
+    logger.critical('Could not set diode configuration!')
+    raise SystemError('Could not set diode configuration!')
 
 #===============================================================================================
 #Set DAQ configuration dictionaries
@@ -221,8 +232,11 @@ with daq._session as session:
     except Exception:
         logger.critical('Could not initiate session')
     try:
-        logger.info('Initiating fetching...')
-        daq.acquire()    
+        wfm = []
+        for k in range(5):
+            logger.info('Triggering diode')
+            diodo.exec_trigger()
+            wfm.append(daq.acquire(ret=True))
     except Exception:
         logger.error('Could not fetch!!')
         sys.exit()
