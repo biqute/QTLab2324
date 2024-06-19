@@ -15,6 +15,8 @@
 #                                 #
 ###################################
 
+# https://helpfiles.keysight.com/csg/FFProgrammingHelpWebHelp/A_NA_Mode_Commands.htm
+
 
 import pyvisa
 import numpy as np
@@ -120,8 +122,43 @@ class N9916A:
 		time.sleep(self._sleep)
 	
 	def set_freq_bandwidth(self, f_bwd):
-		self._resource.write(f'BWD {f_bwd}')     
+		self._resource.write(f'BWID {f_bwd}')     
 		time.sleep(self._sleep)
+
+# 10 ------------------------------------ #
+
+	def set_power(self, pauer):						  # Power in dBm
+		self._resource.write(f'SOUR:POW {pauer}')     
+		time.sleep(self._sleep)
+
+
+# 11 ------------------------------------ #
+
+	def num_avgs(self, n):							  #  Set and query the number of sweep averages
+		self._resource.write(f'AVER:COUN {n}')     
+		time.sleep(self._sleep)
+
+# 12 ------------------------------------ #
+
+	def get_sweep_time(self):
+		# self._resource.query('SWE:MTIM?')
+		self._resource.query('INIT:IMM ; OPC?')
+		time.sleep(self._sleep)
+
+# 13 ------------------------------------ #
+
+	def set_scaling(self, scale = 0, rf_lvl = 0, rf_pos = 0, auto = False):
+
+		if auto: 
+			self._resource.write(f'DISPlay:WINDow:TRAC1:Y:AUTO')     
+			time.sleep(self._sleep)
+		else:
+			self._resource.write(f'DISP:WIND:TRAC1:Y:PDIV {scale}')     
+			time.sleep(self._sleep)
+			self._resource.write(f'DISP:WIND:TRAC1:Y:RLEV {rf_lvl}')     
+			time.sleep(self._sleep)
+			self._resource.write(f'DISP:WIND:TRAC1:Y:RPOS {rf_pos}')     
+			time.sleep(self._sleep)
 
 
 # # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
