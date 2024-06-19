@@ -276,11 +276,14 @@ class DAQ():
             except DriverError:
                 print(f'DriverError in {ni.Session}')
 
-    def acquire(self):
+    def acquire(self, ret=False):
         try:
             self._waveform = (self._session.channels[0,1].fetch(num_samples=self._acq_conf['length'], timeout=self._acq_conf['timeout'], relative_to=self._acq_conf['relative_to'], num_records=self._acq_conf['num_records']))
         except DriverError:
             print(f'DriverError in {ni.Session.channels}')
+        if ret:
+            return self._waveform
+
 
     @utils.exec_time
     def single_acquisition(self, trigger):
