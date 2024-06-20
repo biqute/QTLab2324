@@ -246,21 +246,26 @@ with daq._session as session:
         logger.error('Could not fetch!!') 
         sys.exit() 
 
-    try:
-        hdf5 = h5.HDF5()
-        path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
-        hdf5.name = 'DiodeMixer.hdf5'
-        hdf5.dic = data
-        hdf5.to_hdf5()
-        logger.info('Transfering data from python dic to '+str(path+hdf5.name))
-    except Exception:
-        logger.warning('Could not transfer data into '+str(path+hdf5.name))
+fsl.set_output('OFF')
+fsl.set_ref_out('OFF')
+sGen.pul_state(0)
+sGen.RF_state(0)
 
-    try:
-        logger.info('Trying to save data plot')
-        fig = IQ_plotter(data)
-        path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
-        name = 'DiodeMixer.png'
-        fig.savefig(path+name,'png')
-    except Exception:
-        logger.warning('Could not save figure!')
+try:
+    hdf5 = h5.HDF5()
+    path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
+    hdf5.name = 'DiodeMixer.hdf5'
+    hdf5.dic = data
+    hdf5.to_hdf5()
+    logger.info('Transfering data from python dic to '+str(path+hdf5.name))
+except Exception:
+    logger.warning('Could not transfer data into '+str(path+hdf5.name))
+
+try:
+    logger.info('Trying to save data plot')
+    fig = IQ_plotter(data)
+    path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
+    name = 'DiodeMixer.png'
+    fig.savefig(path+name,'png')
+except Exception:
+    logger.warning('Could not save figure!')
