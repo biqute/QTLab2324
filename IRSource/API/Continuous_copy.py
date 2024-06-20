@@ -236,6 +236,7 @@ with daq._session as session:
         logger.critical('Could not initiate session')
     try:
         logger.info('Initiating fetching...')
+        diodo.exec_trigger()
         waveforms = session.channels[0,1].fetch()
         logger.info('Converting wfm[0] into dictionary')
         data['CH0'] = np.array(waveforms[0].samples.tolist()) 
@@ -247,10 +248,19 @@ with daq._session as session:
 
     try:
         hdf5 = h5.HDF5()
-        path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\SingleFreq\\files\\'
+        path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
         hdf5.name = 'DiodeMixer.hdf5'
         hdf5.dic = data
         hdf5.to_hdf5()
         logger.info('Transfering data from python dic to '+str(path+hdf5.name))
     except Exception:
-        logger.warning('Could not transfer data into '+str(path+hdf5.name))    
+        logger.warning('Could not transfer data into '+str(path+hdf5.name))
+
+    try:
+        logger.info('Trying to save data plot')
+        fig = IQ_plotter(data)
+        path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
+        name = 'DiodeMixer.png'
+        fig.savefig(path+name,'png')
+    except Exception:
+        logger.warning('Could not save figure!')
