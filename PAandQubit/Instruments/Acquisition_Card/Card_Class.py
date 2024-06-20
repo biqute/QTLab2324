@@ -59,9 +59,9 @@ class PXIe5170R:
         self._device_name = "PXIe_5170R"
         try:
             with ni.Session(self._resource_name) as _:
-                print(f"{self._device_name}:    Connection successful!")
+                print(f"{self._device_name}:\tConnection successful!")
         except ni.Error as e:
-            print(f"{self._device_name}:    Unable to establish a connection: {e}")
+            print(f"{self._device_name}:\tUnable to establish a connection: {e}")
 
 
     @property
