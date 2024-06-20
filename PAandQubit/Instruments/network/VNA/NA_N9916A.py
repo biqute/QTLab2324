@@ -40,19 +40,24 @@ class N9916A:
 		except pyvisa.Error as e:
 			print(f"{self._device_name}:	Unable to establish a connection: {e}")
 
-# 02 ---------------------------------- #
 
 	def reset(self):
 		self._resource.write('*RST')     
 		time.sleep(self._sleep)
 		
-# 03 ---------------------------------- #
 
 	def clear(self):
 		self._resource.write('*CLS')     #*CLS   è il reset che svuota la memoria (il buffer), utile se si inchioda
 		time.sleep(self._sleep)
 
-# 04 ---------------------------------- #  
+
+	def write(self, command: str):
+		self._resource.write(command)     
+		time.sleep(self._sleep)
+	
+	def query(self, command: str):
+		return self._resource.query(command)
+
 
 	def get_data(self):
 		data_type = ''
@@ -74,36 +79,38 @@ class N9916A:
 		else:
 			return {'scalar': valori}
 
-# 05 ---------------------------------- #
 
 	def get_name(self):
 		return self._resource.query('*IDN?')
-	
-# 06 ---------------------------------- #
-# DA CORREGGERE
-	def runhold(self):                              # pag 419
-		self._resource.query('TRIG:HOLD;*OPC?')
-		
-# 07 ---------------------------------- #
 
+	
+	def run_hold(self, mode = 'RUN'):        
+		values = {'RUN': 1, 'HOLD': 0}
+		if mode not in values.keys():
+			raise ValueError("Invalid mode. Choose RUN or HOLD.")                    
+		self._resource.write(f'INIT:CONT {values[mode]}')
+		time.sleep(self._sleep)
+
+		
 	def set_mode(self, mode):
 		valid_modes = ['NA', 'SA']
 		if mode not in valid_modes:
-			raise ValueError("Modalità non valida. Scegliere NA o SA.")
+			raise ValueError("Invalid mode. Choose NA or SA.")
 		self._resource.query(f'INST:SEL "{mode}";*OPC?')
-		time.sleep(self._sleep)                                                 # pausa di un secondo
+		time.sleep(self._sleep)                                              
 	
-# 08 ---------------------------------- #
 
-	def set_NA_par(self, par: str):
-		# S11 - Forward reflection measurement
-		# S21 - Forward transmission measurement
-		# S12 - Reverse transmission 
-		# S22 - Reverse reflection
+	def set_NA_par(self, par: str = 'S21'):
+		''' S11 - Forward reflection measurement\n
+			S21 - Forward transmission measurement\n
+			S12 - Reverse transmission\n
+			S22 - Reverse reflection\n '''
+		valid_modes = ['S11', 'S21', 'S12', 'S22']
+		if par not in valid_modes:
+			raise ValueError("Invalid parameter. Choose S11, S12, S21 or S22.")
 		self._resource.query(f'CALC:PAR1:DEF {par};*OPC?')
 		time.sleep(self._sleep)
 	
-# 09 ---------------------------------- #
 
 	def set_freq_range(self, fmin: float, fmax: float):
 		self._resource.write(f'FREQ:START {fmin}')     # set freq iniziale                    
@@ -125,27 +132,16 @@ class N9916A:
 		self._resource.write(f'BWID {f_bwd}')     
 		time.sleep(self._sleep)
 
-# 10 ------------------------------------ #
 
-	def set_power(self, pauer):						  # Power in dBm
-		self._resource.write(f'SOUR:POW {pauer}')     
-		time.sleep(self._sleep)
+	# def set_power(self, pauer):						  # Power in dBm
+	# 	self._resource.write(f'SOUR:POW {pauer}')     
+	# 	time.sleep(self._sleep)
 
-
-# 11 ------------------------------------ #
 
 	def num_avgs(self, n):							  #  Set and query the number of sweep averages
 		self._resource.write(f'AVER:COUN {n}')     
 		time.sleep(self._sleep)
 
-# 12 ------------------------------------ #
-
-	def get_sweep_time(self):
-		# self._resource.query('SWE:MTIM?')
-		self._resource.query('INIT:IMM ; OPC?')
-		time.sleep(self._sleep)
-
-# 13 ------------------------------------ #
 
 	def set_scaling(self, scale = 0, rf_lvl = 0, rf_pos = 0, auto = False):
 
@@ -160,43 +156,15 @@ class N9916A:
 			self._resource.write(f'DISP:WIND:TRAC1:Y:RPOS {rf_pos}')     
 			time.sleep(self._sleep)
 
-	def write(self, command: str):
-		self._resource.write(command)     
-		time.sleep(self._sleep)
-	
-	def query(self, command: str):
-		return self._resource.query(command)
 
 	def get_freqs(self):
 		return self._resource.query('FREQ:DATA?')
 
-	def get_powers(self):
-		return self._resource.query('SOUR:POW?')
+	@property
+	def power(self):
+		return float(self._resource.query('SOUR:POW?')[:-1])
 
-# # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
-
-# # Metodi di scrittura e lettura in un file HDF5
-
-# # 10 ---------------------------------- #
-
-# 	def r_hdf_data(self, name: str, name_gp_data: str, nth_data: int):
-# 		with h5py.File(name, 'r') as f:
-# 			gp = f[name_gp_data][str(nth_data)]
-# 			dic = {}
-# 			for i, k in gp.items():
-# 				dic[i] = k[()]
-# 		return dic
-	
-# # 11 ---------------------------------- #  
-
-# 	def w_hdf(self, name: str, name_gp_data: str, dataset: dict):             # name = nome file hdf5    # name_gp_data = NA o SA
-# 		with h5py.File(name, 'a') as f:                      # creo file hdf5 di nome tra virgolette e lo apro in modalità a = append
-# 			if name_gp_data not in f.keys():
-# 				gp = f.create_group(name_gp_data)
-# 			else:
-# 				gp = f[name_gp_data]
-# 			gp_data = gp.create_group(str(len(gp.keys())))
-# 			for i, k in dataset.items():
-# 				gp_data.create_dataset(i, data = k)
-
-# # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
+	@power.setter
+	def power(self, dBm_value):
+		self._resource.write(f'SOUR:POW {dBm_value}')     
+		time.sleep(self._sleep)
