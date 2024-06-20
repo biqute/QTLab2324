@@ -1,14 +1,5 @@
 import sys
 import os
-
-base_path = r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource"
-sys.path.append(os.path.join(base_path, "DAQ"))
-sys.path.append(os.path.join(base_path, "AFG310"))
-sys.path.append(os.path.join(base_path, "Logger", "logs", "sessions"))
-sys.path.append(os.path.join(base_path, "Exceptions"))
-sys.path.append(base_path)
-
-
 import json
 from DAQ import DAQ
 from AFG310 import diode
@@ -23,6 +14,16 @@ import niscope as ni
 import numpy as np
 from HDF5 import HDF5 as h5
 from API.PAmodules.Tools import IQ_plotter
+
+base_path = r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource"
+sys.path.append(os.path.join(base_path, "DAQ"))
+sys.path.append(os.path.join(base_path, "AFG310"))
+sys.path.append(os.path.join(base_path, "Logger", "logs", "sessions"))
+sys.path.append(os.path.join(base_path, "Exceptions"))
+sys.path.append(os.path.join(base_path, "diodo"))
+sys.path.append(os.path.join(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API", "HDF5"))
+sys.path.append(os.path.join(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\PAmodules", "Tools"))
+sys.path.append(base_path)
 
 
 ip   = '192.168.40.15'   # Set IP address of SMA
