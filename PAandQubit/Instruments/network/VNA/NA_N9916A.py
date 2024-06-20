@@ -77,7 +77,7 @@ class N9916A:
 # 05 ---------------------------------- #
 
 	def get_name(self):
-		print(self._resource.query('*IDN?'))
+		return self._resource.query('*IDN?')
 	
 # 06 ---------------------------------- #
 # DA CORREGGERE
@@ -160,6 +160,18 @@ class N9916A:
 			self._resource.write(f'DISP:WIND:TRAC1:Y:RPOS {rf_pos}')     
 			time.sleep(self._sleep)
 
+	def write(self, command: str):
+		self._resource.write(command)     
+		time.sleep(self._sleep)
+	
+	def query(self, command: str):
+		return self._resource.query(command)
+
+	def get_freqs(self):
+		return self._resource.query('FREQ:DATA?')
+
+	def get_powers(self):
+		return self._resource.query('SOUR:POW?')
 
 # # ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
 

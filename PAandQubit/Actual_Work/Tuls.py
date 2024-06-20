@@ -83,11 +83,11 @@ def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 		print(f'f	: {f}')
 		print(f'g	: {g}')
 		print('-----------------------------')
-		print(Tools.find_key(dictionary, 'power_(mV peak)'))
-		maxes = max(width, height)                                      # maxes è il semiasse più grande dell'ellisse. Sarà giusto?
-		Attenuation = (maxes*1e3/Tools.find_key(dictionary, 'power_(mV peak)'))
-		print('Attenuation is:   ', Attenuation)
-		print('Delta dBm is :   ', Tools.find_key(dictionary, 'power_(dBm)') - Tools.mVpk_to_dBm(maxes*1e3))
+		# print(find_key(dictionary, 'power_(mV peak)'))
+		# maxes = max(width, height)                                      # maxes è il semiasse più grande dell'ellisse. Sarà giusto?
+		# Attenuation = (maxes*1e3/find_key(dictionary, 'power_(mV peak)'))
+		# print('Attenuation is:   ', Attenuation)
+		# print('Delta dBm is :   ', find_key(dictionary, 'power_(dBm)') - mVpk_to_dBm(maxes*1e3))
 
 	if toggle_plot:
 		fig = plt.figure(figsize=(6, 6))
@@ -224,5 +224,21 @@ def fetch_freq_range(f_range, CHs, LO, SG_Class, pxie_Class, sample_rate = 250e6
 		
 	return f_dict
 
+# ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
 
+	# import plotly.express as px
+
+	# print(ampls.shape)
+	# print(power.shape)
+	# print(f.shape)
+
+	# fig = px.imshow(ampls, aspect="auto", labels=dict(x = 'Frequency (GHz)', y = 'Power (dBm impostati sul VNA, ricordati di atten)', z = 'MSR'), x = f, y = power, origin = 'lower')
+
+	# fig.update_layout(
+	# 	xaxis=dict(tickformat=".1e"), 
+	# 	width = 800,
+	# 	height = 500
+	# 	)
+
+	# fig.update_traces(hoverongaps=False, hovertemplate='Frequency: %{x}<br>Amplitude: %{y}<br>MSR: %{z}')
 	
