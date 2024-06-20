@@ -19,9 +19,9 @@ class FSL10_synthesizer:
 		self._device_name = 'FSL_0010'
 		try:
 			self.device = serial.Serial(device_address, baudrate=115200, timeout=1.5, stopbits=1, parity='N') 
-			print(f"{self._device_name}:	Connection successful!")
+			print(f"{self._device_name}:\nConnection successful!")
 		except serial.SerialException as e:
-			print(f"{self._device_name}:	Unable to establish a connection: {e}")
+			print(f"{self._device_name}:\nUnable to establish a connection: {e}")
 		
 	
 	#general commands (internal use only)

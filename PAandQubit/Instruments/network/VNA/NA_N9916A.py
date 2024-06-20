@@ -1,17 +1,25 @@
 ###################################
 #             Methods             #
 #
-# 01 | __init__         :
-# 02 | reset            :
-# 03 | clear            :
-# 04 | get_data         :
-# 05 | get_name         :
-# 06 | runhold          :
-# 07 | set_mode         :
-# 08 | set_NA_par       :
-# 09 | set_freq_range   :
-# 10 | r_hdf            : 
-# 11 | w_hdf            :
+# 01 | __init__         	:
+# 02 | reset            	:
+# 03 | clear            	:
+# 04 | write				:
+# 05 | query				:
+# 06 | get_data         	:
+# 07 | get_name         	:
+# 08 | run_hold         	:
+# 09 | set_mode         	:
+# 10 | set_NA_par       	:
+# 11 | set_freq_range   	:
+# 12 | set_num_pts			:
+# 13 | set_freq_span		:
+# 14 | set_freq_center		:
+# 15 | set_freq_bandwidth	:
+# 16 | num_avgs				:
+# 17 | set_scaling			:
+# 18 | get_freqs			:
+# 19 | power				:
 #                                 #
 ###################################
 
@@ -24,7 +32,6 @@ import time
 
 class N9916A:
 
-# 01 ---------------------------------- #
 
 	def __init__(self, ip: str):
 
@@ -131,11 +138,6 @@ class N9916A:
 	def set_freq_bandwidth(self, f_bwd):
 		self._resource.write(f'BWID {f_bwd}')     
 		time.sleep(self._sleep)
-
-
-	# def set_power(self, pauer):						  # Power in dBm
-	# 	self._resource.write(f'SOUR:POW {pauer}')     
-	# 	time.sleep(self._sleep)
 
 
 	def num_avgs(self, n):							  #  Set and query the number of sweep averages

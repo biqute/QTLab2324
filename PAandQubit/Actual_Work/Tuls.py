@@ -195,11 +195,12 @@ def get_avg_power(y: np.array, toggle_plot = True, sample_rate = 250e6, offset =
 	return {'mean': mean_value, 'std': std_value, 'x': x, 'y': y, 'idx': idcs}
 
 
-def fetch_freq_range(f_range, CHs, LO, SG_Class, pxie_Class, sample_rate = 250e6):
-	counter = 1
+def fetch_freq_range(f_range, LO, SG_Class, pxie_Class, I_ch = None, Q_ch = None, sample_rate = 250e6):
+	CHs = {'I': I_ch, 'Q': Q_ch}
+	counter = 0
 	digits_f = "{:0"+str(len(str(len(f_range))))+"d}"
-	f_dict = {  'RF_input_Hz':  {},
-				'LO_input_Hz':  LO}
+	f_dict = {'RF_input_Hz': {}, 'LO_input_Hz': LO}
+
 	for i, f in enumerate(f_range):
 		print(f'\rf{digits_f.format(i)}	: {int(counter*100/len(f_range))} %', end='', flush = True)
 		counter += 1
@@ -213,32 +214,18 @@ def fetch_freq_range(f_range, CHs, LO, SG_Class, pxie_Class, sample_rate = 250e6
 
 		dict = {}
 		for key, value in CHs.items():
-			if value == 'I' or value == 'Q':
-				dict[value] = np.array(waveforms[int(key)].samples.tolist())
-				FT = np.abs(np.fft.fft(dict[value]))
-				N = len(dict[value])
+			if value != None:
+				dict[key] = np.array(waveforms[value].samples.tolist())
+				FT = np.abs(np.fft.fft(dict[key]))
+				N = len(dict[key])
 				freqs = np.fft.fftfreq(N,1/sample_rate) 
-				dict['f_'+value+'_Hz'] = freqs[np.argmax(FT[:N // 2])]
-				dict['p_'+value+'_mV'] = get_avg_power(y = dict[value], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
+				dict['f_'+key+'_Hz'] = freqs[np.argmax(FT[:N // 2])]
+				dict['p_'+key+'_mV'] = get_avg_power(y = dict[key], toggle_plot = False, sample_rate = sample_rate)['mean']*1e3
 		f_dict['RF_input_Hz'][f'f{digits_f.format(i)}'] = dict
-		
+	print()
 	return f_dict
 
 # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
 
-	# import plotly.express as px
 
-	# print(ampls.shape)
-	# print(power.shape)
-	# print(f.shape)
-
-	# fig = px.imshow(ampls, aspect="auto", labels=dict(x = 'Frequency (GHz)', y = 'Power (dBm impostati sul VNA, ricordati di atten)', z = 'MSR'), x = f, y = power, origin = 'lower')
-
-	# fig.update_layout(
-	# 	xaxis=dict(tickformat=".1e"), 
-	# 	width = 800,
-	# 	height = 500
-	# 	)
-
-	# fig.update_traces(hoverongaps=False, hovertemplate='Frequency: %{x}<br>Amplitude: %{y}<br>MSR: %{z}')
 	
