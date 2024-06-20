@@ -57,6 +57,11 @@ def find_key(dictionary, key_to_find):
 				return result
 	return None
 
+def add_zeros(N: np.array):
+
+	max_digits = len(str(np.max(N)))
+	return np.array([f'{num:0{max_digits}d}' for num in N])
+
 
 def ellipse_fit(x, y, toggle_plot = True, toggle_print = True):
 
