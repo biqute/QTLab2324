@@ -90,6 +90,9 @@ class N9916A:
 	def get_name(self):
 		return self._resource.query('*IDN?')
 
+	def get_freqs(self):
+		return self._resource.query('FREQ:DATA?')
+
 	
 	def run_hold(self, mode = 'RUN'):        
 		values = {'RUN': 1, 'HOLD': 0}
@@ -158,9 +161,6 @@ class N9916A:
 			self._resource.write(f'DISP:WIND:TRAC1:Y:RPOS {rf_pos}')     
 			time.sleep(self._sleep)
 
-
-	def get_freqs(self):
-		return self._resource.query('FREQ:DATA?')
 
 	@property
 	def power(self):
