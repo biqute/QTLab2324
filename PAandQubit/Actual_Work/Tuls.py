@@ -228,4 +228,22 @@ def fetch_freq_range(f_range, LO, SG_Class, pxie_Class, I_ch = None, Q_ch = None
 # ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// #
 
 
-	
+# import plotly.express as px
+
+# ampls = MSR
+# power = lvl_sg
+# f = freqs_sg
+
+# print(ampls.shape)
+# print(power.shape)
+# print(f.shape)
+
+# fig = px.imshow(ampls, aspect="auto", labels=dict(x = 'Frequency (GHz)', y = 'Power (dBm impostati sul VNA, ricordati di atten)', z = 'MSR'), x = f, y = power, origin = 'lower')
+
+# fig.update_layout(
+#     xaxis=dict(tickformat=".1e"), 
+#     width = 800,
+#     height = 500
+#     )
+
+# fig.update_traces(hoverongaps=False, hovertemplate='Frequency: %{x}<br>Amplitude: %{y}<br>MSR: %{z}')
