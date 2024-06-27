@@ -19,9 +19,9 @@ class FSL10_synthesizer:
 		self._device_name = 'FSL_0010'
 		try:
 			self.device = serial.Serial(device_address, baudrate=115200, timeout=1.5, stopbits=1, parity='N') 
-			print(f"{self._device_name}:\nConnection successful!")
+			print(f"{self._device_name}:\tConnection successful!")
 		except serial.SerialException as e:
-			print(f"{self._device_name}:\nUnable to establish a connection: {e}")
+			print(f"{self._device_name}:\tUnable to establish a connection: {e}")
 		
 	
 	#general commands (internal use only)
@@ -66,7 +66,7 @@ class FSL10_synthesizer:
 		if (not (set == "ON" or set == "OFF")):
 			return "Invalid entry. Ref out may only be set to ON or OFF"
 		else:
-			cmd_string = str.encode('OUTP:ROSC:STAT ' + (source))
+			cmd_string = str.encode('OUTP:ROSC:STAT ' + (set))
 			self.write(cmd_string) #send command to turn ref out on or off
 			return f"{self._device_name}: Ref out set to "+set
 	def get_ref_out(self):
