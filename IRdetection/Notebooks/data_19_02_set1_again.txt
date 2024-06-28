@@ -1,1 +1,0 @@
-T	1/Q	1/Q_err	T_err

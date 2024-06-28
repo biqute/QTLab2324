@@ -91,7 +91,7 @@ class N9916A:
 		return self._resource.query('*IDN?')
 
 	def get_freqs(self):
-		return self._resource.query('FREQ:DATA?')
+		return self._resource.query("FREQ:DATA?")
 
 	
 	def run_hold(self, mode = 'RUN'):        
@@ -170,3 +170,11 @@ class N9916A:
 	def power(self, dBm_value):
 		self._resource.write(f'SOUR:POW {dBm_value}')     
 		time.sleep(self._sleep)
+
+
+
+
+# ERRORI
+
+# UnicodeDecodeError: 'ascii' codec can't decode byte 0xbc in position 10: ordinal not in range(128)
+# fix it : launch clear() and then launch reset()
