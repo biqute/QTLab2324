@@ -1,8 +1,14 @@
 import sys
-import os
+
+sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Logger")
+sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\DAQ")
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Logger\logs\sessions')
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Exceptions')
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API')
+sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\SingleFreq')
+
 import json
 from DAQ import DAQ
-from AFG310 import diode
 from Acquisition_config import ACQUISITION_CONFIG
 import logging
 from logging.config import dictConfig
@@ -10,41 +16,21 @@ from SingleFreq.logs.logging_config import LOGGING_CONFIG
 from Exceptions import replace_non_serializable
 from PAmodules.QuickSyn import FSL_0010
 from PAmodules.network.RS_Signal_Generator import RS_SMA100B
-import niscope as ni
 import numpy as np
+import niscope as ni
+from PAmodules import Tools
 from HDF5 import HDF5 as h5
-from API.PAmodules.Tools import IQ_plotter
+import matplotlib.pyplot as plt
+from scipy.signal import find_peaks
 
-base_path = r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource"
-sys.path.append(os.path.join(base_path, "DAQ"))
-sys.path.append(os.path.join(base_path, "AFG310"))
-sys.path.append(os.path.join(base_path, "Logger", "logs", "sessions"))
-sys.path.append(os.path.join(base_path, "Exceptions"))
-sys.path.append(os.path.join(base_path, "diodo"))
-sys.path.append(os.path.join(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API", "HDF5"))
-sys.path.append(os.path.join(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\API\PAmodules", "Tools"))
-sys.path.append(base_path)
 
+#===============================================================================================
+#Define saving paths and devices names
+#===============================================================================================
 
 ip   = '192.168.40.15'   # Set IP address of SMA
 devicename = 'PXI1Slot3' 
-porta_diodo = 'GPIB0::1::INSTR'
 filepath = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\SingleFreq\\png\\'
-
-LO =  9e9 
-RF     = LO + 2e6
-amplitude       = 16  
-sample_rate     = 250e6
-k               = 4
-pulse_period    = k * 1e-6
-num_points      = int(sample_rate * pulse_period)
-percent         = 5
-pulse_width     = pulse_period * (1-percent/100)
-pulse_delay     = 0
-
-channels = {'I'			: 0, 
-            'Q'			: 1,
-            'trigger'	: 3}
 
 #===============================================================================================
 #Import logger configuration
@@ -63,7 +49,7 @@ except Exception:
     raise SystemError("Could not dump acquisition configuration!")
 
 #===============================================================================================
-#Import DAQ configuration dictionaries
+#Create instruments classes objects
 #===============================================================================================
 
 try:
@@ -73,30 +59,8 @@ except Exception:
     logger.critical('Could not crate DAQ class object')
     raise SyntaxError('Could not create DAQ class object')
 
-
 try:
-    stat = daq.get_status
-    logger.info('DAQ status: '+str(stat))
-except Exception:
-    logger.critical('Could not get DAQ status!')
-    raise SystemError('Could not get DAQ status')
-
-try:
-    daq.reset_with_def()
-    daq.get_status
-    logger.info('Resetting DAQ with defaults')
-except Exception:
-    logger.error('Could not reset DAQ with defaults')
-    pass
-    #raise SystemError('Could not restet DAQ with defaults')
-
-#===============================================================================================
-#Set FSL and sGEN Synt
-#===============================================================================================
-
-
-try:
-    fsl = FSL_0010.FSL10_synthesizer(device_address='COM36')
+    fsl = FSL_0010.FSL10_synthesizer(device_address='COM31')
     logger.info('FSL_0010 class object correctly created')
 except Exception:
     logger.critical('Could not crate FSL class object')
@@ -108,6 +72,25 @@ try:
 except Exception:
     logger.critical('Could not crate SMA class object')
     raise SyntaxError('Could not create SMA class object')
+
+#===============================================================================================
+#Define LO and RF specs
+#===============================================================================================
+
+LO =  7e9 
+RF     = LO + 4e6
+amplitude       = 13  
+sample_rate     = 250e6
+k               = 4
+pulse_period    = k * 1e-6
+num_points      = int(sample_rate * pulse_period)
+percent         = 5
+pulse_width     = pulse_period * (1-percent/100)
+pulse_delay     = 0
+
+channels = {'I'			: 0, 
+            'Q'			: 1,
+            'trigger'	: 3}
 
 try:    
     sGen.reset()
@@ -121,35 +104,25 @@ except Exception:
     logger.critical('Could not set up SMA')
     raise SystemError('Could not create SMA class object')
 
+try:
+    stat = daq.get_status
+    logger.info('DAQ status: '+str(stat))
+except Exception:
+    logger.critical('Could not get DAQ status!')
+    raise SystemError('Could not get DAQ status')
+
 #===============================================================================================
-#Set Laser Diode
+# Set instruments configurations
 #===============================================================================================
 
 try:
-    logger.info('Connecting to diode...')
-    diodo = diode()
-    diodo.board         = porta_diodo
-    diodo.connect()
+    daq.reset_with_def()
+    daq.get_status
+    logger.info('Resetting DAQ with defaults')
 except Exception:
-    logger.critical('Could not connect to diode!')
-    raise SystemError('Could not connect to diode!')
-
-try:
-    logger.info('Setting diode settings')
-    diodo.reset()
-    diodo.amplitude     = 1
-    diodo.func          = 'SQU'
-    diodo.mode          = 'TRIG'
-    diodo.freq          = 16e6
-    diodo._diode.write(f'SOUR:PULS:DCYC {1}')
-
-except Exception:
-    logger.critical('Could not set diode configuration!')
-    raise SystemError('Could not set diode configuration!')
-
-#===============================================================================================
-#Set DAQ configuration dictionaries
-#===============================================================================================
+    logger.error('Could not reset DAQ with defaults')
+    pass
+    #raise SystemError('Could not restet DAQ with defaults')
 
 try:
     daq.acq_conf = ACQUISITION_CONFIG['acq_conf']
@@ -186,10 +159,6 @@ except Exception:
     logger.warning('Could not insert trigger dic')
     raise SystemError('Could not insert trigger dic')
 
-#===============================================================================================
-#Define NISCOPE session
-#===============================================================================================
-
 try:
     daq._session = ni.Session(devicename)
     logger.info('Creating new session!!!')
@@ -207,16 +176,13 @@ except Exception:
     logger.warning('Could not implement trigger')
     raise SystemError('Could not implement trigger')
 
-#======================================================================
-# GET DATA!
-#======================================================================
+#===============================================================================================
+# Set  acquisition card config dicts
+# 1 - Begin to acquire
+# 2 - Set RF and LO outpout ON
+# 3 - Fetch data   
+#===============================================================================================
 
-try:
-    logger.info(f'FSL is now outputting signal at {LO} Hz')
-    fsl.set_output('ON')
-    fsl.set_frequency(int(LO*1e-9)) # GHz
-except Exception:
-    logger.critical('FSL is not outputting signal!')
 
 with daq._session as session:
     logger.info('Configuring channels')
@@ -225,48 +191,21 @@ with daq._session as session:
     sGen.RF_freq(RF) 
     sGen.pul_state(1)
     sGen.RF_state(1)
+    fsl.set_frequency(int(LO*1e-9)) # GHz
+    fsl.set_output('ON')
     data = {'CH0': [],
             'CH1': [],
             'CH2': [],
             'CH3': []}
-    wf_info = []
     try:
-        session.initiate()
+        daq._session.initiate()
         logger.info('Session initiated')
-    except Exception:
-        logger.critical('Could not initiate session')
-    try:
         logger.info('Initiating fetching...')
-        diodo.exec_trigger()
         waveforms = session.channels[0,1].fetch()
         logger.info('Converting wfm[0] into dictionary')
-        data['CH0'] = np.array(waveforms[0].samples.tolist()) 
+        data['CH0'] = np.array(waveforms[0].samples.tolist())
         logger.info('Converting wfm[1] into dictionary')
         data['CH1'] = np.array(waveforms[1].samples.tolist()) 
     except Exception:
-        logger.error('Could not fetch!!') 
-        sys.exit() 
-
-fsl.set_output('OFF')
-fsl.set_ref_out('OFF')
-sGen.pul_state(0)
-sGen.RF_state(0)
-
-try:
-    hdf5 = h5.HDF5()
-    path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
-    hdf5.name = 'DiodeMixer.hdf5'
-    hdf5.dic = data
-    hdf5.to_hdf5()
-    logger.info('Transfering data from python dic to '+str(path+hdf5.name))
-except Exception:
-    logger.warning('Could not transfer data into '+str(path+hdf5.name))
-
-try:
-    logger.info('Trying to save data plot')
-    fig = IQ_plotter(data)
-    path = r'C:\\Users\\oper\\SynologyDrive\\Lab2023\\KIDs\\QTLab2324\\IRSource\\API\\files\\'
-    name = 'DiodeMixer.png'
-    fig.savefig(path+name,'png')
-except Exception:
-    logger.warning('Could not save figure!')
+        logger.critical('Could not acquire data correctly!')
+        sys.exit()
