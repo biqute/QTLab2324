@@ -98,13 +98,18 @@ class KS_33500B:
 
 # 2.2 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 			
-	def set_amplitude(self, ampl: float, ch: int = 1):
+	def set_amplitude(self, ampl: float, unit= 'VPP', ch: int = 1):
 		'''
 		- Amplitude in V;\n
 		- Channel 1 or 2.
 		'''        
 		if self._connect_success:
 			self._resource.write(f'SOUR{ch}:VOLT {ampl}')
+			if unit in {'VPP', 'VRMS', 'DBM'}:
+				self._resource.write(f'SOUR{ch}:VOLT:UNIT {unit}')
+			else:
+				print("Error. Invalid string mode. Write 'VPP', 'VRMS' or 'DBM'")
+			
 		else:
 			print("Error: No active connection.")
 
@@ -122,7 +127,7 @@ class KS_33500B:
 
 # 2.4 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 			
-	def set_phase(self, angle: float, ch: int = 1, unit = 'DEG'):
+	def set_phase(self, angle: float, unit = 'DEG', ch: int = 1):
 		'''
 		- Angle in DEG units by default;\n
 		- Channel 1 or 2;\n
@@ -131,9 +136,9 @@ class KS_33500B:
 		if self._connect_success:
 			if unit in {'DEG', 'RAD', 'SEC'}:
 				self._resource.write(f'UNIT:ANGL {unit}')
-				self._resource.write(f'SOUR{ch}:PHAS {angle}')
 		else:
 			print("Error: No active connection.") 
+		self._resource.write(f'SOUR{ch}:PHAS {angle}')
 
 # 2.5 ----------------------------------------------------------------------------------------------------------------------------------------------- #
 			
@@ -186,3 +191,10 @@ class KS_33500B:
 				print("Error. Invalid string mode. Write 'SIN', 'SQU', 'TRI', 'RAMP', 'PULS', 'PRBS', 'NOIS', 'ARB', or 'DC'")
 		else:
 			print("Error: No active connection.")
+
+
+	def ref_10MHz_src(self, src: str):
+		if self._connect_success:
+			self._resource.write(f'ROSC:SOUR {src}')
+		else:
+			print("Error: No active connection.") 
