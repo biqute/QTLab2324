@@ -27,7 +27,7 @@ def data_cut(x, y, L_cut, R_cut):
     return {'x': x[idx_L:idx_R], 'y': y[idx_L:idx_R]}
 
 def Lorentzian(x, amplitude, center, width, offset):
-    return (amplitude) / (1 + (4 * (x - center) / width) ** 2) + offset
+    return 2 * amplitude / (np.pi * width) / (1 + (4 * (x - center) / width) ** 2) + offset
 
 # def Lorentzian(x, amplitude, center, width, offset):
 #     y0 = width/2
