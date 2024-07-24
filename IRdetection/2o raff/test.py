@@ -72,7 +72,9 @@ try:
 except:
     logger.critical('Something is deeply wrong')
 
+delay = 0
 check, msg = vna.check_status()
+vna.set_elec_delay(delay)
 logger.debug('Current VNA status is '+str(msg))
 vna.set_chan('S21')
 logger.debug('Setting channel S21')
