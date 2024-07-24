@@ -94,11 +94,11 @@ try:
     vna.set_IFBW(bw)
     logger.debug('Power: '+str(bw))
     vna.set_points(pt)
-    logger.dbug('Points are: '+str(pt))
+    logger.debug('Points are: '+str(pt))
     vna.set_center(ctr)
-    logger.dbug('Center is: '+str(ctr))
-    vna.set_span(span)
-    logger.dbug('Span is: '+str(span))
+    logger.debug('Center is: '+str(ctr))
+    vna.set_sp0an(span)
+    logger.debug('Span is: '+str(span))
 except:
     logger.warning('Could not set parameters!')
 
