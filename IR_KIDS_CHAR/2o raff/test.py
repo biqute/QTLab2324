@@ -1,11 +1,11 @@
 import sys
-sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRdetection\Instruments\VNA')
-sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRdetection\Instruments\Gas_Handler22')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_KIDS_CHAR\Instruments\VNA')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_KIDS_CHAR\Instruments\Gas_Handler22')
 import HP8753E as hp
-import FridgeHandler as handler
+#import FridgeHandler as handler
 import logging
 
-def setup_logger(log_file=r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRdetection\2o raff\Logs\test.log', level=logging.DEBUG):
+def setup_logger(log_file='test.log', level=logging.DEBUG):
     """
     Set up a file logger with the specified log file and logging level.
 
@@ -33,6 +33,7 @@ def setup_logger(log_file=r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRdetect
 
 #===============================TEST=================================================================
 logger = setup_logger()
+'''
 try:
     fridge = handler.FridgeHandler()
     logger.debug('Created fridge instance')
@@ -57,6 +58,7 @@ logger.debug('Setting fridge T to '+str(T))
 outp = fridge.get_sensor(3)
 if outp!=T:
     logger.critical('Did not set temperature correctly!')
+    '''
 #====================================================================================================
 
 #======================VNA TEST======================================================================
@@ -82,7 +84,7 @@ vna.set_mode('SING')
 logger.debug('Setting SING mode')
 vna.set_meas('B')
 logger.debug('Setting MEAS to B')
-vna.set_save_path(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRdetection\2o raff\Data')
+vna.set_save_path(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_KIDS_CHAR\Data\\')
 
 
 pw = -40
