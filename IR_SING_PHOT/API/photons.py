@@ -1,15 +1,16 @@
 #===============================================================================================
 import sys
-sys.path.append(r"C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRSource\AFG310")
-sys.path.append(r"C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRSource\Synth")
-sys.path.append(r"C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\DAQ")
-sys.path.append(r"C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRSource\API\logs")
-sys.path.append(r'C:\Users\oper\SynologyDrive\Lab2023\KIDs\QTLab2324\IRSource\Exceptions')
-sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRSource\HDF5')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\diodo')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\Synth')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API\logs')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\Exceptions')
+sys.path.append(r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\HDF5')
+
 #===============================================================================================
 
-from IRSource import diodo
-from IRSource.Synth import Synthesizer
+import diodo
+import Synthesizer
 from DAQ import DAQ
 from AFG310 import diode
 import json
@@ -21,7 +22,6 @@ from Exceptions import replace_non_serializable
 import numpy as np
 import niscope as ni
 from HDF5 import HDF5 as h5
-import Tools 
 
 #===============================================================================================
 #Save acquisition configuration parameters for DAQ configuration
@@ -64,6 +64,21 @@ try:
 except Exception:
     logger.critical('Could not crate DAQ class object')
     raise SyntaxError('Could not create DAQ class object')
+
+try:
+    sgen = diode.diode()
+    sgen.board = sgen_board
+    sgen.connect
+    sgen.amplitude = amplitude
+    sgen.freq = f
+    sgen.func = 'SINE'
+    logger.info('Diode class object correctly created')
+    logger.info('Amplitude is '+str(amplitude))
+    logger.info('Frequency is'+str(f))
+    logger.info('Func is'+str(sgen.func))
+except Exception:
+    logger.critical('Could not crate FSL class object')
+    raise SyntaxError('Could not create FSL class object')
 
 try:
     s1 = Synthesizer.Synthesizer(1)

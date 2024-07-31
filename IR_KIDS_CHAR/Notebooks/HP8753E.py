@@ -83,7 +83,7 @@ class HP8753E:
     def set_power_stop(self, stop):
         self._params['power_stop'] = stop
     
-    def set_MEAS(self, net = "B"): #sets measurement
+    def set_meas(self, net = "B"): #sets measurement
         self._vna.write('MEAS'+ net)
         return
 
