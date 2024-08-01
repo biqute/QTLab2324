@@ -33,9 +33,12 @@ class AFG310:
 
     def set_mode(self, mode = 'TRIG', n = '0' ): #CONT = continuo, TRIG: fa un ciclo dopo il trigger esterno, BURS: fa n cicli dopo un trigger
         if mode == 'BURS' or mode == 'burs':
-            self._diodo.write(f':MODE1 BURS;BCO {n}:' ) #n va da 0 a 60'000, oppure INF
-        else: self._diodo.write(f':MODE1 {mode}:')
+            self._diodo.write(f':MODE BURS;BCO {n}:' ) #n va da 0 a 60'000, oppure INF
+        else: self._diodo.write(f':MODE {mode}:')
         return
+
+    def trigger_mode(self):
+        self._diodo.write(':MODE TRIG')
 
     def pulse(self, tempo = 0):    #inserisco il tempo di durata del segnale, in s
 
@@ -43,18 +46,18 @@ class AFG310:
             if tempo == 0:
                 self.set_freq(16e6)    #tempo è la durata dell'impulso, noi la vorremmo la minor possibile, in s
                 ratio = 1
-                self.func('SQU')
+                self.set_func('SQU')
                 self._diodo.write(f'SOUR:PULS:DCYC {ratio}')
             else:
                 self.set_freq(1/(100*tempo))             #tempo è la durata dell'impulso, noi la vorremmo la minor possibile, in s
                 ratio = 1
-                self.func('SQU')
+                self.set_func('SQU')
                 self._diodo.write(f'SOUR:PULS:DCYC {ratio}')
         
         else:
-            self.set_freq(1e-2)    #tempo è la durata dell'impulso, noi la vorremmo la minor possibile, in s
+            self.set_freq(1e-2)    #tempo è la durata dell'impulso, noi la vorremmo minore possibile, in s
             ratio = tempo/100
-            self.func('SQU')
+            self.set_func('SQU')
             self._diodo.write(f'SOUR:PULS:DCYC {ratio}')
         return
 
@@ -66,12 +69,14 @@ class AFG310:
 
     def reset(self):
         self._diodo.write('*RST')
-        self._diodo.write('OUTP1 1')
-        self._diodo.write('MODE1;OUTP1:STAT ON;SOUR1;SOUR:VOLT:AMPL 1')
         return
 
-    def trigger(self):
-        self._diodo.write('*TRG')
+    def outp_on(self):
+        self._diodo.write('OUTP1 1')
+        return
+
+    def execute_trigger(self):
+        self._diodo.write('*TRG')   
         return
 
 
@@ -90,6 +95,18 @@ class AFG310:
     def sweep(self, time):
         self._diodo.write(f':SWE:TIME {time}')  #numero decimale da 1ms a 500 s
         return
+
+    def set_offset(self, offset):
+        self._diodo.write(f':VOLT:LEV:IMM:OFFS {offset}')
+        return 
+
+    def set_amplitude(self, amplitude):
+        self._diodo.write(f':VOLT:LEV:IMM:AMPL {amplitude}')
+        return 
+
+    def set_dc(self, percentage):
+        ratio = percentage/100
+        self._diodo.write(f'SOUR:PULS:DCYC {ratio}')
 #pag 193 vedi insieme
 #funzioni utili fino a 180
 #da 194 esempi di comandi

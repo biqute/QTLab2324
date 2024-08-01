@@ -28,6 +28,8 @@ class Synthesizer:
             try:
                 indirizzi = pyvisa.ResourceManager()
                 indirizzi.list_resources()
+                #for i in len(indirizzi.list_resources()):
+                    #indirizzi.open_resource[i]
                 self.indirizzo = indirizzi.open_resource(indirizzo_synth_uno)
                 print("Si è connessi al synth_uno!")
             except Exception as e:
