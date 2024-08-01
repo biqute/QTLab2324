@@ -5,7 +5,7 @@ date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 
 path = r"C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API" 
 name = date + ".log",
-records = 10
+records = 1
 record_lenght = 10000
 sample_rate  = 250e6
 low = 0.0010
@@ -18,7 +18,7 @@ ACQUISITION_CONFIG = {
     
     'vertical': {
             'range': 0.05,
-            'coupling': ni.VerticalCoupling.AC,
+            'coupling': ni.VerticalCoupling.DC,
             'offset': 0.0,
             'probe_attenuation': 1,
             'enabled': True
