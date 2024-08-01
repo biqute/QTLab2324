@@ -97,5 +97,5 @@ fig.savefig('pic_nic_perfetto.png')
 
 with open('pic_nic_perfetto.txt', 'w') as file:
     file.writelines('F'+'\t'+'I'+'\t'+'Q'+'\n')
-    for k in range(len(data['CH0'])):
+    for i in range(len(data['CH0'])):
          file.writelines(str(fs[i])+'\t'+str(I[i])+'\t'+str(Q[i])+'\n')
