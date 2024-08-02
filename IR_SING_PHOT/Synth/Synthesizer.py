@@ -1,8 +1,7 @@
 import pyvisa
 
-#righe di codice da scrivere per collegarsi ai due sintetizzatori
+#righe di codice da scrivere per collegarsi ai due sintetizzatori, dopo aver importato la classe
 '''
-import Synthesizer
 synth_uno = Synthesizer.Synthesizer(1)
 synth_due = Synthesizer.Synthesizer(2)
 synth_uno.connettore()

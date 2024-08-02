@@ -7,7 +7,7 @@ path = r"C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API"
 name = date + ".log",
 records = 1
 record_lenght = 10000
-sample_rate  = 250e6
+sample_rate  = 250*1e6
 low = 0.0010
 high = 0.0015
 window = ni.TriggerWindowMode.ENTERING
@@ -17,7 +17,7 @@ ACQUISITION_CONFIG = {
     #====================================Vertical Configuration==================================
     
     'vertical': {
-            'range': 0.05,
+            'range': 1,
             'coupling': ni.VerticalCoupling.DC,
             'offset': 0.0,
             'probe_attenuation': 1,
@@ -61,7 +61,7 @@ ACQUISITION_CONFIG = {
         'file_name'   : name                    ,        # name of the file where data will be saved
         'path'        : path                    ,        # path to directory for saving files (default is current)        'freq'        : [5.86512, 5.63622]      ,        # frequency chosen to study I and Q (GHz)
         'num_records' : records                 ,        # number of records to store
-        'channels'    : [0,1]                   ,        # list of enabled channels
+        'channels'    : [0,3]                   ,        # list of enabled channels
         'sample_rate' : sample_rate             ,        # rate of points sampling of PXIe-5170R
         'length'      : record_lenght           ,        # record length
         'timeout'     : hightime.timedelta(seconds=1.0),

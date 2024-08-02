@@ -158,7 +158,7 @@ except Exception:
 #GET DATA!
 #===============================================================================================
 
-runs = 10 # runs number        
+runs = 1000 # runs number        
 
 with daq._session as session:
     logger.info('Configuring channels')
@@ -167,12 +167,7 @@ with daq._session as session:
             'CH1': [],
             'CH2': [],
             'CH3': []}
-    wf_info = []
-    try:
-        daq._session.initiate()
-        logger.info('Session initiated')
-    except Exception:
-        logger.critical('Could not initiate session')
+    wfm = []
     
     for run in range(runs):
         
@@ -185,17 +180,20 @@ with daq._session as session:
             logger.critical('FSL is not outputting signal!')
 
         try:
+            daq._session.initiate()
             logger.info('Initiating fetching...')
             waveforms = session.channels[0,1].fetch()
             logger.info('Converting wfm[0] into dictionary')
-            data['CH0'] = np.array(waveforms[0].samples.tolist())
+            
             logger.info('Converting wfm[1] into dictionary')
-            data['CH1'] = np.array(waveforms[1].samples.tolist()) 
+             
         except Exception:
             logger.error('Could not fetch!!')
             sys.exit()
 
         try:
+            data['CH0'] = np.array(waveforms[0].samples.tolist())
+            data['CH1'] = np.array(waveforms[1].samples.tolist())
             hdf5 = h5.HDF5()
             path = r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API\Noise_data\\'
             hdf5.name = 'Run_'+str(res)+'.hdf5'

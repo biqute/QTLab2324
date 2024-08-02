@@ -1,7 +1,6 @@
 import pyvisa
 import numpy as np
 
-
 class AFG310:
 
     _instance = None
@@ -33,12 +32,11 @@ class AFG310:
 
     def set_mode(self, mode = 'TRIG', n = '0' ): #CONT = continuo, TRIG: fa un ciclo dopo il trigger esterno, BURS: fa n cicli dopo un trigger
         if mode == 'BURS' or mode == 'burs':
-            self._diodo.write(f':MODE BURS;BCO {n}:' ) #n va da 0 a 60'000, oppure INF
+            self._diodo.write(f':MODE BURS;BCO {n}:') #n va da 0 a 60'000, oppure INF
         else: self._diodo.write(f':MODE {mode}:')
         return
 
-    def trigger_mode(self):
-        self._diodo.write(':MODE TRIG')
+        self._diodo.write(f':MODE {mode}:')
 
     def pulse(self, tempo = 0):    #inserisco il tempo di durata del segnale, in s
 
