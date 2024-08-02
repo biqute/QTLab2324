@@ -36,7 +36,9 @@ class AFG310:
         else: self._diodo.write(f':MODE {mode}:')
         return
 
+    def trigger_mode(self, mode = 'TRIG'): #CONT = immette continuamente impulsi, TRIG: immette un impuslo dopo che si è inizializzato il trigger model (con il comando *TRG)
         self._diodo.write(f':MODE {mode}:')
+        return
 
     def pulse(self, tempo = 0):    #inserisco il tempo di durata del segnale, in s
 
