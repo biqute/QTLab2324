@@ -21,8 +21,8 @@ class Synthesizer:
             raise ValueError("Bisogna scrivere 'Synthesizer(1)' per connettersi al synth_uno, oppure 'Synthesizer(2)' per il synth_due!")
 
     def connettore(self): #metodo che serve per potersi connettere al sintetizzatore scelto 
-        indirizzo_synth_uno = 'ASRL27::INSTR' 
-        indirizzo_synth_due = 'ASRL28::INSTR'
+        indirizzo_synth_uno = 'ASRL28::INSTR' 
+        indirizzo_synth_due = 'ASRL27::INSTR'
         if self.numero_synth == 1: #connessione al sintetizzatore uno
             try:
                 indirizzi = pyvisa.ResourceManager()
@@ -62,7 +62,7 @@ class Synthesizer:
     #N.B. Occorre scrivere la frequenza 'frequenza' con anche l'unità di misura e l'ordine di gandezza in simboli:
     #     si deve scrivere, accanto al valore numerico: GHz, MHz, KHz, Hz, ...
     #     L'ordine di grandezza di default sono i milli Hertz: mlHz, quindi se non si specifica nulla, vengono considerati milli Hertz
-        self.indirizzo.write('FREQ ' + str(frequenza))
+        self.indirizzo.write('FREQ ' + str(frequenza) +  'GHz')
         return
 
     #METODO INUTILE PERCHE' I SINTETIZZATORI NON HANNO LA POSSIBILITA' DI AVERE UNA POTENZA VARIBAILE

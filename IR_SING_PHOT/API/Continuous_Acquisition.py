@@ -6,7 +6,7 @@ date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 path = r"C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API" 
 name = date + ".log",
 records = 1
-record_lenght = 10000
+record_lenght = 1000
 sample_rate  = 250*1e6
 low = 0.0010
 high = 0.0015
@@ -46,7 +46,7 @@ ACQUISITION_CONFIG = {
     'trigger': {
             'trigger_type'    : ni.TriggerType.IMMEDIATE,
             'low_level'       : low,
-            'high_level'       : high,
+            'high_level'      : high,
             'window_mode'     : window, 
             'trigger_source': '0',
             'level': 0,
