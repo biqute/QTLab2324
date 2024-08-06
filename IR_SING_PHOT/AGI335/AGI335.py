@@ -9,6 +9,7 @@ class AGI335:
     _duty_cycle = 50
     _offset = 0.5
     _output = 0
+    _trig_source = 'EXT'
 
     def __init__(self):
         print('OBJECT INSTANCE CREATED')
@@ -20,12 +21,7 @@ class AGI335:
 
     @board.setter
     def board(self, board):
-        try:
-            board in pyvisa.ResourceManager().list_resources()
-            print('VALID BOARD')
-            self._board = board
-        except: 
-            raise ConnectionError('BOARD IS NOT VALID')
+        self._board = board
         
     def connect(self):
         self._pulser = pyvisa.ResourceManager().open_resource(self._board)
@@ -126,4 +122,22 @@ class AGI335:
 
     def execute_trigger(self):
         #For remote triggering BUS mode has to be selected
+        self._pulser.write('*TRG')
+
+    @property
+    def trigger_source(self):
+        return self._trig_source
+
+    @trigger_source.setter
+    def trigger_source(self, source):
+        self._pulser.write('TRIG:SOUR '+str(source))
+
+    @trigger_source.getter
+    def trigger_source(self):
+        return self._pulser.query('TRIG:SOUR?')
+
+    def set_burst_mode(self):
+        self._pulser.write('SOUR:BURS:STAT ON')
+        self._pulser.write('OUTP ON')
+        self._pulser.write('*TRG')
         self._pulser.write('*TRG')
