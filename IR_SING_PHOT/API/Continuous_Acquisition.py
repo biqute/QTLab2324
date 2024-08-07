@@ -6,8 +6,8 @@ date = datetime.now().strftime("%m-%d-%Y-%H-%M-%S")
 path = r"C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API" 
 name = date + ".log",
 records = 1
-duration = 0.05
-sample_rate  = 1e7
+duration = 1e-2
+sample_rate  = 1e8
 record_lenght = int(sample_rate * duration)
 low = 0.0010
 high = 0.0015
@@ -78,6 +78,7 @@ ACQUISITION_CONFIG = {
         'length'      : record_lenght           ,        # record length
         'timeout'     : hightime.timedelta(seconds=0.0),
         'relative_to' : ni.FetchRelativeTo.PRETRIGGER,
+        'duration'     : duration,
         'source_rate' : 700,                             #diode rate in hz
         'acq_time'    : 1,                               #acquisition time in seconds
         'offset'      : 0
