@@ -53,7 +53,7 @@ except Exception:
 #Acquire DAQ configuration dictionaries
 #===============================================================================================
 
-res = [5.3465, 5.5757, 5.6748, 5.98126]
+res = 5.3465
 sgen_board = ''
 amplitude = 0
 f = 0
@@ -93,7 +93,7 @@ except Exception:
 
 channels = {'I'			: 0, 
             'Q'			: 1,
-            'trigger'	: 3}
+            'trigger'	: 0}
 
 
 try:

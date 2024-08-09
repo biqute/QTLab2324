@@ -44,7 +44,7 @@ ACQUISITION_CONFIG = {
     #====================================Triggers Configuration==================================
 
     'trigger': {
-            'trigger_type'    : ni.TriggerType.WINDOW,
+            'trigger_type'    : ni.TriggerType.EDGE,
             'low_level'       : low,
             'high_level'       : high,
             'window_mode'     : window, 
