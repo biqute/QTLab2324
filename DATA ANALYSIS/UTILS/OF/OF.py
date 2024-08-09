@@ -66,7 +66,7 @@ class Medium():
 
         delay_ref = int(edata.shape[1]/2.)
         time      = np.arange(edata.shape[1])
-        a,b       = watson_utilities.parabolic_fit(OFT)[0:2]
+        a,b       = parabolic_fit(OFT)[0:2]
 
         max_pos_true = -b/(2*a)
         delay        = max_pos_true - delay_ref
@@ -132,7 +132,7 @@ def applyOF(edata,H):
         OFF         = np.array(np.sum(np.abs(events_OF_f), axis=1)/edata.shape[1])
         events_OF   = np.fft.ifft(events_OF_f).real
         events_OF   = np.concatenate((events_OF[:,int(edata.shape[1]/2):edata.shape[1]], events_OF[:,0:int(edata.shape[1]/2)]),axis=1)
-        a,b,c       = parabolic_fit(events_OF, self._pstart)[0:3]
+        a,b,c       = parabolic_fit(events_OF, 0)[0:3]
         OFmax_pos   = np.argmax(events_OF,axis=1)
         OFdelay     = -b/(2.*a)  -edata.shape[1]/2
         OFT         = -1.*(b**2)/(4.*a) +c
