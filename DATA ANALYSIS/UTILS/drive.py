@@ -26,7 +26,7 @@ def authenticate():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\DATA ANALYSIS\UTILS\credentials.json', SCOPES)
             creds = flow.run_local_server(port=49901)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -84,17 +84,9 @@ def download_file_to_memory(service, file_id):
     return file_stream
 
 
-def read_hdf5_file(file_streams):
-    data = []
-    counter = 0
-    
-    for file_stream in file_streams:
-        if counter < 10:
-            # Use h5py to read from the in-memory file (BytesIO stream)
-            with h5py.File(file_stream, 'r') as f:
-                # Assuming 'Signals/I' is the correct path inside the HDF5 structure
-                dataset = f['Signals']['I'][:]
-                data.append(dataset)
-                counter += 1
-    
-    return data
+def read_hdf5_file(file_stream):
+    # Use h5py to read from the in-memory file (BytesIO stream)
+    with h5py.File(file_stream, 'r') as f:
+        # Assuming 'Signals/I' is the correct path inside the HDF5 structure
+        dataset = f['Signals']['I'][:]
+    return dataset
