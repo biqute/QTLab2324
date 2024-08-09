@@ -1,8 +1,7 @@
 import pyvisa
 
-#righe di codice da scrivere per collegarsi ai due sintetizzatori
+#righe di codice da scrivere per collegarsi ai due sintetizzatori, dopo aver importato la classe
 '''
-import Synthesizer
 synth_uno = Synthesizer.Synthesizer(1)
 synth_due = Synthesizer.Synthesizer(2)
 synth_uno.connettore()
@@ -10,36 +9,14 @@ synth_due.connettore()
 '''
 
 class Synthesizer:
-    def __init__(self, numero_synth): #nell'inizializzazione del sintetizzatore occorre specificare se si sta costruendo la classe per il sintetizzatore uno o due
-        self.numero_synth = numero_synth
+    def __init__(self): #nell'inizializzazione del sintetizzatore occorre specificare se si sta costruendo la classe per il sintetizzatore uno o due
         self.indirizzo = None
-        try:
-            if self.numero_synth == 1:
-                    print("Synth_uno!")
-            elif self.numero_synth == 2:
-                print("Synth_due!")
-        except Exception as e:
-            raise ValueError("Bisogna scrivere 'Synthesizer(1)' per connettersi al synth_uno, oppure 'Synthesizer(2)' per il synth_due!")
 
-    def connettore(self): #metodo che serve per potersi connettere al sintetizzatore scelto 
-        indirizzo_synth_uno = 'ASRL27::INSTR' 
-        indirizzo_synth_due = 'ASRL28::INSTR'
-        if self.numero_synth == 1: #connessione al sintetizzatore uno
+    def connettore(self, porta): #metodo che serve per potersi connettere al sintetizzatore scelto 
             try:
-                indirizzi = pyvisa.ResourceManager()
-                indirizzi.list_resources()
-                self.indirizzo = indirizzi.open_resource(indirizzo_synth_uno)
-                print("Si è connessi al synth_uno!")
-            except Exception as e:
-                raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_uno sia alimentato!")
-        elif self.numero_synth == 2: #connessione al sintetizzatore due
-            try:
-                indirizzi = pyvisa.ResourceManager()
-                indirizzi.list_resources()
-                self.indirizzo = indirizzi.open_resource(indirizzo_synth_due)
-                print("Si è connessi al synth_due!")
-            except Exception as e:
-                raise ValueError("Non è riuscita la connessione con il synth_uno!\n\t    Controllare che il synth_due sia alimentato!")
+                self.indirizzo = pyvisa.ResourceManager().open_resource(porta)
+            except Exception:
+                raise ConnectionRefusedError(f'Could not connect to board {porta}')
 
     def ask_name(self): #metodo che restituisce il nume dello strumento
         nome_strumento = self.indirizzo.query('*IDN?')
@@ -57,7 +34,7 @@ class Synthesizer:
     #N.B. Occorre scrivere la frequenza 'frequenza' con anche l'unità di misura e l'ordine di gandezza in simboli:
     #     si deve scrivere, accanto al valore numerico: GHz, MHz, KHz, Hz, ...
     #     L'ordine di grandezza di default sono i milli Hertz: mlHz, quindi se non si specifica nulla, vengono considerati milli Hertz
-        self.indirizzo.write('FREQ ' + str(frequenza))
+        self.indirizzo.write('FREQ ' + str(frequenza) +  'GHz')
         return
 
     #METODO INUTILE PERCHE' I SINTETIZZATORI NON HANNO LA POSSIBILITA' DI AVERE UNA POTENZA VARIBAILE

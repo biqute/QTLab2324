@@ -1,6 +1,6 @@
 import pyvisa
 
-class diode:
+class AFG310:
 
     _board = None
     _amplitude = None
@@ -8,6 +8,7 @@ class diode:
     _mode = None
     _func = None
     _freq = None
+    _dcyc = None
 
     def __init__(self):
         print('Creating object instance...')
@@ -23,7 +24,7 @@ class diode:
         self._diode.write('MODE1; :OUTP1 ON; :SOUR1')   #accende la porta 1
 
     def connect(self):
-        pyvisa.ResourceManager().open_resource(self._board)        
+        self._diode = pyvisa.ResourceManager().open_resource(self._board)        
 
     @property
     def amplitude(self):
@@ -40,10 +41,7 @@ class diode:
     
     @mode.setter
     def mode(self, mode = 'TRIG', n = '0' ): #CONT = continuo, TRIG: fa un ciclo dopo il trigger esterno, BURS: fa n cicli dopo un trigger
-        if mode == 'BURS':
-            self._diode.write(f':MODE1 BURS;BCO {n}:' ) #n va da 0 a 60'000, oppure INF
-        else:
-            self._diode.write(f':MODE1 {mode}:')
+        self._diode.write(f':MODE {mode}')
 
     @property
     def func(self):
@@ -63,10 +61,21 @@ class diode:
     def freq(self, ni):
         self._freq = ni
 
+    @property
+    def dcyc(self):
+        return self._dcyc
+
+    @dcyc.setter
+    def dcyc(self, ratio):
+        self._diode.write(f'SOUR:PULS:DCYC {ratio}')
+    
+
     def reset(self):
         self._diode.write('*RST')
+
+    def outp_on(self):
         self._diode.write('OUTP1 1')
-        self._diode.write('MODE1;OUTP1:STAT ON;SOUR1;SOUR:VOLT:AMPL 1')
+        return
         
     def exec_trigger(self):
         self._diode.write('*TRG')

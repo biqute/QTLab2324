@@ -53,7 +53,11 @@ except Exception:
 #Acquire DAQ configuration dictionaries
 #===============================================================================================
 
+<<<<<<< HEAD
 res = 5.3465
+=======
+res = 5.5757
+>>>>>>> d6172ffe1cc3f645335ed30a638bafc8547bcc58
 sgen_board = ''
 amplitude = 0
 f = 0
@@ -66,25 +70,8 @@ except Exception:
     raise SyntaxError('Could not create DAQ class object')
 
 try:
-    sgen = diode.diode()
-    sgen.board = sgen_board
-    sgen.connect
-    sgen.amplitude = amplitude
-    sgen.freq = f
-    sgen.func = 'SINE'
-    logger.info('Diode class object correctly created')
-    logger.info('Amplitude is '+str(amplitude))
-    logger.info('Frequency is'+str(f))
-    logger.info('Func is'+str(sgen.func))
-except Exception:
-    logger.critical('Could not crate FSL class object')
-    raise SyntaxError('Could not create FSL class object')
-
-try:
     s1 = Synthesizer.Synthesizer(1)
-    s2 = Synthesizer.Synthesizer(2)
     s1.connettore()
-    s2.connettore()
     logger.info('Synth class object correctly created and connected!')
 except Exception:
     logger.critical('Could not crate synth class object')
@@ -175,7 +162,7 @@ except Exception:
 #GET DATA!
 #===============================================================================================
 
-runs = 10 # runs number        
+runs = 1000 # runs number        
 
 with daq._session as session:
     logger.info('Configuring channels')
@@ -184,52 +171,44 @@ with daq._session as session:
             'CH1': [],
             'CH2': [],
             'CH3': []}
-    wf_info = []
-    try:
-        daq._session.initiate()
-        logger.info('Session initiated')
-    except Exception:
-        logger.critical('Could not initiate session')
+    wfm = []
     
     for run in range(runs):
+        
+        LO = res
+        try:
+            s1.set_frequency(LO)
+            s1.outp_frequency_on()
+            logger.info(f'Synth 1 is now outputting signal at {LO} GHz')
+        except Exception:
+            logger.critical('FSL is not outputting signal!')
+
+        try:
+            daq._session.initiate()
+            logger.info('Initiating fetching...')
+            waveforms = session.channels[0,1].fetch()
+            logger.info('Converting wfm[0] into dictionary')
             
-        for r in res:
-            LO = r
-            RF = LO + 1e3
-            try:
-                s1.set_frequency(LO)
-                s2.set_frequency(RF)
-                s1.outp_frequency_on()
-                s2.outp_frequency_on()
-                logger.info(f'Synth 1 is now outputting signal at {LO} GHz')
-                logger.info(f'Synth 2 is now outputting signal at {RF} GHz')
-            except Exception:
-                logger.critical('FSL is not outputting signal!')
+            logger.info('Converting wfm[1] into dictionary')
+             
+        except Exception:
+            logger.error('Could not fetch!!')
+            sys.exit()
 
-            try:
-                logger.info('Initiating fetching...')
-                waveforms = session.channels[0,1].fetch()
-                logger.info('Converting wfm[0] into dictionary')
-                data['CH0'] = np.array(waveforms[0].samples.tolist())
-                logger.info('Converting wfm[1] into dictionary')
-                data['CH1'] = np.array(waveforms[1].samples.tolist()) 
-            except Exception:
-                logger.error('Could not fetch!!')
-                sys.exit()
-
-            try:
-                hdf5 = h5.HDF5()
-                path = r"C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IRSource\Runs\Noise\Run_"+str(run)+'\\'
-                hdf5.name = 'Resonance_'+str(r)+'.hdf5'
-                hdf5.dic = data
-                hdf5.to_hdf5()
-                logger.info('Transfering data from python dic to '+str(path+hdf5.name))
-            except Exception:
-                logger.warning('Could not transfer data into '+str(path+hdf5.name))
+        try:
+            data['CH0'] = np.array(waveforms[0].samples.tolist())
+            data['CH1'] = np.array(waveforms[1].samples.tolist())
+            hdf5 = h5.HDF5()
+            path = r'C:\Users\kid\SynologyDrive\Lab2023\KIDs\QTLab2324\IR_SING_PHOT\API\Noise_data\\'
+            hdf5.name = 'Run_'+str(res)+'.hdf5'
+            hdf5.dic = data
+            hdf5.to_hdf5()
+            logger.info('Transfering data from python dic to '+str(path+hdf5.name))
+        except Exception:
+            logger.warning('Could not transfer data into '+str(path+hdf5.name))
 
 try:
     s1.outp_frequency_off()
-    s2.outp_frequency_off()
     logger.info('Synth stopped outputting signal')
 except Exception:
     logger.critical("Synth hasn't stopped outputting signal!")

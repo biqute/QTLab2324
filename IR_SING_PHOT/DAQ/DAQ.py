@@ -344,3 +344,24 @@ class DAQ():
                 hdf.create_dataset('timestamp_ch1', data=self.timestamp_ch1, compression='gzip', compression_opts=9)
             except Exception:
                 pass
+
+
+    
+    def pseudo_cont(self, total_samples, samples_per_fetch, trigger_func):
+        self._session.initiate()        
+        current_pos = 0
+        self._waveform = [np.ndarray(total_samples, dtype=np.float64) for c in self._session.channels]
+
+        while current_pos < total_samples:
+            trigger_func()
+            for channel, wfm in zip(self._channels, self._waveform):
+                self._session.channels[channel].fetch_into(wfm[current_pos:current_pos + samples_per_fetch], relative_to=ni.FetchRelativeTo.READ_POINTER, offset=0, record_number=0, num_records=1)
+
+            current_pos += samples_per_fetch
+
+        self._i_matrix_ch0 = np.array(self._waveform[0])
+        self._q_matrix_ch0 = np.array(self._waveform[1])
+        self._i_matrix_ch1 = np.array(self._waveform[2])
+        self._q_matrix_ch1 = np.array(self._waveform[3])
+
+        return None
