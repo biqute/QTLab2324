@@ -10,6 +10,7 @@ from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseDownload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import numpy as np
 import h5py
 import os
 import gzip
@@ -75,18 +76,25 @@ def list_files_in_folder(service, folder_id, max_files=5):
 
     return files
 
-
-def download_file_to_memory(service, file_id):
-    """Download a file from Google Drive into memory."""
+def download_file_from_drive(service, file_id):
+    """Download a file from Google Drive to a destination."""
     request = service.files().get_media(fileId=file_id)
-    file_stream = io.BytesIO()
-    downloader = MediaIoBaseDownload(file_stream, request)
+    fh = io.BytesIO()
+    downloader = MediaIoBaseDownload(fh, request)
     done = False
-    while done is False:
+    while not done:
         status, done = downloader.next_chunk()
-    
-    file_stream.seek(0)  # Move to the beginning of the file
-    return file_stream
+        print(f"Download progress: {int(status.progress() * 100)}%")
+    fh.seek(0)
+    return fh
+
+def decompress_hdf5_to_memory(compressed_file_io):
+    """Decompresses a .gz file from a BytesIO object and loads it into memory as an HDF5 file."""
+    with gzip.GzipFile(fileobj=compressed_file_io, mode='rb') as f_in:
+        decompressed_data = io.BytesIO(f_in.read())
+        with h5py.File(decompressed_data, 'r') as hdf_file:
+            data = np.array(hdf_file['dataset'])  # Replace 'dataset' with the actual name of the dataset
+    return data
 
 
 def read_hdf5_file(file_stream):
@@ -122,3 +130,8 @@ def upload_file_to_drive(file_path, drive_folder_id=None):
     file = service.files().create(body=file_metadata, media_body=media, fields='id').execute()
     
     print(f'File {file_name} uploaded to Google Drive with file ID: {file["id"]}')
+
+def decompress_hdf5_to_memory(compressed_file_path):
+    """Decompresses a .gz file and loads it into memory as an HDF5 file."""
+    with gzip.open(compressed_file_path, 'rb') as f_in:
+        return io.BytesIO(f_in.read())
