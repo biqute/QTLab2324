@@ -1,20 +1,18 @@
 import os
 import io
 import sys
+import h5py
+import gzip
+import shutil
 sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IR_SING_PHOT')
-from HDF5 import HDF5
 from googleapiclient.http import MediaFileUpload
 import pickle
-import h5py
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseDownload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import numpy as np
-import h5py
-import os
-import gzip
-import shutil
+
 
 # If modifying these SCOPES, delete the file token.pickle.
 SCOPES = ['https://www.googleapis.com/auth/drive']
@@ -132,3 +130,17 @@ def decompress_hdf5_to_memory(compressed_file_io):
             # Replace 'dataset' with the correct name after inspecting the printout
             data = np.array(hdf_file['example_data'])  # Adjust 'dataset' to match the correct dataset name
     return data
+
+def download_file_to_memory(service, file_id):
+    """Download a file from Google Drive into memory."""
+    request = service.files().get_media(fileId=file_id)
+    file_stream = io.BytesIO()
+    downloader = MediaIoBaseDownload(file_stream, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+        print(f"Download {int(status.progress() * 100)}%.")
+    
+    # Make sure the stream position is at the start
+    file_stream.seek(0)
+    return file_stream
