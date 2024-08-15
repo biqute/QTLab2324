@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import savgol_filter
 from scipy.ndimage import convolve
-import numpy as np
 from matplotlib.animation import FuncAnimation
 
 def vertex_parabola(x2, y1, y2, y3):
@@ -31,17 +30,13 @@ def derivative_trigger(sample, window_ma, a = 10, b = 5, n=2, plot=False):
     time = np.linspace(0,len(sample), len(sample))
 
     first_derivative = np.gradient(moving_averages)
-    std = np.std(first_derivative[0:100])/2 #100 will become a function of length and pos_ref in pxie
+    std = np.std(first_derivative[0:100])/2 
     index_min = first_derivative.argmin()
-
-    #print('index_min = ', index_min)
     
     rise_points = 0
     while first_derivative[index_min - rise_points] < -std:
         rise_points += 1
-    
-    #print('rise_points = ', rise_points)
-    
+        
     a = a #to have a window_length of 21, in this way all the windows are equal
     b = b
     start = index_min - rise_points
@@ -161,7 +156,7 @@ def update(frame, file_path, ax, bars, bins):
 def live_show(file_path):
     # Create the animation
     fig, ax, bars, bins = initialize_canvas()
-    ani = FuncAnimation(fig, update, fargs=(file_path, ax, bars, bins), interval=1000,cache_frame_data=False)  # Update every 1 second
+    _ = FuncAnimation(fig, update, fargs=(file_path, ax, bars, bins), interval=1000,cache_frame_data=False)  # Update every 1 second
 
     # Show the plot
     plt.xlabel('Value')

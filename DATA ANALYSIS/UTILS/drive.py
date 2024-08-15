@@ -4,14 +4,15 @@ import sys
 import h5py
 import gzip
 import shutil
+import pickle
+import numpy as np
+import subprocess
 sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IR_SING_PHOT')
 from googleapiclient.http import MediaFileUpload
-import pickle
 from google.auth.transport.requests import Request
 from googleapiclient.http import MediaIoBaseDownload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-import numpy as np
 
 
 # If modifying these SCOPES, delete the file token.pickle.
@@ -144,3 +145,18 @@ def download_file_to_memory(service, file_id):
     # Make sure the stream position is at the start
     file_stream.seek(0)
     return file_stream
+
+
+def run_script(script_path, *args):
+    """
+    Executes a Python script with the provided arguments.
+
+    :param script_path: Path to the Python script to execute.
+    :param args: Arguments to pass to the script.
+    """
+    command = [sys.executable, script_path] + list(args)
+    try:
+        result = subprocess.run(command, check=True, text=True, capture_output=True)
+        print("Script Output:\n", result.stdout)
+    except subprocess.CalledProcessError as e:
+        print("An error occurred while running the script:\n", e.stderr)
