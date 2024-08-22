@@ -7,6 +7,8 @@ import shutil
 import pickle
 import numpy as np
 import subprocess
+import time
+from pygame import mixer
 sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\IR_SING_PHOT')
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
@@ -160,3 +162,13 @@ def run_script(script_path, *args):
         print("Script Output:\n", result.stdout)
     except subprocess.CalledProcessError as e:
         print("An error occurred while running the script:\n", e.stderr)
+
+def play_alert_sound():
+    mixer.init()
+    sound_file = r"C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\DATA ANALYSIS\UTILS\grandealert.mp3" 
+    mixer.music.load(sound_file)
+    mixer.music.play()
+
+    # Wait until the sound is done playing
+    while mixer.music.get_busy():
+        time.sleep(1)

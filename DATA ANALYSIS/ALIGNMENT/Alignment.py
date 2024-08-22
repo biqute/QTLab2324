@@ -1,90 +1,133 @@
 import os
 import sys
+import h5py
 import numpy as np
 import multiprocessing
+import logging
 from matplotlib import rc
-import matplotlib.pyplot as plt
+import winsound
 sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\DATA ANALYSIS')
 from UTILS.load_data import get_data, in_memory
-from UTILS.drive import compress_hdf5, upload_file_to_drive, create_hdf5_file
+from UTILS.drive import upload_file_to_drive
 from UTILS.Trigger import derivative_trigger, live_show, align_signal
 
+# Matplotlib configuration
 rc('text', usetex=False)
 rc('font', family='serif', size=20)
 rc('figure', figsize=(12,8))
 rc('axes',linewidth=2)
 
+# Logger configuration
+logging.basicConfig(level=logging.INFO, 
+                    format='%(asctime)s - %(levelname)s - %(message)s', 
+                    handlers=[
+                        logging.FileHandler("data_analysis.log"),
+                        logging.StreamHandler(sys.stdout)
+                    ])
+logger = logging.getLogger()
+
 begin = 1.0*1e6
-stop = begin+2*1e4
+stop = begin + 2*1e4
 
 def main():
 
-    files, svc = get_data(folder_id=str(sys.argv[1]),max_files=1000)
+    counter = 0
+    counter_not_work = 0
 
-    #Run 13 done
-    #Run 14 done
+    # Log the start of the process
+    logger.info("Starting data retrieval...")
+    
+    try:
+        files, svc = get_data(folder_id=str(sys.argv[1]), max_files=1000)
+        hdf5_file_path = 'data'+str(sys.argv[1])+'.hdf5'  # Path for the HDF5 file to create
+    except Exception as e:
+        logger.error(f"Failed to retrieve data: {e}")
+        sys.exit(1)
+
+    logger.info(f"Retrieved {len(files)} files.")
 
     # Start live_show in a separate process
+    logger.info("Starting live_show process...")
     live_show_process = multiprocessing.Process(target=live_show, args=('Alignments.txt',))
     live_show_process.start()
 
-    for i,file in enumerate(files):
-        data = in_memory(file, svc)
-        noise = data[int(begin):int(stop)]
+    with h5py.File(hdf5_file_path, 'w') as hdf5_file:
+        for i, file in enumerate(files):
+            try:
+                logger.info("Data in memory...")
+                data = in_memory(file, svc)
+            except Exception as e:
+                logger.error(f"Could not load file {file} to memory: {e}")
+                continue  # Continue to the next file
 
-#        bl = False
-#        if len(sys.argv) > 1:
-#            bl = True
+            noise = data[int(begin):int(stop)]
 
-        Timestamp = np.linspace(0, len(data), len(data), dtype=int)
-        idx = np.array(Timestamp[:int(0.4 * 1e6)])
-        T = Timestamp[idx]
-        signal = data[idx]
+            Timestamp = np.linspace(0, len(data), len(data), dtype=int)
+            idx = np.array(Timestamp[:int(0.4 * 1e6)])
+            signal = data[idx]
 
-        plt.figure(figsize=(20, 5))
-        plt.plot(T, signal)
-        plt.title('CUT I SIGNAL')
-        plt.ylabel('[V]')
-        plt.xlabel('Timestamp')
+            try: 
+                logger.info("Triggering...")
+                a, b, _ = derivative_trigger(signal, 100, plot=False)
+            except Exception as e:
+                logger.error(f"Something went wrong with trigger: {e}")
+                continue  # Continue to the next file
 
-        a, b, _ = derivative_trigger(signal, 100, plot=False)
+            if (b<int(2.5e5) and b>int(1.5e5)):
 
-        print(f'{file} done!')
+                with open('Alignments.txt', 'a') as align_file:
+                    align_file.writelines(str(b) + '\n')
 
-        with open('Alignments.txt', 'a') as file:
-            file.writelines(str(b) + '\n')
+                try:
+                    logger.info("Aligning...")
+                    final, _ = align_signal(data, 100, 1000, 20000)
+                except Exception as e:
+                    logger.warning(f"Could not align signal! {e}")
+                    final = None  # Handle the case where alignment fails
+                    
+                try:
+                    logger.info("Creating datasets")
+                    if final is not None:
+                        hdf5_file.create_dataset(f'Raw data{i}', data=final, compression='gzip', compression_opts=9)
+                    hdf5_file.create_dataset(f'Noise{i}', data=noise, compression='gzip', compression_opts=9)
+                except Exception as e:
+                    logger.error(f"Could not create dataset: {e}")
+                    continue  # Continue to the next file
 
-        final, _ = align_signal(data,100,1000,20000)
+            else:
+                logger.warning("Alignment did not work")
+                counter_not_work += 1
 
-        hdf5_file_path = 'data.hdf5'  # Path for the HDF5 file to create
-        compressed_file_path = 'data.hdf5.gz'  # Path for the compressed file
+            if counter % 10 == 0:
+                winsound.MessageBeep()
 
-        hdf5_file_path_noise = 'noise'+str(i)+'.hdf5'  # Path for the HDF5 file to create
-        compressed_file_path_noise = hdf5_file_path_noise+'.gz'  # Path for the compressed file
+            logger.info(f'{file} processed successfully.')
+            counter += 1
 
-        # Create HDF5 file
-        create_hdf5_file(hdf5_file_path,final)
-        create_hdf5_file(hdf5_file_path_noise,noise)
+    # Ensure the live_show process completes
+    logger.info("Waiting for live_show process to complete...")
+    live_show_process.join(timeout=300)
+    if live_show_process.is_alive():
+        logger.warning("live_show process did not finish in time and will be terminated.")
+        live_show_process.terminate()
+    logger.info("live_show process completed.")
 
-        # Compress HDF5 file
-        compress_hdf5(hdf5_file_path, compressed_file_path)
-        compress_hdf5(hdf5_file_path_noise, compressed_file_path_noise)
+    upload_folder_id = '1F7OUtFBa1pjhLHwCA0mb6zoNt4UwXyfr'
 
-        upload_folder_id = '1hySBkWm_w7BPn4PMBf5OrxPtVIvVP1ln'
-        upload_folder_id_noise = '1RwmgPIPpVKh0tqE4fx79U7RfeJAlOJjI'
-
+    try:
         # Upload to Google Drive
-        upload_file_to_drive(compressed_file_path, upload_folder_id)
-        upload_file_to_drive(compressed_file_path_noise, upload_folder_id_noise)
+        logger.info("Uploading file to Google Drive...")
+        upload_file_to_drive(hdf5_file_path, upload_folder_id)
+        logger.info("File uploaded successfully.")
+    except Exception as e:
+        logger.error(f"Failed to upload file: {e}")
 
+    try:
         # Clean up
         os.remove(hdf5_file_path)
-        os.remove(compressed_file_path)
-        os.remove(hdf5_file_path_noise)
-        os.remove(compressed_file_path_noise)
-
-        # Ensure the live_show process completes
-    live_show_process.join()
+        logger.info("Clean up completed.")
+    except Exception as e:
+        logger.error(f"Failed to clean up files: {e}")
 
 if __name__ == "__main__":
     main()
