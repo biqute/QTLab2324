@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO,
                     ])
 logger = logging.getLogger()
 
-folders = ['1yYLE5oZD8xLRU-p8sOcruevWP0dqUzAT', '19y3UZN5FfFp0G1GCUJGydX3f8oTiwivq', '12Cq--BfZONfpXNnzqw1xnwpKd4HLN5QY', '1EZwnzFDOlW20t1Ufkj66OG_oNNCVGLGK']
+folders = ['1yYLE5oZD8xLRU-p8sOcruevWP0dqUzAT','19y3UZN5FfFp0G1GCUJGydX3f8oTiwivq','12Cq--BfZONfpXNnzqw1xnwpKd4HLN5QY','1EZwnzFDOlW20t1Ufkj66OG_oNNCVGLGK']
 
 for fol in folders:
     try:
