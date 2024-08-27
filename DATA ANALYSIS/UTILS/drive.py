@@ -84,6 +84,15 @@ def read_hdf5_file(file_stream):
         dataset = f['Signals']['I'][:]
     return dataset
 
+def read_hdf5_file_phase(file_stream):
+    # Use h5py to read from the in-memory file (BytesIO stream)
+    with h5py.File(file_stream, 'r') as f:
+        # Assuming 'Signals/I' is the correct path inside the HDF5 structure
+        I = np.array(f['Signals']['I'][:])
+        Q = np.array(f['Signals']['Q'][:])
+        dataset = np.unwrap(np.angle(Q+1j*I))
+    return dataset
+
 def create_hdf5_file(file_path,data):
     """Create a sample HDF5 file with some example data."""
     with h5py.File(file_path, 'w') as hdf5_file:

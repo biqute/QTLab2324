@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import savgol_filter
+from scipy.signal import savgol_filter, find_peaks
 from scipy.ndimage import convolve
 from matplotlib.animation import FuncAnimation
 
@@ -122,6 +122,96 @@ def align_signal(signal, window_ma, points_before_trigger=1000, points_after_tri
         plt.show()
 
     return aligned_signal, min_point
+
+def weighted_moving_average(data, window_size):
+    # Converti i dati in un array numpy
+    data = np.array(data)
+    
+    # Crea i pesi come un array numpy
+    weights = np.arange(1, window_size + 1)
+    
+    # Calcola la somma dei pesi
+    weight_sum = weights.sum()
+    
+    # Calcola la media mobile ponderata utilizzando la funzione di convoluzione
+    wma = np.convolve(data, weights[::-1], mode='valid') / weight_sum
+    
+    return wma
+
+def exponential_moving_average(data, window_size):
+    # Converti i dati in un array numpy
+    data = np.array(data)
+    
+    # Calcola il coefficiente di ammortamento
+    alpha = 2 / (window_size + 1)
+    
+    # Inizializza un array per l'EMA con lo stesso formato dei dati
+    ema = np.zeros_like(data, dtype=float)
+    
+    # Imposta il primo valore dell'EMA uguale al primo valore dei dati
+    ema[0] = data[0]
+    
+    # Calcola l'EMA usando la formula ricorsiva
+    for i in range(1, len(data)):
+        ema[i] = alpha * data[i] + (1 - alpha) * ema[i - 1]
+    
+    return ema
+
+def simple_moving_average(data, window_size):
+    # Converti i dati in un array numpy
+    data = np.array(data)
+    
+    # Crea un array di pesi per la finestra (tutti uguali)
+    weights = np.ones(window_size) / window_size
+    
+    # Calcola la SMA usando la funzione di convoluzione
+    sma = np.convolve(data, weights, mode='valid')
+    
+    return sma
+
+
+def align_definitive(signal,window=180,polyorder=8,derivorder=1,plot=False):
+
+    signal_derivative = savgol_filter(signal,window,polyorder,derivorder)
+
+    idxs, props = find_peaks(signal_derivative[1:-1],0)
+
+    try:
+        max(props['peak_heights']) > 5 * np.std(signal_derivative)
+    except Exception as e:
+        print(f"Could not find maximum of derivative -> {e}")
+
+    bw = 0
+    mean = max(signal_derivative)
+
+    while(mean > np.std(signal_derivative[:1000]) or mean < -1*np.std(signal_derivative[:1000])):
+        bw += 1
+        dacalcolare = (signal_derivative[idxs[np.argmax(props['peak_heights'])]-bw:idxs[np.argmax(props['peak_heights'])]])
+        mean = np.mean(dacalcolare)
+
+    xmin = idxs[np.argmax(props['peak_heights'])]-bw
+    x_alignment = xmin + np.argmin(signal_derivative[xmin:idxs[np.argmax(props['peak_heights'])]])
+
+    if plot:
+        fig,axs = plt.subplots(2,1, figsize=(15,10))
+        axs[0].plot(signal_derivative,label='signal_derivative DErivative')
+        axs[0].scatter(signal_derivative,signal_derivative['peak_heights'],marker='x',color='black')
+        axs[0].scatter(signal_derivative[np.argmax(signal_derivative['peak_heights'])],max(signal_derivative['peak_heights']),marker='x',color='red',label='Maximum')
+        axs[0].axhline(np.std(signal_derivative[:1000]),linestyle='-.',color='red',label=r'$\sigma$')
+        axs[0].axhline(-1*np.std(signal_derivative[:1000]),linestyle='-.',color='red',label=r'$-\sigma$')
+        axs[0].axvline(signal_derivative[np.argmax(signal_derivative['peak_heights'])],0,1, linestyle='-.',color='green')
+        axs[0].set_xlim([signal_derivative[np.argmax(signal_derivative['peak_heights'])]-800,signal_derivative[np.argmax(signal_derivative['peak_heights'])]+800])
+
+        axs[1].plot(signal_derivative[signal_derivative[np.argmax(signal_derivative['peak_heights'])]-bw:signal_derivative[np.argmax(signal_derivative['peak_heights'])]])
+        axs[0].scatter(xmin,signal_derivative[xmin],marker='x',color='orange',label='Stable point')
+        axs[0].scatter(x_alignment,signal_derivative[x_alignment],marker='+',color='green',label='Alignment point')
+        axs[1].set_title('Alignment')
+        axs[0].legend()
+        plt.show()
+
+    final = signal[x_alignment-1000:x_alignment+19000]
+
+    return xmin,x_alignment, final
 
 def initialize_canvas():
     # Initialize the plot
