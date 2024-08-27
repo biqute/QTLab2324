@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO,
 logger = logging.getLogger()
 
 folders = ['1yYLE5oZD8xLRU-p8sOcruevWP0dqUzAT','19y3UZN5FfFp0G1GCUJGydX3f8oTiwivq','12Cq--BfZONfpXNnzqw1xnwpKd4HLN5QY','1EZwnzFDOlW20t1Ufkj66OG_oNNCVGLGK']
-
+#fol = '19F46cleU0lT0n0rCs3udu19ywrZpK6bM'
 for fol in folders:
     try:
         logger.info(f"Running script for folder ID: {fol}")

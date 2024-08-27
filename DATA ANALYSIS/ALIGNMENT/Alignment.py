@@ -8,8 +8,8 @@ from matplotlib import rc
 import winsound
 sys.path.append(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\DATA ANALYSIS')
 from UTILS.load_data import get_data, in_memory
-from UTILS.drive import upload_file_to_drive
-from UTILS.Trigger import derivative_trigger, live_show, align_signal
+from UTILS.drive import upload_file_to_drive, read_hdf5_file_phase
+from UTILS.Trigger import align_definitive, live_show
 
 # Matplotlib configuration
 rc('text', usetex=False)
@@ -39,7 +39,7 @@ def main():
     
     try:
         files, svc = get_data(folder_id=str(sys.argv[1]), max_files=1000)
-        hdf5_file_path = 'data'+str(sys.argv[1])+'.hdf5'  # Path for the HDF5 file to create
+        hdf5_file_path = 'phase'+str(sys.argv[1])+'.hdf5'  # Path for the HDF5 file to create
     except Exception as e:
         logger.error(f"Failed to retrieve data: {e}")
         sys.exit(1)
@@ -48,7 +48,7 @@ def main():
 
     # Start live_show in a separate process
     logger.info("Starting live_show process...")
-    live_show_process = multiprocessing.Process(target=live_show, args=('Alignments.txt',))
+    live_show_process = multiprocessing.Process(target=live_show, args=('Phase_Alignments.txt',))
     live_show_process.start()
 
     with h5py.File(hdf5_file_path, 'w') as hdf5_file:
@@ -67,29 +67,23 @@ def main():
             signal = data[idx]
 
             try: 
-                logger.info("Triggering...")
-                a, b, _ = derivative_trigger(signal, 100, plot=False)
+                logger.info("Aligning...")
+                xmin,x_alignment, final = align_definitive(signal)
+
             except Exception as e:
-                logger.error(f"Something went wrong with trigger: {e}")
+                logger.error(f"Something went wrong with aligning: {e}")
                 continue  # Continue to the next file
 
-            if (b<int(2.5e5) and b>int(1.5e5)):
+            if (x_alignment<int(2.5e5) and x_alignment>int(1.5e5)):
 
-                with open('Alignments.txt', 'a') as align_file:
-                    align_file.writelines(str(b) + '\n')
-
-                try:
-                    logger.info("Aligning...")
-                    final, _ = align_signal(data, 100, 1000, 20000)
-                except Exception as e:
-                    logger.warning(f"Could not align signal! {e}")
-                    final = None  # Handle the case where alignment fails
+                with open('Phase_Alignments.txt', 'a') as align_file:
+                    align_file.writelines(str(xmin) + '\n')
                     
                 try:
                     logger.info("Creating datasets")
                     if final is not None:
-                        hdf5_file.create_dataset(f'Raw data{i}', data=final, compression='gzip', compression_opts=9)
-                    hdf5_file.create_dataset(f'Noise{i}', data=noise, compression='gzip', compression_opts=9)
+                        hdf5_file.create_dataset(f'Phase {i}', data=final, compression='gzip', compression_opts=9)
+                    hdf5_file.create_dataset(f'Noise {i}', data=noise, compression='gzip', compression_opts=9)
                 except Exception as e:
                     logger.error(f"Could not create dataset: {e}")
                     continue  # Continue to the next file
@@ -112,7 +106,7 @@ def main():
         live_show_process.terminate()
     logger.info("live_show process completed.")
 
-    upload_folder_id = '1F7OUtFBa1pjhLHwCA0mb6zoNt4UwXyfr'
+    upload_folder_id = '1pUCsPeoKDL4KikgSL0J6NiJxl9QAu_xY'
 
     try:
         # Upload to Google Drive
