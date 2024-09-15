@@ -84,6 +84,13 @@ def read_hdf5_file(file_stream):
         dataset = f['Signals']['I'][:]
     return dataset
 
+def read_hdf5_file_Q(file_stream):
+    # Use h5py to read from the in-memory file (BytesIO stream)
+    with h5py.File(file_stream, 'r') as f:
+        # Assuming 'Signals/I' is the correct path inside the HDF5 structure
+        dataset = f['Signals']['Q'][:]
+    return dataset
+
 def read_hdf5_file_phase(file_stream):
     # Use h5py to read from the in-memory file (BytesIO stream)
     with h5py.File(file_stream, 'r') as f:

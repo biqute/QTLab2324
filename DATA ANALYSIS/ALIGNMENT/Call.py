@@ -17,7 +17,7 @@ folders = ['1yYLE5oZD8xLRU-p8sOcruevWP0dqUzAT','19y3UZN5FfFp0G1GCUJGydX3f8oTiwiv
 for fol in folders:
     try:
         logger.info(f"Running script for folder ID: {fol}")
-        drive.run_script(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\DATA ANALYSIS\ALIGNMENT\Alignment.py', fol)
+        drive.run_script(r'C:\Users\ricca\Desktop\MAGISTRALE\QTLab2324\DATA ANALYSIS\ALIGNMENT\Alignment_Q.py', fol)
         drive.play_alert_sound()
     except Exception as e:
         logger.error(f"Error running script for folder ID {fol}: {e}")

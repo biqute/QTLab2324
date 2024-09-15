@@ -18,7 +18,7 @@ def in_memory(file, service):
         file_stream = drive.download_file_to_memory(service, file_id)
 
     # Now read the HDF5 files from memory
-    data = drive.read_hdf5_file_phase(file_stream)
+    data = drive.read_hdf5_file_Q(file_stream)
 
     return data
 
